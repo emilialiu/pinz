@@ -22,6 +22,7 @@ public class HelloServiceImpl implements Iface {
 	@Override
 	public String sayHello(String username) throws TException {
 		// TODO Auto-generated method stub
+		
 		return "hello " + username;
 	}
 
