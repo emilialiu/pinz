@@ -3,6 +3,7 @@
  */
 package com.lyp.main;
 
+import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,7 +44,7 @@ public class TestController{
 	 public  static  final int  SERVER_PORT = 8000;
 	    public void startServer() {
 	        try {
-	            System.out.println("HelloWorld TSimpleServer start ....");
+	            System.out.println("HelloWorld TSimpleServer start .....");
 
 	            //在这里调用了 HelloWorldImpl 规定了接受的方法和返回的参数
 	            TProcessor tprocessor = new HelloWorldService.Processor<HelloWorldService.Iface>( new HelloServiceImpl());
@@ -55,6 +56,7 @@ public class TestController{
 
 	            TServer server = new TSimpleServer(tArgs);
 	            server.serve();
+	            
 	            
 //	            // 非阻塞式的，配合TFramedTransport使用
 //		    	System.out.println("thrift server open port 8000");
