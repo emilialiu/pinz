@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.T_bi_exprightDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.bi.entity.T_bi_exprightEntity" >
+		<result column="rightid" property="rightid"/>
+		<result column="cooperateent" property="cooperateent"/>
+		<result column="mineralstage" property="mineralstage"/>
+		<result column="mineraltype" property="mineraltype"/>
+		<result column="rightgetway" property="rightgetway"/>
+		<result column="totalamount" property="totalamount"/>
+		<result column="year1amount" property="year1amount"/>
+		<result column="year2amount" property="year2amount"/>
+		<result column="year3amount" property="year3amount"/>
+		<result column="stateamount" property="stateamount"/>
+		<result column="localamount" property="localamount"/>
+		<result column="enterpriseamount" property="enterpriseamount"/>
+		<result column="foreignamount" property="foreignamount"/>
+		<result column="personalamount" property="personalamount"/>
+		<result column="otheramount" property="otheramount"/>
+		<result column="result" property="result"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+		   
+	<!-- t_bi_expright table all fields -->
+	<sql id="Base_Column_List" >
+		rightid, 
+		cooperateent, 
+		mineralstage, 
+		mineraltype, 
+		rightgetway, 
+		totalamount, 
+		year1amount, 
+		year2amount, 
+		year3amount, 
+		stateamount, 
+		localamount, 
+		enterpriseamount, 
+		foreignamount, 
+		personalamount, 
+		otheramount, 
+		result, 
+		remark
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询探矿权信息表信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  t_bi_expright 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询探矿权信息表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_expright 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 探矿权信息表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_bi_expright 
+		WHERE 
+		rightid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_bi_expright(
+		rightid, 
+		cooperateent, 
+		mineralstage, 
+		mineraltype, 
+		rightgetway, 
+		totalamount, 
+		year1amount, 
+		year2amount, 
+		year3amount, 
+		stateamount, 
+		localamount, 
+		enterpriseamount, 
+		foreignamount, 
+		personalamount, 
+		otheramount, 
+		result, 
+		remark
+		)
+		VALUES(		
+		#{rightid}, 
+		#{cooperateent}, 
+		#{mineralstage}, 
+		#{mineraltype}, 
+		#{rightgetway}, 
+		#{totalamount}, 
+		#{year1amount}, 
+		#{year2amount}, 
+		#{year3amount}, 
+		#{stateamount}, 
+		#{localamount}, 
+		#{enterpriseamount}, 
+		#{foreignamount}, 
+		#{personalamount}, 
+		#{otheramount}, 
+		#{result}, 
+		#{remark}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_bi_expright 
+		SET 		
+		rightid = #{rightid}, 
+		cooperateent = #{cooperateent}, 
+		mineralstage = #{mineralstage}, 
+		mineraltype = #{mineraltype}, 
+		rightgetway = #{rightgetway}, 
+		totalamount = #{totalamount}, 
+		year1amount = #{year1amount}, 
+		year2amount = #{year2amount}, 
+		year3amount = #{year3amount}, 
+		stateamount = #{stateamount}, 
+		localamount = #{localamount}, 
+		enterpriseamount = #{enterpriseamount}, 
+		foreignamount = #{foreignamount}, 
+		personalamount = #{personalamount}, 
+		otheramount = #{otheramount}, 
+		result = #{result}, 
+		remark = #{remark}
+		WHERE 
+		rightid = #{rightid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_bi_expright		
+		WHERE 
+		rightid = #{rightid} 		
+	</delete>
+	
+</mapper>   

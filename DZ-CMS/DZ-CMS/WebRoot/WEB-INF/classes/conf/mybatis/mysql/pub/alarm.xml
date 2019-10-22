@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.pub.dao.AlarmDao"> 
+	
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		alarmid,alarmtitle,date_format(addtime,'%Y-%m-%d') addtime,a.memo,date_format(handletime,'%Y-%m-%d %H:%i:%s') handletime,handlecontent,handleaddres
+	</sql>
+	
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (alarmtitle like '%${param}%')
+			</if>
+			<if test="alarmid != null and alarmid != '' and alarmid !='null'" >
+				and alarmid=#{alarmid}
+			</if>
+			<if test="alarmtype != null and alarmtype != ''" >
+				and alarmtype=#{alarmtype}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		INSERT INTO T_PUB_ALARM(alarmid,alarmtitle,alarmtype,alarmlevel,addtime,memo,handletype,handlename)
+		VALUES(#{alarmid},#{alarmtitle},#{alarmtype},#{alarmlevel},#{addtime},#{memo},#{handletype},#{handleaddres})
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object">
+		UPDATE T_PUB_ALARM SET handletype=#{handletype},handletime=#{handletime},handlecontent=#{handlecontent} 
+		WHERE alarmid=#{alarmid}
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM T_PUB_ALARM WHERE alarmid=#{alarmid}
+	</delete>
+	<select id="selectById" resultType="com.dimine.pub.entity.AlarmEntity" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM T_PUB_ALARM a WHERE alarmid = #{alarmid}
+	</select>
+	
+	<!-- 根据当前登录人id取得此人处理的告警信息列表 -->
+	<select id="getAlarmListByUserid" resultType="com.dimine.pub.entity.AlarmEntity" parameterType="java.lang.String">
+			select 
+			alarmid,
+			m.mid,
+			ALARMTITLE,
+			handlecontent,
+			handleaddres ,
+			getDictName(ALARMTYPE) as ALARMTYPE,
+			getDictName(ALARMLEVEL) AS ALARMLEVEL,
+			date_format(ADDTIME,'%Y-%m-%d %H:%i:%s') as  ADDTIME,
+			MEMO,
+			getDictName(HANDLETYPE) AS HANDLETYPE,
+			date_format(HANDLETIME,'%Y-%m-%d %H:%i:%s') as HANDLETIME,
+			HANDLENAME,
+			(select username from sys_user where userid = HANDLENAME) as handlename,
+			HANDLECONTENT,
+			HANDLEADDRES
+			 FROM t_pub_alarm  t LEFT JOIN T_Pub_MessageVist as m on t.alarmid = m.bizid
+			where 1=1	  and HANDLETYPE='CLZT001'  and m.userid=  #{userid}  and m.mid is not null 
+	</select>
+	
+	<!-- 根据当前登录人id取得此人处理的告警信息列表 -->
+	<select id="getAlarmListByUserid1" resultType="com.dimine.pub.entity.AlarmEntity" parameterType="Object">
+		SELECT alarmid,alarmtitle, d2.PARAMNAME alarmtype, d1.PARAMNAME alarmlevel,
+		left(addtime,11) addtime,handlecontent,memo
+		FROM T_PUB_ALARM d
+		LEFT JOIN SYS_DICT d1 ON d.alarmlevel = d1.DICTID 
+		LEFT JOIN SYS_DICT d2 ON d.alarmtype = d2.DICTID 
+		WHERE handletype = 'CLZT001' 
+		<if test="alarmtype != null and alarmtype != ''" >
+		and alarmtype=#{alarmtype}
+		</if>
+		ORDER BY ADDTIME desc
+	</select>
+
+	<!-- 系统告警列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		select 
+			count(1)
+			 FROM t_pub_alarm  t LEFT JOIN T_Pub_MessageVist as m on t.alarmid = m.bizid
+		<include refid="Base_Where"/>
+		 and HANDLETYPE='CLZT001' and m.userid=  #{userid}  and m.mid is not null
+	</select>
+
+	<!-- 查询告警列表 -->
+	<select id="selectByList" resultType="com.dimine.pub.entity.AlarmEntity" parameterType="Object">
+<!-- 		SELECT 
+		<include refid="Base_Column_List"/>, d.PARAMNAME alarmtype, d1.PARAMNAME alarmlevel, d2.PARAMNAME handletype, u.username handlename 
+		FROM T_PUB_ALARM a LEFT JOIN SYS_DICT d ON a.alarmtype = d.DICTID 
+		LEFT JOIN SYS_DICT d1 ON a.alarmlevel = d1.DICTID 
+		LEFT JOIN SYS_DICT d2 ON a.handletype = d2.DICTID 
+		LEFT JOIN SYS_USER u ON a.HANDLENAME = u.USERID -->
+			select 
+			alarmid,
+			m.mid,
+			ALARMTITLE,
+			handlecontent,
+			handleaddres ,
+			ALARMTYPE,
+			getDictName(ALARMTYPE) as alarmtypename,
+			getDictName(ALARMLEVEL) AS ALARMLEVEL,
+			date_format(ADDTIME,'%Y-%m-%d %H:%i:%s') as  ADDTIME,
+			MEMO,
+			getDictName(HANDLETYPE) AS HANDLETYPE,
+			date_format(HANDLETIME,'%Y-%m-%d %H:%i:%s') as HANDLETIME,
+			HANDLENAME,
+			(select username from sys_user where userid = HANDLENAME) as handlename,
+			HANDLECONTENT,
+			HANDLEADDRES
+			 FROM t_pub_alarm  t LEFT JOIN T_Pub_MessageVist as m on t.alarmid = m.bizid
+		<include refid="Base_Where"/>
+		 and HANDLETYPE='CLZT001'  and m.userid=  #{userid}  and m.mid is not null 
+		ORDER BY ADDTIME desc
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.home.dao.Dz_home_page_managerDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.home.entity.Dz_home_page_managerEntity" >
+		<result column="id" property="id"/>
+		<result column="img_url" property="img_url"/>
+		<result column="is_start" property="is_start"/>
+		<result column="sort" property="sort"/>
+		<result column="create_time" property="create_time"/>
+		<result column="create_by" property="create_by"/>
+		<result column="update_time" property="update_time"/>
+		<result column="update_by" property="update_by"/>
+		<result column="remarks" property="remarks"/>
+	</resultMap>
+		   
+	<!-- dz_home_page_manager table all fields -->
+	<sql id="Base_Column_List" >
+		id, 
+		img_url, 
+		is_start, 
+		if(is_start=0,"启用","停用") as isstart,
+		sort, 
+		create_time, 
+		create_by, 
+		update_time, 
+		update_by, 
+		remarks
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询首页banner管理信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_home_page_manager 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询首页banner管理信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_home_page_manager 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 首页banner管理信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_home_page_manager 
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_home_page_manager(
+		id, 
+		img_url, 
+		is_start, 
+		sort, 
+		create_time, 
+		create_by, 
+		remarks
+		)
+		VALUES(		
+		#{id}, 
+		#{img_url}, 
+		#{is_start}, 
+		#{sort}, 
+		Now(), 
+		#{create_by}, 
+		#{remarks}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_home_page_manager 
+		SET 		
+		id = #{id}, 
+		img_url = #{img_url}, 
+		is_start = #{is_start}, 
+		sort = #{sort}, 
+		update_time = Now(), 
+		update_by = #{update_by}, 
+		remarks = #{remarks}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_home_page_manager		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

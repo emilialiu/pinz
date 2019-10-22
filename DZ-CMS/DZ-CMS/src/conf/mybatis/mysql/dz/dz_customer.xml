@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.dz.dao.Dz_customerDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.dz.entity.Dz_customerEntity" >
+		<result column="uid" property="uid"/>
+		<result column="openid" property="openid"/>
+		<result column="vip_level" property="vip_level"/>
+		<result column="name" property="name"/>
+		<result column="nick_name" property="nick_name"/>
+		<result column="head_url" property="head_url"/>
+		<result column="integral_num" property="integral_num"/>
+		<result column="sex" property="sex"/>
+		<result column="union_id" property="union_id"/>
+		<result column="city" property="city"/>
+		<result column="province" property="province"/>
+		<result column="country" property="country"/>
+		<result column="create_time" property="create_time"/>
+		<result column="last_logon_time" property="last_logon_time"/>
+		<result column="belong_agent" property="belong_agent"/>
+	</resultMap>
+		   
+	<!-- dz_customer table all fields -->
+	<sql id="Base_Column_List" >
+		uid, 
+		openid, 
+		vip_level, 
+		if(vip_level=0,"普通","会员") as viplevelname,
+		name, 
+		nick_name, 
+		head_url, 
+		integral_num, 
+		sex, 
+		if(sex=0,"男","女") as sexname,
+		union_id, 
+		city, 
+		province, 
+		country, 
+		create_time, 
+		last_logon_time, 
+		belong_agent
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1 and belong_agent = #{belong_agent}
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and name like '%${param}%'
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询会员信息信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_customer 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询会员信息信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_customer 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 会员信息信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_customer 
+		WHERE 
+		a.uid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_customer(
+		uid, 
+		openid, 
+		vip_level, 
+		name, 
+		nick_name, 
+		head_url, 
+		integral_num, 
+		sex, 
+		union_id, 
+		city, 
+		province, 
+		country, 
+		create_time, 
+		belong_agent
+		)
+		VALUES(		
+		#{uid}, 
+		#{openid}, 
+		#{vip_level}, 
+		#{name}, 
+		#{nick_name}, 
+		#{head_url}, 
+		#{integral_num}, 
+		#{sex}, 
+		#{union_id}, 
+		#{city}, 
+		#{province}, 
+		#{country}, 
+		Now(),
+		#{belong_agent}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_customer 
+		SET 		
+		uid = #{uid}, 
+		openid = #{openid}, 
+		vip_level = #{vip_level}, 
+		name = #{name}, 
+		nick_name = #{nick_name}, 
+		head_url = #{head_url}, 
+		integral_num = #{integral_num}, 
+		sex = #{sex}, 
+		union_id = #{union_id}, 
+		city = #{city}, 
+		province = #{province}, 
+		country = #{country}
+		WHERE 
+		uid = #{uid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_customer		
+		WHERE 
+		uid = #{uid} 		
+	</delete>
+</mapper>   

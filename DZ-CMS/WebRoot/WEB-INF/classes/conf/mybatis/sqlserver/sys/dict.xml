@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.DictDao">
+<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.DictTypeEntity" >
+	<result column="dictid" property="code"/>
+		<result column="dicttypeid" property="typeid"/>
+		<result column="paramname" property="paramname"/>
+		<result column="paramremark" property="paramremark"/>
+		<result column="orderno" property="orderno"/>
+		<result column="canmodify" property="canmodify"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		 tempcolumn=0,dictid,dicttypeid,ParamName,canmodify,orderno,paramremark
+	</sql>
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (dictid like '%'+#{param}+'%' or ParamName like '%'+#{param}+'%')
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	<!-- 查询字典类型基本信息 -->
+	<select id="selectById" parameterType="java.lang.String" resultType="com.dimine.sys.entity.DictEntity">
+		SELECT dictid as code, DictTypeID as typeid, paramname, 
+			paramremark, parentid, canmodify, orderno 
+		FROM sys_dict WHERE dictid=#{value}
+	</select>
+	
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.sys.entity.DictEntity">
+		INSERT INTO sys_dict (DictID,DictTypeID, ParamName, ParamRemark, CanModify, OrderNO, ParentID) 
+		values(#{code}, #{typeid}, #{paramname}, #{paramremark}, #{canmodify}, #{orderno}, #{parentid})
+	</insert>
+	
+	<update id="update" parameterType="com.dimine.sys.entity.DictEntity">
+		UPDATE sys_dict SET  ParamName=#{paramname},
+			ParamRemark=#{paramremark},CanModify=#{canmodify}, parentid=#{parentid}, orderno=#{orderno} 
+		WHERE DictID=#{code}
+	</update>
+
+	<!-- 删除记录信息 -->
+	<delete id="delete" parameterType="java.lang.String">
+		DELETE FROM sys_dict WHERE dictID = #{value}
+	</delete>
+	
+	<!--根据属性类型删除属性 -->
+	<delete id="deleteByTypeCode" parameterType="java.lang.String">
+		DELETE FROM sys_dict WHERE DictTypeID = #{value}
+	</delete>
+	
+	<!-- 查询字典类型翻页列表信息 -->
+	<select id="selectByList" parameterType="com.dimine.sys.entity.DictEntity"
+		resultType="com.dimine.sys.entity.DictEntity">
+		select tt.temprownumber,tt.tempcolumn,tt.DictID code, tt.DictTypeID typeid, tt.ParamName, 
+				tt.canmodify, tt.orderno, tt.paramremark 
+		from (
+		    select row_number()over(order by tempcolumn)temprownumber,*
+		    from (select top ${pager.endrow} 
+			<include refid="Base_Column_List"/>
+			FROM sys_dict 
+		    <include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		    )t
+		)tt where temprownumber>=${pager.startrow}
+	</select>
+
+	<!-- 查询字典类型翻页列表总共记录条数 -->
+	<select id="selectByCount" parameterType="com.dimine.sys.entity.DictEntity" resultType="java.lang.Integer">
+		SELECT count(*) FROM sys_dict
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 查看指定编号的资源类型是否已经存在 -->
+	<select id="countByCode" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM sys_dicttype WHERE dicttypeid=#{value}
+	</select>
+	
+	<!-- 获得该属性 最大的那个编号 -->
+	<select id="maxDictid" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT max(dictid) FROM SYS_DICT WHERE dicttypeid=#{value}
+	</select>
+
+	<!-- 根据资源编号获得资源名称 -->
+	<select id="dictNameByid" parameterType="java.lang.String" resultType="java.lang.String" useCache="true">
+		SELECT paramname FROM sys_dict WHERE dictid=#{value}
+	</select>
+</mapper>   

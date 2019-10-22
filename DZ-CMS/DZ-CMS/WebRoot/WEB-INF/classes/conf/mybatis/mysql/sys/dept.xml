@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.DeptDao" > 
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.DeptEntity" >
+		<result column="deptid" property="deptid"/>
+		<result column="deptCode" property="deptCode"/>
+		<result column="deptname" property="deptname"/>
+		<result column="parentdeptid" property="parentdeptid"/>
+		<result column="managerid" property="managerid"/>
+		<result column="tel" property="tel"/>
+		<result column="fax" property="fax"/>
+		<result column="address" property="address"/>
+		<result column="email" property="email"/>
+		<result column="memo" property="memo"/>
+		<result column="createman" property="createman"/>
+		<result column="modifyman" property="modifyman"/>
+		<result column="orglevel" property="orglevel"/>
+		<result column="orgtype" property="orgtype"/>
+		<result column="orderNo" property="orderNo"/>
+		<result column="isOrg" property="isOrg"/>
+		<result column="orgID" property="orgID"/>
+	</resultMap>
+	
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		deptid,deptCode,deptname,parentdeptid,managerid,tel,fax,address,email,memo,createman,modifyman,orglevel,orgtype,orderNo,isOrg,orgID
+	</sql>
+	
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="deptid != null and deptid != ''" >
+				and deptid =  #{deptid}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 查询部门信息 -->
+	<select id="selectdeptname" resultType="com.dimine.sys.entity.DeptEntity" parameterType="string">
+		SELECT deptid, deptname, parentdeptid, orglevel, isOrg,orgtype,
+			(select count(1) from sys_dept b where b.parentdeptid = a.deptid and b.DELFLAG = '0') childCount
+		FROM sys_dept a WHERE delflag = '0'
+		and deptid=#{deptid}
+		ORDER BY orderno, deptid
+	</select>
+	
+	<!-- 查询系统角色列表 -->
+	<select id="getAllList" resultType="com.dimine.sys.entity.DeptEntity" parameterType="string">
+	<!-- cacheModel="dept-cache" -->
+		SELECT deptid, deptname, parentdeptid, orglevel, isOrg,orgtype,
+			(select count(1) from sys_dept b where b.parentdeptid = a.deptid and b.DELFLAG = '0') childCount
+		FROM sys_dept a WHERE delflag = '0'
+		<if test="_parameter ==null or _parameter=='' " >
+			and parentdeptid is null
+		</if>
+		<if test="_parameter != null and _parameter != ''" >
+			and parentdeptid = #{_parameter}
+		</if>
+		ORDER BY orderno, deptid
+	</select>
+	<select id="getAllList1" resultType="com.dimine.sys.entity.DeptEntity" parameterType="string">
+	<!--只有组织机构的树 -->
+		SELECT deptid, deptname, parentdeptid, orglevel, isOrg,orgtype,
+			(select count(1) from sys_dept b where b.parentdeptid = a.deptid and b.DELFLAG = '0' and b.ISORG=1) childCount
+		FROM sys_dept a WHERE delflag = '0' and ISORG=1
+		<if test="_parameter ==null or _parameter=='' " >
+			and parentdeptid is null
+		</if>
+		<if test="_parameter != null and _parameter != ''" >
+			and parentdeptid = #{_parameter}
+		</if>
+		ORDER BY orderno, deptid
+	</select>
+		<select id="getAllList2" resultType="com.dimine.sys.entity.DeptEntity" parameterType="string">
+	<!-- 只有某个部门的树 -->
+		SELECT deptid, deptname, parentdeptid, orglevel, isOrg,
+			(select count(1) from sys_dept b where b.parentdeptid = a.deptid and b.DELFLAG = '0') childCount
+		FROM sys_dept a WHERE delflag = '0' and ISORG=0
+		<if test="_parameter ==null or _parameter=='' " >
+			and parentdeptid is null
+		</if>
+		<if test="_parameter != null and _parameter != ''" >
+			and parentdeptid = #{_parameter}
+		</if>
+		ORDER BY orderno, deptid
+	</select>
+	<!-- 根据orgtype查询公司deptid -->
+	<select id="getOrgtype" resultType="com.dimine.sys.entity.DeptEntity" parameterType="string">
+	select * from  sys_dept where orgtype=#{orgtype}
+	</select>
+	
+	
+	<!-- 查询系统角色列表 -->
+	<select id="getDept" resultType="com.dimine.sys.entity.DeptEntity" parameterType="string">
+		select de.deptid,de.deptCode,de.deptname,de.parentdeptid,de.managerid,de.tel,de.fax,de.address,de.memo,de.createman,de.modifyman,
+			de.orderNo,de.isOrg,de.orgID,de.orglevel,de.orgtype,pde.deptname as parentdeptname
+		from sys_dept de
+		left join sys_dept pde on de.parentdeptid = pde.deptid
+		where de.deptid = #{_parameter}
+	</select>
+	<!-- 查询是否有相同节点 -->
+	<select id="getSamenode" resultType="int" parameterType="com.dimine.sys.entity.DeptEntity">
+		SELECT COUNT(*) FROM sys_dept WHERE parentdeptid=#{parentdeptid}
+		AND deptname = #{deptname} and deptid != #{deptid} AND delflag = '0'
+	</select>
+	<!-- 机构代码是否存在 -->
+	<select id="getCodeexist" parameterType="com.dimine.sys.entity.DeptEntity" resultType="int">
+		SELECT COUNT(*) FROM sys_dept WHERE deptCode = #{deptCode} and
+		deptid != #{deptid} AND delflag = '0'
+	</select>
+	<!-- 查询指定节点的所有上级节点为组织的节点 -->
+	<select id="getOrgID" parameterType="string" resultType="string">
+		 SELECT sj.orgid as deptid from sys_dept sj where sj.deptid=#{id} and sj.delflag = '0' 
+	</select>
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_dept (deptid, deptname, parentdeptid, managerid, tel, fax, memo, delflag, 
+			createdate, createman, deptcode, address, isorg, orgid, orglevel,orgtype,orderNo) 
+		VALUES(#{deptid}, #{deptname}, #{parentdeptid}, #{managerid}, #{tel}, #{fax}, #{memo}, #{delflag}, 
+			now(), #{createman}, #{deptCode}, #{address}, #{isOrg}, #{orgID}, #{orglevel},#{orgtype},#{orderNo})
+	</insert>
+	<!-- 统计指定部门的子部门树 -->
+	<select id="getcountChild" parameterType="java.lang.String" resultType="int">
+		SELECT COUNT(0) count FROM sys_dept WHERE parentdeptid=#{id} AND delflag = '0'
+	</select>
+	<!-- 删除与该部门相关的所有的用户数据 -->
+	<delete id="deleteUser" parameterType="string">
+		DELETE FROM sys_dept_employee WHERE deptid = #{id}
+	</delete>
+	<!-- 删除部门 -->
+	<update id="deleteDept" parameterType="string">
+		update sys_dept set delflag='1' where deptid = #{id}
+	</update>
+	<update id="update" parameterType="com.dimine.sys.entity.DeptEntity">
+		UPDATE sys_dept
+		SET deptname=#{deptname},
+		<if test="parentdeptid !=null and  parentdeptid!='' ">
+			parentdeptid =#{parentdeptid},
+		</if>
+		managerid=#{managerid}, tel=#{tel}, fax=#{fax}, memo=#{memo}, modifydate=now(), modifyman=#{modifyman}, deptCode=#{deptCode},
+		address=#{address}, isOrg=#{isOrg}, orgid=#{orgID},orglevel=#{orglevel},orgtype=#{orgtype},orderNo=#{orderNo} 
+		WHERE deptid=#{deptid}
+	</update>
+	<update id="updateManager" parameterType="com.dimine.sys.entity.DeptEntity">
+		UPDATE sys_dept SET managerid=#{managerid} WHERE deptid=#{deptid}
+	</update>
+	<!-- 查询指定节点的所有下级节点为不是组织的节点 -->
+	<select id="isNotorgchild" parameterType="string" resultType="string">
+		select deptid from sys_dept where FIND_IN_SET(deptid, FUNC_PARENT_LIST(#{deptID})) and deptid <![CDATA[<>]]> #{deptID} AND ISORG ='0'
+	</select>
+	<!-- 修改所有指定节点及其子节点的组织ID -->
+	<update id="Updateorgidchilds" parameterType="map">
+		UPDATE sys_dept SET orgID=#{orgID} WHERE deptid =#{deptid}
+	</update>
+	<!-- 根据登陆人ID，查询登录人组织机构 -->
+	<select id="getDeptByUser" parameterType="string" resultType="string">
+		SELECT DEPTID FROM SYS_DEPT_EMPLOYEE WHERE USERID=#{_parameter}
+	</select>
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="string">
+		SELECT deptid, deptCode, deptname, parentdeptid, managerid, tel, fax, memo, address, isOrg, orgID, orglevel,orgtype,orderNo, 
+			(select count(1) from sys_dept b where b.parentdeptid = a.deptid) childCount 
+		FROM sys_dept a WHERE delflag = '0' and deptid=#{value}
+	</select>
+	
+	<!-- 根据登陆人ID，查询登录人组织机构名称 -->
+	<select id="getDeptnameByUser" parameterType="string" resultType="string">
+		SELECT a.DEPTNAME FROM sys_dept a 
+		left join SYS_DEPT_EMPLOYEE b on a.deptid=b.deptid
+		where b.userid=#{value}
+	</select>
+	<!-- 根据组织ID，查询下属组织名称 -->
+	<select id="getDeptByParentid" parameterType="string" resultMap="BaseResultMap">
+		SELECT a.deptid, a.deptname FROM sys_dept a
+		LEFT JOIN sys_dept b ON a.PARENTDEPTID=b.DEPTID
+		WHERE b.DEPTID = #{value} and a.orgtype = 'ZZJGLX003' and a.isorg='1'
+	</select>
+	
+	<!-- 根据项目部的deptid查询出下面的工区，(工区在项目部的下一级) -->
+	<select id="getGgByParentDeptId" parameterType="String" resultMap="BaseResultMap">
+		select deptid, deptCode, deptname, parentdeptid, managerid, tel, fax, memo, address, isOrg, orgID, orglevel,orgtype from sys_dept t 
+			LEFT JOIN sys_dict d on d.DICTID = t.orgtype
+		where t.orgtype='ZZJGLX003' and t.delflag='0' and t.PARENTDEPTID=#{parentDeptId}
+	</select>
+
+	<!-- 获取部门信息  三维软件使用 -->
+	<select id="getDeptFor3D" parameterType="Map" resultMap="BaseResultMap">
+		SELECT deptid, deptname, parentdeptid, orglevel, isOrg,orgtype
+		FROM sys_dept a WHERE delflag = '0' 
+		and FIND_IN_SET(a.DEPTID, CONCAT(FUNC_PARENTS(#{deptid}),#{deptid}))
+		<if test="parentdeptid ==null or parentdeptid=='' " >
+			and parentdeptid is null
+		</if>
+		<if test="parentdeptid != null and parentdeptid != ''" >
+			and parentdeptid = #{parentdeptid}
+		</if>
+		ORDER BY orderno, deptid
+	</select>
+</mapper>

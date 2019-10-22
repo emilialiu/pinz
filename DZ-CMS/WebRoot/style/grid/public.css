@@ -1,0 +1,35 @@
+
+body{ background-color:#F0F8FF; color:#0C3F78}
+
+table
+{
+	border:0px;
+}
+td {
+	font-size: 13px;
+	height:20px;
+	background-color:#D4EBFD;
+}
+
+th {
+	font-size: 13px;
+	background-color:#D4EBFD;
+}
+
+/*beyond_grid�е�text�����*/
+.editer{
+	border: 0px;
+	font-size: 12px;
+	width:98%;
+	}
+	
+/*ҳ���еľ�̬lable*/
+.lable{
+	font-size: 12px;
+	background-color:#F0F6FF;
+}
+/*���ð�ť��ʽ*/
+.ext_button {
+	width:80px; height:25px;font-size: 12px;CURSOR: pointer; 
+	} 
+

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.T_bi_threeoreDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.bi.entity.T_bi_threeoreEntity" >
+		<result column="threeoreid" property="threeoreid"/>
+		<result column="mineid" property="mineid"/>
+		<result column="mineunitid" property="mineunitid"/>
+		<result column="yearvalue" property="yearvalue"/>
+		<result column="element" property="element"/>
+		<result column="reclamount" property="reclamount"/>
+		<result column="expamount" property="expamount"/>
+		<result column="extamount" property="extamount"/>
+		<result column="byqx" property="byqx"/>
+		<result column="memo" property="memo"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+	</resultMap>
+		   
+	<!-- t_bi_threeore table all fields -->
+	<sql id="Base_Column_List" >
+		threeoreid, 
+		mineid, 
+		mineunitid, 
+		yearvalue, 
+		element, 
+		reclamount, 
+		expamount, 
+		extamount,
+		byqx, 
+		memo, 
+		createid, 
+		createdate, 
+		modifyid, 
+		modifydate
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询三级矿量信息表信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  t_bi_threeore 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询三级矿量信息表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_threeore 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 三级矿量信息表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_bi_threeore 
+		WHERE 
+		threeoreid = #{id} 
+	</select>
+
+	<!-- 根据yearValue查询 三级矿量信息表信息 -->
+	<select id="selectByYearValue" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_bi_threeore 
+		WHERE 
+		yearvalue = #{yearvalue} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_bi_threeore(
+		threeoreid, 
+		mineid, 
+		mineunitid, 
+		yearvalue, 
+		element, 
+		reclamount, 
+		expamount, 
+		extamount,
+		byqx, 
+		memo, 
+		createid, 
+		createdate
+		)
+		VALUES(		
+		#{threeoreid}, 
+		#{mineid}, 
+		#{mineunitid}, 
+		#{yearvalue}, 
+		#{element}, 
+		#{reclamount}, 
+		#{expamount}, 
+		#{extamount},
+		#{byqx}, 
+		#{memo}, 
+		#{createid}, 
+		now()
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_bi_threeore 
+		SET 		 
+		mineid = #{mineid}, 
+		mineunitid = #{mineunitid}, 
+		yearvalue = #{yearvalue}, 
+		element = #{element}, 
+		reclamount = #{reclamount}, 
+		expamount = #{expamount}, 
+		extamount = #{extamount},
+		byqx=#{byqx}, 
+		memo = #{memo}, 
+		modifyid = #{modifyid}, 
+		modifydate = now()
+		WHERE 
+		threeoreid = #{threeoreid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_bi_threeore		
+		WHERE 
+		threeoreid = #{threeoreid} 		
+	</delete>
+	
+</mapper>   

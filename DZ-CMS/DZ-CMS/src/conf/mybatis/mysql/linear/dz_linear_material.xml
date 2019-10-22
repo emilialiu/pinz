@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.linear.dao.Dz_linear_materialDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.linear.entity.Dz_linear_materialEntity" >
+		<result column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="price" property="price"/>
+		<result column="remarks" property="remarks"/>
+		<result column="sort" property="sort"/>
+		<result column="create_time" property="create_time"/>
+		<result column="create_by" property="create_by"/>
+		<result column="update_time" property="update_time"/>
+		<result column="update_by" property="update_by"/>
+	</resultMap>
+		   
+	<!-- dz_linear_material table all fields -->
+	<sql id="Base_Column_List" >
+		id, 
+		name, 
+		price, 
+		remarks, 
+		sort, 
+		create_time, 
+		create_by, 
+		update_time, 
+		update_by
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询线性材质管理信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_linear_material 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询线性材质管理信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_linear_material 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 线性材质管理信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_linear_material 
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_linear_material(
+		id, 
+		name, 
+		price, 
+		remarks, 
+		sort, 
+		create_time, 
+		create_by
+		)
+		VALUES(		
+		#{id}, 
+		#{name}, 
+		#{price}, 
+		#{remarks}, 
+		#{sort}, 
+		Now(),
+		#{create_by}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_linear_material 
+		SET 		
+		id = #{id}, 
+		name = #{name}, 
+		price = #{price}, 
+		remarks = #{remarks}, 
+		sort = #{sort}, 
+		update_time =	Now(), 
+		update_by = #{update_by}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_linear_material		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

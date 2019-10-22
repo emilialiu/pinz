@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.Sys_modelmappDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.Sys_modelmappEntity" >
+		<result column="mid" property="mid"/>
+		<result column="modelid" property="modelid"/>
+		<result column="ecolname" property="ecolname"/>
+		<result column="ecolindex" property="ecolindex"/>
+		<result column="mfield" property="mfield"/>
+		<result column="isnull" property="isnull"/>
+		<result column="isscode" property="isscode"/>
+		<result column="dicttypeid" property="dicttypeid"/>
+		<result column="dtype" property="dtype"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		mid,
+		modelid,
+		ecolname,
+		ecolindex,
+		mfield,
+		isnull,
+		isscode,
+		dicttypeid,
+		dtype
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 系统角色 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM sys_modelmapp 
+		WHERE 
+		mid = #{mid} 		
+	</select>
+
+	<!-- 系统角色 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM sys_modelmapp 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询系统角色列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM sys_modelmapp 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_modelmapp(
+		mid,
+		modelid,
+		ecolname,
+		ecolindex,
+		mfield,
+		isnull,
+		isscode,
+		dicttypeid,
+		dtype
+		)
+		VALUES(		
+		#{mid},
+		#{modelid},
+		#{ecolname},
+		#{ecolindex},
+		#{mfield},
+		#{isnull},
+		#{isscode},
+		#{dicttypeid},
+		#{dtype}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE sys_modelmapp 
+		SET 		
+		mid = #{mid},
+		modelid = #{modelid},
+		ecolname = #{ecolname},
+		ecolindex = #{ecolindex},
+		mfield = #{mfield},
+		isnull = #{isnull},
+		isscode = #{isscode},
+		dicttypeid = #{dicttypeid},
+		dtype = #{dtype}
+		WHERE 
+		mid = #{mid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM sys_modelmapp		
+		WHERE 
+		mid = #{mid} 		
+	</delete>
+	
+	<!-- 获取表中所有字段信息列表 -->
+	<select id="getFieldObjects" resultType="com.dimine.sys.entity.ColumnEntity" parameterType="String">
+		select c.name codekey,c.name codevalue
+		from syscolumns c
+		where c.id = object_id(#{value})
+	</select>
+	
+	<!-- 查询码表大类的列表 -->
+	<select id="getDicttypeObjects" resultType="com.dimine.sys.entity.ColumnEntity">
+		select dicttypeid as codekey, name as codevalue from sys_dicttype order by name
+	</select>
+	
+	<!-- 根据模版ID查询不翻页列表 -->
+	<select id="selectByAll" resultType="com.dimine.sys.entity.Sys_modelmappEntity" parameterType="com.dimine.sys.entity.Sys_modelmappEntity">
+		SELECT * 
+		FROM sys_modelmapp 
+		where modelid = #{modelid}
+	</select>
+	
+	<!-- 根据字典类别ID、字典资源名称获取字典资源ID信息 -->
+	<select id="selectDictID" parameterType="com.dimine.sys.entity.DictEntity" resultType="String">
+		SELECT dictid
+		FROM sys_dict 
+		WHERE DictTypeID=#{typeid}
+		and paramname=#{paramname}
+	</select>
+	
+</mapper>   

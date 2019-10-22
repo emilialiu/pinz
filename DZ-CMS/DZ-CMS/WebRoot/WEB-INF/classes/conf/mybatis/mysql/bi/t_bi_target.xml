@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.T_bi_targetDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.bi.entity.T_bi_targetEntity" >
+		<result column="targetid" property="targetid"/>
+		<result column="procid" property="procid"/>
+		<result column="targetname" property="targetname"/>
+		<result column="targetnameen" property="targetnameen"/>
+		<result column="shortname" property="shortname"/>
+		<result column="targetunit" property="targetunit"/>
+		<result column="isused" property="isused"/>
+		<result column="isdel" property="isdel"/>
+		<result column="isedit" property="isedit"/>
+		<result column="issum" property="issum"/>
+		<result column="ismust" property="ismust"/>
+		<result column="datatype" property="datatype"/>
+		<result column="isyplan" property="isyplan"/>
+		<result column="ismplan" property="ismplan"/>
+		<result column="isproduce" property="isproduce"/>
+		<result column="isaccept" property="isaccept"/>
+		<result column="isdisplay" property="isdisplay"/>
+		<result column="ismaintarget" property="ismaintarget"/>
+		<result column="memo" property="memo"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="tal_desc" property="tal_desc"/> 
+	</resultMap>
+		   
+	<!-- t_bi_target table all fields -->
+	<sql id="Base_Column_List" >
+		targetid, 
+		t.procid, 
+		targetname, 
+		targetnameen, 
+		shortname, 
+		targetunit, 
+		isused, 
+		isdel, 
+		isedit, 
+		issum, 
+		ismust, 
+		datatype, 
+		isyplan, 
+		ismplan, 
+		isproduce, 
+		isaccept, 
+		serialno,
+		isdisplay,
+		ismaintarget,
+		hqdatatype,
+		talgorithm,
+		tal_desc,
+		isevent,
+		memo, 
+		createid, 
+		createdate, 
+		modifyid, 
+		modifydate
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1 and t.isdel='0'
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="procid != null and procid != ''" >
+				and (FIND_IN_SET(#{procid},ParentStr) or t.procid=#{procid})
+			</if>
+			<if test="stageid == 'SSJD001'" >
+				and isyplan='1'
+			</if>
+			<if test="stageid == 'SSJD002'" >
+				and IsMPlan='1'
+			</if>
+			<if test="stageid == 'SSJD003'" >
+				and IsMPlan='1'
+			</if>
+			<if test="stageid == 'SSJD004'" >
+				and IsProduce='1'
+			</if>
+			<if test="stageid == 'SSJD005'" >
+				and IsAccept='1'
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询指标信息信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>
+		,d1.paramname as targetunitname,
+		ParentStr,p1.proctname,p1.parentid,p2.proctname as parentname
+		FROM  t_bi_target t
+		LEFT JOIN sys_dict d1 on t.targetunit=d1.dictid
+		LEFT JOIN (SELECT proctname,procid ,parentid,ParentStr from t_sc_process)p1 on t.procid=p1.procid
+		LEFT JOIN (SELECT proctname,procid from t_sc_process)p2 on p1.parentid=p2.procid
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询条件 -->
+	<sql id="Base_Where_Target">
+		WHERE 1=1 and t.isdel='0'
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="procid != null and procid != ''" >
+				and t.procid=#{procid}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询指标信息信息列表 -->
+	<select id="selectByTargetList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>
+		,d1.paramname as targetunitname,
+		ParentStr,p1.proctname,p1.parentid,p2.proctname as parentname
+		FROM  t_bi_target t
+		LEFT JOIN sys_dict d1 on t.targetunit=d1.dictid
+		LEFT JOIN sys_dict d2 on t.hqdatatype=d2.dictid
+		LEFT JOIN (SELECT proctname,procid ,parentid,ParentStr from t_sc_process)p1 on t.procid=p1.procid
+		LEFT JOIN (SELECT proctname,procid from t_sc_process)p2 on p1.parentid=p2.procid
+		<include refid="Base_Where_Target"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询指标信息信息列表总数-->
+	<select id="selectByTargetCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_target t
+		LEFT JOIN sys_dict d1 on t.targetunit=d1.dictid
+		LEFT JOIN sys_dict d2 on t.hqdatatype=d2.dictid
+		LEFT JOIN (SELECT proctname,procid ,parentid,ParentStr from t_sc_process)p1 on t.procid=p1.procid
+		LEFT JOIN (SELECT proctname,procid from t_sc_process)p2 on p1.parentid=p2.procid
+		<include refid="Base_Where_Target"/>
+	</select>
+	
+	<!-- 查询指标信息信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_target t
+		LEFT JOIN sys_dict d1 on t.targetunit=d1.dictid
+		LEFT JOIN (SELECT proctname,procid ,parentid,ParentStr from t_sc_process)p1 on t.procid=p1.procid
+		LEFT JOIN (SELECT proctname,procid from t_sc_process)p2 on p1.parentid=p2.procid
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 查询指标信息信息列表 -->
+	<select id="selectTargetByProcid" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>
+		,d1.paramname as targetunitname,
+		ParentStr,p1.proctname,p1.parentid,p2.proctname as parentname
+		FROM  t_bi_target t
+		LEFT JOIN sys_dict d1 on t.targetunit=d1.dictid
+		LEFT JOIN (SELECT proctname,procid ,parentid,ParentStr from t_sc_process)p1 on t.procid=p1.procid
+		LEFT JOIN (SELECT proctname,procid from t_sc_process)p2 on p1.parentid=p2.procid
+		where t.procid=#{procid} and t.isdel='0'
+	</select>
+	
+	<!-- 根据id查询 指标信息信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_bi_target  t
+		WHERE 
+		targetid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_bi_target(
+		targetid, 
+		procid, 
+		targetname, 
+		targetnameen, 
+		shortname, 
+		targetunit, 
+		isused, 
+		isdel, 
+		isedit, 
+		issum, 
+		ismust, 
+		datatype, 
+		isyplan, 
+		ismplan, 
+		isproduce, 
+		isaccept, 
+		serialno,
+		isdisplay,
+		ismaintarget,
+		hqdatatype,
+		talgorithm,
+		tal_desc,
+		isevent,
+		memo, 
+		createid, 
+		createdate
+		)
+		VALUES(		
+		#{targetid}, 
+		#{procid}, 
+		#{targetname}, 
+		#{targetnameen},
+		#{shortname}, 
+		#{targetunit}, 
+		#{isused}, 
+		#{isdel}, 
+		#{isedit}, 
+		#{issum}, 
+		#{ismust}, 
+		#{datatype}, 
+		#{isyplan}, 
+		#{ismplan}, 
+		#{isproduce}, 
+		#{isaccept}, 
+		#{serialno},
+		#{isdisplay},
+		#{ismaintarget},
+		#{hqdatatype},
+		#{talgorithm},
+		#{tal_desc},
+		#{isevent},
+		#{memo}, 
+		#{createid}, 
+		now() 
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_bi_target 
+		SET 		
+		targetid = #{targetid}, 
+		procid = #{procid}, 
+		targetname = #{targetname}, 
+		targetnameen = #{targetnameen}, 
+		shortname = #{shortname}, 
+		targetunit = #{targetunit}, 
+		isused = #{isused}, 
+		isedit = #{isedit}, 
+		ismust = #{ismust}, 
+		datatype = #{datatype}, 
+		isyplan = #{isyplan}, 
+		ismplan = #{ismplan}, 
+		isproduce = #{isproduce}, 
+		isaccept = #{isaccept}, 
+		serialno=#{serialno},
+		issum=#{issum},
+		isdisplay=#{isdisplay},
+		ismaintarget=#{ismaintarget},
+		hqdatatype=#{hqdatatype},
+		talgorithm=#{talgorithm},
+		tal_desc=#{tal_desc},
+		isevent=#{isevent},
+		memo = #{memo},  
+		modifyid = #{modifyid}, 
+		modifydate = now()
+		WHERE 
+		targetid = #{targetid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		update t_bi_target	
+		set 
+		isdel='1'	
+		WHERE 
+		targetid = #{targetid} 		
+	</delete>
+	
+	<select id="selectByProcID" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>
+		,d1.paramname as targetunitname,t.TargetNameen
+		FROM  t_bi_target t
+		LEFT JOIN sys_dict d1 on t.targetunit=d1.dictid 
+		where procid=#{procid} and t.isdel='0'
+		<if test="isyplan != null and isyplan != ''" >
+				and t.isyplan=#{isyplan}
+		</if>
+		<if test="ismplan != null and ismplan != ''" >
+				and t.ismplan=#{ismplan}
+		</if>
+		<if test="isproduce != null and isproduce != ''" >
+				and t.isproduce=#{isproduce}
+		</if>
+		<if test="isaccept != null and isaccept != ''" >
+				and t.isaccept=#{isaccept}
+		</if>
+		<if test="isedit != null and isedit != ''" >
+				and t.isedit=#{isedit}
+		</if>
+		<if test="ismaintarget != null and ismaintarget != ''" >
+				and t.ismaintarget=#{ismaintarget}
+		</if>
+				order by SerialNo
+	</select>
+	
+	<!-- 查询工序下面指标的数量 -->
+	<select id="selectTargetCountByProcID" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1)
+		FROM  t_bi_target t
+		where procid=#{procid} and t.isdel='0'
+		<if test="isyplan != null and isyplan != ''" >
+				and t.isyplan=#{isyplan}
+		</if>
+		<if test="ismplan != null and ismplan != ''" >
+				and t.ismplan=#{ismplan}
+		</if>
+		<if test="isproduce != null and isproduce != ''" >
+				and t.isproduce=#{isproduce}
+		</if>
+		<if test="isaccept != null and isaccept != ''" >
+				and t.isaccept=#{isaccept}
+		</if>
+		<if test="isedit != null and isedit != ''" >
+				and t.isedit=#{isedit}
+		</if>
+		<if test="ismaintarget != null and ismaintarget != ''" >
+				and t.ismaintarget=#{ismaintarget}
+		</if>
+		
+		order by SerialNo
+		
+	</select>
+	
+	<select id="selectByTgorithm" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>
+		,d1.paramname as targetunitname
+		FROM  t_bi_target t
+		LEFT JOIN sys_dict d1 on t.targetunit=d1.dictid
+		where procid=#{procid} and (t.talgorithm != NULL or t.talgorithm != '') and t.isdel='0'
+		<if test="isyplan != null and isyplan != ''" >
+				and t.isyplan=#{isyplan}
+		</if>
+		<if test="ismplan != null and ismplan != ''" >
+				and t.ismplan=#{ismplan}
+		</if>
+		<if test="isproduce != null and isproduce != ''" >
+				and t.isproduce=#{isproduce}
+		</if>
+		<if test="isaccept != null and isaccept != ''" >
+				and t.isaccept=#{isaccept}
+		</if>
+		order by SerialNo
+		
+	</select>
+	
+</mapper>   

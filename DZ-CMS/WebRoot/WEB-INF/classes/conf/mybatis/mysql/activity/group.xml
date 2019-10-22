@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.activity.dao.CustomGroupDao">
+	<!-- 查询指定节点的所有上级节点为组织的节点 -->
+	<select id="findGroup" parameterType="string"
+		resultType="org.activiti.engine.impl.persistence.entity.GroupEntity">
+		select de.DEPTNAME as name from sys_user u
+		INNER JOIN sys_dept_employee sd on sd.USERID=u.USERID
+		INNER JOIN sys_dept de on de.DEPTID = sd.DEPTID
+		where u.USERNAME=#{value}
+	</select>
+</mapper>

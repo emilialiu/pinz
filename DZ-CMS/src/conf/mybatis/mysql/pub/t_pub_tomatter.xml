@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.pub.dao.T_pub_tomatterDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.pub.entity.T_pub_tomatterEntity" >
+		<result column="matterid" property="matterid"/>
+		<result column="mattername" property="mattername"/>
+		<result column="addtime" property="addtime"/>
+		<result column="mattertype" property="mattertype"/>
+		<result column="memo" property="memo"/>
+		<result column="linkurl" property="linkurl"/>
+		<result column="handletime" property="handletime"/>
+		<result column="handlename" property="handlename"/>
+	</resultMap>
+		   
+	<!-- t_pub_tomatter table all fields -->
+	<sql id="Base_Column_List" >
+		 matterid,
+		 m.mid,
+		 mattername,
+		 date_format(addtime,'%Y-%m-%d %H:%i:%s') addtime,
+		 memo,
+		 MATTERTYPE,
+		 getDictName(MATTERTYPE) as MATTERTYPENAME,
+		 date_format(handletime,'%Y-%m-%d %H:%i:%s') handletime,
+		 HANDLENAME
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<![CDATA[ and  MATTERTYPE <> 'CLZT002' and m.mid is not null and m.userid = #{userid}]]>
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询待办事项管理信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+			from  t_pub_tomatter LEFT JOIN T_Pub_MessageVist as m  on matterid=m.bizid
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询待办事项管理信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1)  from  t_pub_tomatter LEFT JOIN T_Pub_MessageVist as m  on matterid=m.bizid
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 待办事项管理信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT matterid,
+		 mattername,
+		 date_format(addtime,'%Y-%m-%d %H:%i:%s') addtime,
+		 memo,
+		 MATTERTYPE,
+		 getDictName(MATTERTYPE) as MATTERTYPENAME,
+		 date_format(handletime,'%Y-%m-%d %H:%i:%s') handletime,
+		 HANDLENAME
+		FROM t_pub_tomatter 
+		WHERE 
+		matterid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_pub_tomatter(
+		matterid, 
+		mattername, 
+		addtime, 
+		mattertype, 
+		memo, 
+		linkurl,
+		handlename
+		)
+		VALUES(		
+		#{matterid}, 
+		#{mattername}, 
+		#{addtime}, 
+		#{mattertype}, 
+		#{memo}, 
+		#{linkurl}, 
+		#{handlename}
+		)
+	</insert>
+	<insert id="insetMsgVist" parameterType="com.dimine.pub.entity.T_pub_messagevistEntity">
+	 	INSERT INTO t_pub_messagevist(mid, userid, Bizid)VALUES(#{mid}, #{userid}, #{bizid})
+	 </insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_pub_tomatter 
+		SET 		
+		<if test="mattername != null and mattername != ''" >
+				mattername = #{mattername}, 
+		</if>
+		<if test="addtime != null and addtime != ''" >
+				addtime = #{addtime}, 
+		</if>
+		<if test="mattertype != null and mattertype != ''" >
+				mattertype = #{mattertype}, 
+		</if>
+		<if test="memo != null and memo != ''" >
+				memo = #{memo}, 
+		</if>
+		<if test="handletime != null and handletime != ''" >
+				handletime = #{handletime},
+		</if>
+		<if test="handlename != null and handlename != ''" >
+				handlename = #{handlename},
+		</if>
+		linkurl = null
+		WHERE 
+		matterid = #{matterid}
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_pub_tomatter		
+		WHERE 
+		matterid = #{matterid} 		
+	</delete>
+	<!-- 删除业务表其他代办信息 -->
+		<delete id="deleteBiz" parameterType="Object">
+		<![CDATA[DELETE FROM T_Pub_MessageVist		
+		WHERE 
+		bizid =#{matterid} and userid <> #{userid}]]>
+	</delete>
+</mapper>   

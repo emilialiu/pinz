@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.LogUserDao" >
+<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.LogUserEntity" >
+		<result column="deptname" property="deptname"/>
+		<result column="username" property="username"/>
+		<result column="useip" property="useip"/>
+		<result column="usemodule" property="usemodule"/>
+		<result column="usetime" property="usetime"/>
+		<result column="useoperation" property="useoperation"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		 tempcolumn=0,log.logid,de.deptname,u.username,
+		 log.use_module,log.use_operation,log.use_ip,log.use_describle,convert(varchar, log.use_time, 120) AS use_time
+	</sql>
+	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (de.deptname like '%'+#{param}+'%' 
+				or u.username like '%'+#{param}+'%'
+				or log.use_module like '%'+#{param}+'%'
+				or log.use_operation like '%'+#{param}+'%'
+				or log.use_ip like '%'+#{param}+'%'
+				or log.use_describle like '%'+#{param}+'%'
+				)
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT * FROM (
+		select row_number()over(order by logid)temprownumber,*
+		from (
+		SELECT top ${pager.endrow}
+		<include refid="Base_Column_List"/>
+		FROM log_use log
+		left join sys_dept de on de.deptid = log.deptid 
+		left join sys_user u  on u.userid  = log.userid
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		 )t
+	)tt WHERE temprownumber>=${pager.startrow}
+</select>
+<select id="selectById" parameterType="java.lang.String" resultType="com.dimine.sys.entity.LogUserEntity">
+SELECT   log.logid , de.deptname , u.username ,log.use_module as usemodule,
+log.use_operation as useoperation,log.use_ip as useip,log.use_time as usetime
+FROM     log_use log
+LEFT JOIN sys_dept de ON de.deptid = log.deptid
+LEFT JOIN sys_user u ON u.userid = log.userid
+WHERE   log.LOGID=#{value}
+</select>
+<!-- 系统角色 列表总数 -->
+<select id="selectByCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from log_use log
+		left join sys_dept de on de.deptid = log.deptid 
+		left join sys_user u  on u.userid  = log.userid
+		<include refid="Base_Where"/>
+</select>	
+<!-- 删除记录 -->
+<delete id="delete" parameterType="Object">
+	DELETE FROM log_use WHERE logid = #{logid}
+</delete>
+<!-- 删除所有的记录 -->
+<delete id="deleteAll" parameterType="Object">
+	DELETE FROM log_use 
+</delete>
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.sys.entity.LogUserEntity">
+		INSERT INTO log_use (logid , deptid , userid,use_time,use_module, use_operation,use_describle,use_ip) 
+		values(#{logid}, #{deptid}, #{userid}, cast('2014-12-29' as datetime),'测试模块', '测试功能','测试EXCEL导入', '127.0.0.1' )
+	</insert>
+</mapper>

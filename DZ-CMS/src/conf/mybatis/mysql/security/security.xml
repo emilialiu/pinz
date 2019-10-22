@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.security.dao.SecurityDao" > 
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.security.entity.LoginUserEntity" >
+		<result column="userid" property="userid"/>
+		<result column="username" property="username"/>
+		<result column="loginname" property="loginname"/>
+		<result column="loginpwd" property="loginpwd"/>
+		<result column="usertype" property="usertype"/>
+		<result column="staffcode" property="staffcode"/>
+		<result column="station" property="station"/>
+		<result column="deptid" property="deptid"/>
+		<result column="orgid" property="orgid"/>
+	</resultMap>
+
+	<!-- 根据登录名称取用户信息-->
+	<select id="selectUserInfo" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT a.userid,b.StaffName username,a.loginname,a.loginpwd,a.usertype, 
+			b.staffcode,b.station,b.deptid,c.teamid,d.orgid
+		FROM sys_user a inner join T_SM_STAFF b on a.UserID = b.StaffID
+		inner join SYS_DEPT d on  b.DEPTID = d.DEPTID
+		left join t_sm_teamstaff c on c.staffid = a.UserID
+		where a.loginname = #{value} and a.DELFLAG = '0'
+	</select>
+
+</mapper>   

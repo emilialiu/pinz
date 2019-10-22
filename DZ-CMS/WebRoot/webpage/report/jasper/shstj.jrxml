@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="shstj"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="725"
+		 pageHeight="842"
+		 columnWidth="725"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="AllSectionsNoDetail"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false"
+		 isIgnorePagination="true">
+	<property name="ireport.zoom" value="1.0" />
+	<property name="ireport.x" value="0" />
+	<property name="ireport.y" value="0" />
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="startdate" isForPrompting="true" class="java.lang.String">
+		<parameterDescription><![CDATA[$P{startdate}]]></parameterDescription>
+	</parameter>
+	<parameter name="enddate" isForPrompting="true" class="java.lang.String">
+		<parameterDescription><![CDATA[$P{enddate}]]></parameterDescription>
+	</parameter>
+	<queryString><![CDATA[select
+			 projectName,
+			 rpll,
+			 rggksl,
+			 rggiksl,
+			 rgmksl,
+			 rnjs,
+			 if(ifnull(rcnkl,0)>0,ifnull(rcnkl,0),0) as rcnkl,
+			 rckl,
+			 ifnull(rzcl,0)  as rzcl
+		from
+		(
+			select ProjectID,projectName,
+			sum(ifnull(rbpl,0)) as rpll,
+			sum(ifnull(rgg,0)) as rggksl,
+			sum(ifnull(rggu,0)) as rggiksl,
+			sum(ifnull(rgm,0)) as rgmksl,
+			sum(ifnull(rnjs,0)) as rnjs,
+			(select sum(ifnull(ckl,0)) from t_pd_stepstorage where date_format(ReportDate,'%Y-%m-%d') >= $P{startdate} and date_format(ReportDate,'%Y-%m-%d') <= $P{enddate} and StepName=ProjectID) as rcnkl,
+			sum(ifnull(rchkl,0)) as rckl,
+			(select ifnull(sum(a.zcl),0) from T_PD_OreZC a where FIND_IN_SET(a.ZCplace,FUNC_FIND_CHILDREN_PROJECTID(ProjectID)) and a.ReportDate>= str_to_date($P{startdate},'%Y-%m-%d') and a.ReportDate<= str_to_date($P{enddate},'%Y-%m-%d')) as rzcl
+			from (
+			-- =========日实际
+			-- 爆落量
+			select d.ProjectID,d.ProjectName,
+			column_1 as rbpl,0 as rgg,0 as rggu,0 as rgm,0 as rnjs,0 as rckl,0 as rchkl,0 as rzcl
+			from T_PD_ProductionBill a
+			inner join t_pd_pbdetail b on a.PBID = b.PBID
+			inner join T_BI_ProjectInfo c on b.ProjectID = c.ProjectID
+			left join T_BI_ProjectInfo d on c.ParentItemID = d.ProjectID
+			where b.ProcID = 'e8503e3acec849e287165824a182121c' and d.ProjectLevel = 'GCJB002'
+			and a.ReportDate >= str_to_date($P{startdate},'%Y-%m-%d')
+			and a.ReportDate <= str_to_date($P{enddate},'%Y-%m-%d')
+			and d.ProjectID not in ('9fbca078a52d4df79c8229ed5f641ca4')
+			union ALL
+			-- 高钙、高硅、高镁、泥夹石,出矿量
+			select d.ProjectID,d.ProjectName,
+			0 as rbpl,column_1 as rgg,column_2 as rggu,column_3 as rgm,column_4 as rnjs,0 as rckl,(ifnull(column_1,0)+ifnull(column_2,0)+ifnull(column_3,0)+ifnull(column_4,0)) as rchkl,0 as rzcl
+			from T_PD_ProductionBill a
+			inner join t_pd_pbdetail b on a.PBID = b.PBID
+			inner join T_BI_ProjectInfo c on b.ProjectID = c.ProjectID
+			left join T_BI_ProjectInfo d on c.ParentItemID = d.ProjectID
+			where b.ProcID = '5e2b6e92a15747d39d314e0b245c6a6e' and d.ProjectLevel = 'GCJB002'
+			and a.ReportDate >= str_to_date($P{startdate},'%Y-%m-%d')
+			and a.ReportDate <= str_to_date($P{enddate},'%Y-%m-%d')
+			and d.ProjectID not in ('9fbca078a52d4df79c8229ed5f641ca4')
+			union all
+			-- 其他作业地点的产量信息放在100-112台阶
+			select '18e339b37ee244e0a2c11edfaf1260cf' as ProjectID,'100-112台阶' as ProjectName,
+			column_1 as rbpl,0 as rgg,0 as rggu,0 as rgm,0 as rnjs,0 as rckl,0 as rchkl,0 as rzcl
+			from T_PD_ProductionBill a
+			inner join t_pd_pbdetail b on a.PBID = b.PBID
+			inner join T_BI_ProjectInfo c on b.ProjectID = c.ProjectID
+			left join T_BI_ProjectInfo d on c.ParentItemID = d.ProjectID
+			where b.ProcID = 'e8503e3acec849e287165824a182121c' and d.ProjectLevel = 'GCJB002'
+			and a.ReportDate >= str_to_date($P{startdate},'%Y-%m-%d')
+			and a.ReportDate <= str_to_date($P{enddate},'%Y-%m-%d')
+			and d.ProjectID = '9fbca078a52d4df79c8229ed5f641ca4'
+			union ALL
+			-- 高钙、高硅、高镁、泥夹石,出矿量
+			-- 其他作业地点的产量信息放在100-112台阶
+			select '18e339b37ee244e0a2c11edfaf1260cf' as ProjectID,'100-112台阶' as ProjectName,
+			0 as rbpl,column_1 as rgg,column_2 as rggu,column_3 as rgm,column_4 as rnjs,0 as rckl,(ifnull(column_1,0)+ifnull(column_2,0)+ifnull(column_3,0)+ifnull(column_4,0)) as rchkl,0 as rzcl
+			from T_PD_ProductionBill a
+			inner join t_pd_pbdetail b on a.PBID = b.PBID
+			inner join T_BI_ProjectInfo c on b.ProjectID = c.ProjectID
+			left join T_BI_ProjectInfo d on c.ParentItemID = d.ProjectID
+			where b.ProcID = '5e2b6e92a15747d39d314e0b245c6a6e' and d.ProjectLevel = 'GCJB002'
+			and a.ReportDate >= str_to_date($P{startdate},'%Y-%m-%d')
+			and a.ReportDate <= str_to_date($P{enddate},'%Y-%m-%d')
+			and d.ProjectID = '9fbca078a52d4df79c8229ed5f641ca4'
+			) h group by ProjectID,ProjectName
+		) m]]></queryString>
+
+	<field name="projectName" class="java.lang.String"/>
+	<field name="rpll" class="java.lang.Double"/>
+	<field name="rggksl" class="java.lang.Double"/>
+	<field name="rggiksl" class="java.lang.Double"/>
+	<field name="rgmksl" class="java.lang.Double"/>
+	<field name="rnjs" class="java.lang.Double"/>
+	<field name="rcnkl" class="java.math.BigDecimal"/>
+	<field name="rckl" class="java.lang.Double"/>
+	<field name="rzcl" class="java.math.BigDecimal"/>
+
+	<variable name="totalrpll" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rpll}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrggksl" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rggksl}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrggiksl" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rggiksl}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrgmksl" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rgmksl}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrnjs" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rnjs}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrcnkl" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rcnkl}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrksl" class="java.lang.Double" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new java.lang.Double(  ($V{totalrggiksl}.doubleValue()) +($V{totalrgmksl}.doubleValue())+($V{totalrnjs}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrckl" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rckl}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="totalrzcl" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double(  ($F{rzcl}.doubleValue()) )]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="80"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="725"
+						height="20"
+						key="staticText-1"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[石灰石生产]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="20"
+						width="85"
+						height="60"
+						key="staticText-2"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[台段]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="85"
+						y="20"
+						width="640"
+						height="20"
+						key="staticText-3"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[累计]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="85"
+						y="40"
+						width="80"
+						height="40"
+						key="staticText-4"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[爆落量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="165"
+						y="40"
+						width="80"
+						height="20"
+						key="staticText-5"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[石灰石]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="165"
+						y="60"
+						width="80"
+						height="20"
+						key="staticText-6"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[高钙]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="245"
+						y="40"
+						width="240"
+						height="20"
+						key="staticText-7"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[剥离物及废夹石综合利用]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="245"
+						y="60"
+						width="80"
+						height="20"
+						key="staticText-8"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[高硅]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="325"
+						y="60"
+						width="80"
+						height="20"
+						key="staticText-9"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[高镁]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="405"
+						y="60"
+						width="80"
+						height="20"
+						key="staticText-10"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[泥夹石]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="485"
+						y="40"
+						width="80"
+						height="40"
+						key="staticText-4"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[存矿量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="565"
+						y="40"
+						width="80"
+						height="40"
+						key="staticText-4"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[出矿量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="645"
+						y="40"
+						width="80"
+						height="40"
+						key="staticText-4"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[转场量]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="85"
+						height="20"
+						key="textField"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{projectName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="85"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-1"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{rpll}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="165"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-2"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{rggksl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="245"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-3"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{rggiksl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="325"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-4"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{rgmksl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="405"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-5"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{rnjs}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="485"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-6"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{rcnkl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="565"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-7"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{rckl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="645"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-8"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{rzcl}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="40"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="85"
+						height="40"
+						key="staticText-11"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[合计]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="85"
+						y="0"
+						width="80"
+						height="40"
+						key="textField-21"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrpll}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="165"
+						y="0"
+						width="80"
+						height="40"
+						key="textField-22"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrggksl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="245"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-23"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrggiksl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="325"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-24"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrgmksl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="405"
+						y="0"
+						width="80"
+						height="20"
+						key="textField-25"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrnjs}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="485"
+						y="0"
+						width="80"
+						height="40"
+						key="textField-26"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrcnkl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="245"
+						y="20"
+						width="240"
+						height="20"
+						key="textField-27"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrksl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="565"
+						y="0"
+						width="80"
+						height="40"
+						key="textField-28"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrckl}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="645"
+						y="0"
+						width="80"
+						height="40"
+						key="textField-29"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{totalrzcl}]]></textFieldExpression>
+				</textField>
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sm.dao.StaffDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sm.entity.StaffEntity" >
+		<result column="staffid" property="staffid"/>
+		<result column="deptid" property="deptid"/>
+		<result column="staffcode" property="staffcode"/>
+		<result column="staffname" property="staffname"/>
+		<result column="sex" property="sex"/>
+		<result column="nation" property="nation"/>
+		<result column="age" property="age"/>
+		<result column="idcard" property="idcard"/>
+		<result column="jobtitle" property="jobtitle"/>
+		<result column="tptitle" property="tptitle"/>
+		<result column="entrydate" property="entrydate"/>
+		<result column="station" property="station"/>
+		<result column="address" property="address"/>
+		<result column="relaphone" property="relaphone"/>
+		<result column="isleaveoffice" property="isleaveoffice"/>
+		<result column="lodate" property="lodate"/>
+		<result column="loreason" property="loreason"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="memo" property="memo"/>
+		<result column="delflag" property="delflag"/>
+		<result column="operatetype" property="operatetype"/>
+		<result column="education" property="education"/>
+	</resultMap>
+
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		s.staffid,
+		s.deptid,
+		staffcode,
+		staffname,
+		sex,
+		nation,
+		age,
+		idcard,
+		jobtitle,
+		tptitle,
+		entrydate,
+		station,
+		s.address,
+		relaphone,
+		isleaveoffice,
+		lodate,
+		loreason,
+		d1.PARAMNAME operatetypename,
+		d.PARAMNAME educationname,
+		operatetype,
+		education,
+		s.createid,
+		s.createdate,
+		s.modifyid,
+		s.modifydate,
+		s.memo
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE s.delflag = '0'
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and ( staffcode like '%${param}%' or staffname like '%${param}%')
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			
+			<!-- 修改 [2015-07-08] 安全管理人员 -->
+			<if test="staffid != null and staffid != ''" >
+				and staffid = '${staffid}'
+			</if>
+		</trim>
+	</sql>
+	<!-- 查询条件 1-->
+	<sql id="Base_Where1">
+		WHERE s.delflag = '0'
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and ( staffcode like '%${param}%' or staffname like '%${param}%')
+			</if>
+			<if test="memo != null and memo != ''" >
+				and dept.ORGID=#{memo}
+			</if>
+			<if test="deptid != null and deptid != ''" >
+				and dept.deptid=#{deptid}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			
+			<!-- 修改 [2015-07-08] 安全管理人员 -->
+			<if test="staffid != null and staffid != ''" >
+				and staffid = '${staffid}'
+			</if>
+		</trim>
+	</sql>
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" />, dept.deptname deptname 
+		FROM t_sm_staff s 
+		LEFT JOIN SYS_DEPT dept ON s.deptid = dept.deptid 
+		LEFT JOIN sys_dict d on d.DICTID=s.education
+		LEFT JOIN sys_dict d1 on d1.DICTID=s.operatetype
+		WHERE staffid = #{staffid} 		
+	</select>
+
+	<!-- 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sm_staff s 
+		LEFT JOIN SYS_DEPT dept ON s.deptid = dept.deptid 
+		LEFT JOIN sys_dict d on d.DICTID=s.education
+		LEFT JOIN sys_dict d1 on d1.DICTID=s.operatetype
+		LEFT JOIN sys_dict d2 on d2.DICTID=s.sex
+		left join t_sm_teamstaff d3 on d3.staffid=s.staffid
+		left join t_sm_team d4 on d4.teamid=d3.teamid
+		<if test="deptid != null and deptid != ''" >
+			,(select FUNC_PARENT_LIST(#{deptid}) deptid ) dlist
+		</if>
+		<include refid="Base_Where"/>
+		<if test="deptid != null and deptid != ''" >
+			and FIND_IN_SET(s.deptid, dlist.deptid)
+		</if>
+		<if test="teamid != null and teamid != ''" >
+			and d4.teamid=#{teamid}
+		</if>
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>, dept.deptname deptname, d2.PARAMNAME sexname,
+		(select GROUP_CONCAT(rolename) from sys_role where roleid in 
+		(select ro.roleid from sys_user_role ro where ro.USERID = s.staffid)) as rolename
+		FROM t_sm_staff s 
+		LEFT JOIN SYS_DEPT dept ON s.deptid = dept.deptid 
+		LEFT JOIN sys_dict d on d.DICTID=s.education
+		LEFT JOIN sys_dict d1 on d1.DICTID=s.operatetype
+		LEFT JOIN sys_dict d2 on d2.DICTID=s.sex
+		left join t_sm_teamstaff d3 on d3.staffid=s.staffid
+		left join t_sm_team d4 on d4.teamid=d3.teamid
+		<if test="deptid != null and deptid != ''" >
+			,(select FUNC_PARENT_LIST(#{deptid}) deptid ) dlist
+		</if>
+		<include refid="Base_Where"/>
+		<if test="deptid != null and deptid != ''" >
+			and FIND_IN_SET(s.deptid, dlist.deptid)
+		</if>
+		<if test="teamid != null and teamid != ''" >
+			and d4.teamid=#{teamid}
+		</if>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>		
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+<!-- 列表总数1-->
+	<select id="selectByCount1" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sm_staff s 
+		LEFT JOIN SYS_DEPT dept ON s.deptid = dept.deptid 
+		<include refid="Base_Where1"/>
+	</select>
+	
+	<!-- 查询列表 1-->
+	<select id="selectByList1" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>, dept.deptname deptname
+		FROM t_sm_staff s 
+		LEFT JOIN SYS_DEPT dept ON s.deptid = dept.deptid 
+		LEFT JOIN sys_dict d on d.DICTID=s.education
+		LEFT JOIN sys_dict d1 on d1.DICTID=s.operatetype
+		<include refid="Base_Where1"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>		
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sm_staff( staffid, deptid, staffcode, staffname, sex, nation, age, idcard, jobtitle, tptitle,
+			entrydate, station, address, relaphone, isleaveoffice, lodate, loreason, createid, createdate, memo, delflag, 
+			operatetype, education )
+		VALUES( #{staffid}, #{deptid}, #{staffcode}, #{staffname}, #{sex}, #{nation}, #{age}, #{idcard}, #{jobtitle}, #{tptitle},
+			#{entrydate}, #{station}, #{address}, #{relaphone}, #{isleaveoffice}, #{lodate}, #{loreason}, #{createid}, NOW(), #{memo},'0', 
+			#{operatetype}, #{education} )
+	</insert>
+	<!-- 根据id，修改记录-->
+	<update id="update" parameterType="Object" >
+		UPDATE t_sm_staff SET staffid = #{staffid}, deptid = #{deptid}, staffcode = #{staffcode}, staffname = #{staffname}, sex = #{sex},
+			nation = #{nation}, age = #{age}, idcard = #{idcard}, jobtitle = #{jobtitle}, tptitle = #{tptitle}, entrydate = #{entrydate},
+			station = #{station}, address = #{address}, relaphone = #{relaphone}, isleaveoffice = #{isleaveoffice}, lodate = #{lodate},
+			loreason = #{loreason}, modifyid = #{modifyid}, modifydate = NOW(), memo = #{memo}, operatetype = #{operatetype}, education = #{education}
+		WHERE staffid = #{staffid}
+	</update>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sm_staff WHERE staffid = #{staffid}
+	</delete>
+	<update id="deleteStaff" parameterType="java.lang.String">
+		UPDATE t_sm_staff set delflag = '1' WHERE staffid = #{value}
+	</update>
+
+	<!-- 查询是否有相同员工编码 -->
+	<select id="getSameCode" resultType="int" parameterType="Object">
+		SELECT COUNT(*) FROM t_sm_staff WHERE staffcode = #{staffcode} AND staffid != #{staffid} AND delflag = '0'
+	</select>
+</mapper>   

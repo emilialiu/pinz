@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sm.dao.TeamDao">
+	<!-- Result Map -->
+	<resultMap id="BaseResultMap" type="com.dimine.sm.entity.TeamEntity">
+		<result column="teamid" property="teamid" />
+		<result column="tdeptid" property="tdeptid" />
+		<result column="deptid" property="deptid" />
+		<result column="teamcode" property="teamcode" />
+		<result column="teamtype" property="teamtype" />
+		<result column="teamname" property="teamname" />
+		<result column="dutyman" property="dutyman" />
+		<result column="peoplenum" property="peoplenum" />
+		<result column="phone" property="phone" />
+		<result column="delflag" property="delflag" />
+		<result column="createid" property="createid" />
+		<result column="createdate" property="createdate" />
+		<result column="modifyid" property="modifyid" />
+		<result column="modifydate" property="modifydate" />
+		<result column="memo" property="memo" />
+	</resultMap>
+
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List">
+		t.teamid,
+		t.tdeptid,
+		t.deptid,
+		teamcode,
+		teamtype,
+		teamname,
+		dutyman,
+		peoplenum,
+		phone,
+		t.delflag,
+		t.createid,
+		t.createdate,
+		t.modifyid,
+		t.modifydate,
+		t.memo
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE t.delflag = '0'
+		<trim suffixOverrides=",">
+			<if test="param != null and param != ''">
+				and ( teamcode like '%${param}%' or teamname like '%${param}%' )
+			</if>
+			<if test="query != null and query != ''">
+				${query}
+			</if>
+			<if test="tdeptid != null and tdeptid != ''">
+				and (t.deptid in (select deptid from sys_dept where parentdeptid = #{tdeptid}) or t.deptid = #{tdeptid})
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" />, s.staffname dutymanname, dept.deptname
+		FROM t_sm_team t 
+		LEFT JOIN t_sm_staff s ON t.dutyman = s.staffid 
+		LEFT JOIN SYS_DEPT dept ON t.deptid = dept.deptid 
+		WHERE teamid = #{teamid}
+	</select>
+	
+	<!-- 根据tdeptid查询 -->
+	<select id="selectByTdeptId" resultMap="BaseResultMap" parameterType="Object">
+		SELECT t.teamid, t.tdeptid, t.deptid, teamcode, teamtype, teamname, b.BusinessType
+		FROM t_sm_team t 
+		LEFT JOIN T_SM_BusiTeam b ON b.teamid = t.teamid  
+		WHERE t.tdeptid = #{tdeptid}
+		<if test="teamtype != null and teamtype != ''">
+			and teamtype = #{teamtype}
+		</if>
+		<if test="bistype != null and bistype != ''">
+			and b.BusinessType = #{bistype}
+		</if>
+	</select>
+
+	<!-- 列表总数 -->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sm_team t
+		LEFT JOIN t_sm_staff s ON t.dutyman = s.staffid 
+		LEFT JOIN SYS_DEPT dept ON t.deptid = dept.deptid 
+		LEFT JOIN sys_dict d ON t.teamtype = d.dictid 
+		<include refid="Base_Where" />
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" />, s.staffname dutymanname, dept.deptname, d.paramname teamtypename
+		FROM t_sm_team t
+		LEFT JOIN t_sm_staff s ON t.dutyman = s.staffid 
+		LEFT JOIN SYS_DEPT dept ON t.deptid = dept.deptid 
+		LEFT JOIN sys_dict d ON t.teamtype = d.dictid 
+		<include refid="Base_Where" />
+		<if test="pager.orderCondition != null and pager.orderCondition != ''">
+			${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''">
+			${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		INSERT INTO t_sm_team( teamid, tdeptid, deptid, teamcode, teamtype, teamname, dutyman, peoplenum, phone, delflag, createid, createdate, memo )
+		VALUES( #{teamid}, #{tdeptid}, #{deptid}, #{teamcode}, #{teamtype}, #{teamname}, #{dutyman}, #{peoplenum}, #{phone}, '0', #{createid}, now(), #{memo} )
+	</insert>
+	<!-- 根据id，修改记录 -->
+	<update id="update" parameterType="Object">
+		UPDATE t_sm_team SET teamid = #{teamid}, tdeptid = #{tdeptid}, deptid = #{deptid}, teamcode = #{teamcode}, teamtype = #{teamtype}, teamname = #{teamname},
+			dutyman = #{dutyman}, peoplenum = #{peoplenum}, phone = #{phone}, modifyid = #{modifyid}, modifydate = now(), memo = #{memo}
+		WHERE teamid = #{teamid}
+	</update>
+	<!-- 删除班组 -->
+	<update id="deleteTeam" parameterType="Object">
+		UPDATE t_sm_team SET delflag = '1' WHERE teamid = #{teamid}
+	</update>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sm_team WHERE teamid = #{teamid}
+	</delete>
+
+	<!-- 查询是否有相同班组编号 -->
+	<select id="getSameCode" resultType="int" parameterType="Object">
+		SELECT COUNT(*) FROM t_sm_team WHERE teamcode = #{teamcode} AND tdeptid = #{tdeptid} AND teamid != #{teamid}
+	</select>
+	<select id="getCountByCode" resultType="int" parameterType="Object">
+		SELECT COUNT(*) FROM t_sm_team WHERE teamcode like concat('%',#{teamcode})
+	</select>
+	<select id="selectTeamTypeList" resultType="com.dimine.sm.entity.TeamEntity" parameterType="Object">
+		SELECT DISTINCT b.teamtype, c.PARAMNAME teamtypename
+		FROM t_sm_busiteam a, t_sm_team b, sys_dict c
+		WHERE a.TeamID = b.TeamID AND b.TeamType = c.DICTID AND businesstype = #{bistype} AND a.tdeptid = #{tdeptid}
+	</select>
+
+	<select id="genTeamList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>,c.paramname teamtypename
+		from T_SM_Team t
+		left join T_SC_TeamTechProcess b on t.TeamID = b.TeamID
+		LEFT JOIN sys_dict c on c.DICTID=t.TeamType
+		where  t.delflag = '0' 
+		<if test="deptid != null and deptid != ''">
+			and t.deptid = #{deptid}
+		</if>
+		<if test="procid != null and procid != ''">
+			and b.procid = #{procid}
+		</if>
+		<if test="teamid != null and teamid != ''">
+			and t.TeamID != #{teamid}
+		</if>
+	</select>
+	
+	
+	<select id="genAetailTeamList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>,c.paramname teamtypename
+		from T_SM_Team t
+		left join T_SC_TeamTechProcess b on t.TeamID = b.TeamID
+		LEFT JOIN sys_dict c on c.DICTID=t.TeamType
+		where  t.delflag = '0' and b.procid = #{procid} 
+		<if test="teamid != null and teamid != ''">
+			and t.TeamID != #{teamid}
+		</if>
+	</select>
+</mapper>   

@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="../../js/chart/swfobject.js"></script>
+		<script>
+			swfobject.embedSWF("../../swf/open-flash-chart.swf?r="+ Math.random() * 100000, "OpenFlashChartContainer",
+			"500", "400", "9.0.0", "expressInstall.swf", {
+				"get-data" : "getChartData",
+				"id" : "chart",
+				"save_image_message" : "把图形保存为图片",
+				"loading" : "正在加载中..."
+			});
+			function getChartData() {
+				var jsonData = ' {"title":{"text":"结果","style":"{font-size:20;font-weight:bold;text-align:center;}"},'
+						+ ' "bg_colour":"#FFFFFF",'
+						+ ' "elements":['
+						+ ' {"type":"bar_3d" ,"alpha":0.5 ,"colour":"#FA5B5B" ,"text":"同意" ,"font-size":12 ,'
+						+ ' "on-show": {"type": "grow-up"},"values":[10,6] ,"tip":"同意#val#人"},'
+						+ ' {"type":"bar_3d" ,"alpha":0.5 ,"colour":"#3838B7" ,"text":"反对" ,"font-size":12 ,'
+						+ ' "on-show": {"type": "grow-up"},"values":[7,9] ,"tip":"反对#val#人"}],'
+						+ ' "x_axis":{"stroke":2 ,"tick_height":2 ,"colour":"#F70968" ,"grid_colour":"#00ff00" ,'
+						+ ' "labels":{"size":12,"labels":["部门1","部门2"]},"3d":1.5},'
+						+ ' "y_axis":{"stroke":2 ,"tick_length":2 ,"colour":"#F70968" ,"grid_colour":"#00ff00" ,'
+						+ ' "offset":0 ,"max":10}' + ' }';
+				return jsonData;
+			}
+		</script>
+	</head>
+	<body>
+		<div id="OpenFlashChartContainer"></div>
+	</body>
+</html>

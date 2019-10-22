@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.UserDao">
+	<!-- 查询系统角色列表 -->
+	<select id="selectByList" resultType="com.dimine.sys.entity.UserEntity"
+		parameterType="com.dimine.sys.entity.UserEntity">
+		with cte_root(deptid,parentdeptid) as (
+		select deptid,parentdeptid from sys_dept
+		<if test="deptid != null and deptid != ''">
+			where deptid = #{deptid}
+			</if>
+		union all
+		select sa.deptid,sa.parentdeptid from sys_dept sa
+		inner join cte_root sb on sa.parentdeptid=sb.deptid )
+		SELECT tt.userid,tt.username,tt.sex,tt.tel,tt.loginname,
+		tt.deptid,tt.deptCode,tt.usertype,tt.email,tt.deptname FROM (
+		select row_number()over(order by userid)temprownumber,
+		t.userid as userid,t.username as username,
+		t.sex as sex,t.tel as tel,t.loginname as loginname,t.usertype as usertype,
+		t.email as email,t.deptid as deptid,t.deptcode as deptcode,t.deptname deptname
+		from (select top  ${pager.endrow} a.userid as
+		userid,a.username as username,
+		a.sex as sex,a.tel as tel,a.loginname as loginname,a.usertype as usertype,
+		a.email as email,d.deptid as deptid,d.deptcode as deptcode ,d.deptname deptname FROM
+		sys_user a
+		JOIN sys_dept_employee b ON a.userid=b.userid
+		JOIN sys_dept d ON b.deptid=d.deptid
+		WHERE a.delflag = '0' AND b.deptid in (select deptid from cte_root)
+		<if test="username != null and username != ''">
+			username LIKE '%'+#{username}+'%'
+					</if>
+		<if test="tel != null and tel != ''">
+			and a.tel LIKE '%'+#{tel}+'%'
+					</if>
+		<if test="query != null and query != ''">
+			${query}
+		</if>
+		ORDER BY a.userid ASC
+		<if test="pager.orderCondition != null and pager.orderCondition != ''">
+			${pager.orderCondition}
+		</if>
+		)t
+		)tt WHERE temprownumber>=${pager.startrow}
+	</select>
+	<!-- 系统角色 列表总数 -->
+	<select id="selectByCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		with cte_root(deptid,parentdeptid) as (
+		select deptid,parentdeptid from sys_dept
+		<if test="deptid != null and deptid != ''">
+			where deptid = #{deptid}
+		</if>
+		union all
+		select sa.deptid,sa.parentdeptid from sys_dept sa
+		inner join cte_root sb on sa.parentdeptid=sb.deptid )
+		select count(1) from sys_user a
+		JOIN sys_dept_employee b ON a.userid=b.userid
+		JOIN sys_dept d ON b.deptid=d.deptid
+		WHERE a.delflag = '0' AND b.deptid in (select deptid from cte_root)
+		<if test="username != null and username != ''">
+			username LIKE '%'+#{username}+'%'
+		</if>
+		<if test="tel != null and tel != ''">
+			a.tel LIKE '%'+#{tel}+'%'
+	</if>
+		<if test="query != null and query != ''">
+			${query}
+		</if>
+	</select>
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_user (userid, username, sex, tel, email,
+		delflag, loginname, loginpwd, userType, createdate, createman,
+		address) values(#{userid}, #{username}, #{sex}, #{tel}, #{email},
+		#{delflag}, #{loginname}, #{loginpwd}, #{userType}, getdate(),
+		#{createman}, #{address})
+	</insert>
+	<!-- 根据id查询用户信息 -->
+	<select id="selectById" resultType="com.dimine.sys.entity.UserEntity" parameterType="Object">
+		SELECT a.userid, username, sex, tel, email, delflag, loginname,
+		loginpwd, userType, deptid, address FROM sys_user a JOIN
+		sys_dept_employee b ON a.userid=b.userid WHERE a.userid=#{id}
+	</select>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+			UPDATE sys_user SET username=#{username}, sex=#{sex}, tel=#{tel},
+		email=#{email}, modifyman=#{modifyman}, modifydate=getdate(),
+		loginname=#{loginname}, address=#{address} WHERE userid=#{userid}
+	</update>	
+	<!-- 修改密码 -->
+	<update id="updatepassword"
+		parameterType="com.dimine.sys.entity.UserEntity">
+		UPDATE sys_user SET loginpwd = #{loginpwd} WHERE userid=#{userid}
+	</update>
+	<!-- 删除指定用户的角色信息 -->
+	<delete id="Deletebyuserid"
+		parameterType="string">
+		DELETE FROM sys_user_role WHERE userID=#{userID}
+	</delete>
+	
+	<!-- 删除用户所属部门 -->
+	<delete id="DeleteDeptbyuserid"
+		parameterType="string">
+		DELETE sys_dept_employee WHERE userID=#{userID}
+	</delete>
+	<!-- 删除用户 -->
+	<delete id="userDelete" parameterType="java.lang.String">
+		UPDATE sys_user SET delflag='1' WHERE userid=#{value}
+	</delete>
+	
+	<!-- 验证唯一性 -->
+	<select id="countByIdAndName"
+		parameterType="Object" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM sys_user us JOIN sys_dept_employee de ON
+		us.userid=de.userid WHERE (us.userID=#{userid} OR
+		us.loginname=#{loginname}) 
+		<!-- 不同的组织允许相同的账号 
+		AND de.deptid=#deptid#
+		-->
+	</select>
+	
+	<!-- 新增 -->
+	<insert id="insertEmployee" parameterType="Object">
+		INSERT INTO sys_dept_employee(userid, deptid)
+		values(#{userid},#{deptid})
+	</insert>
+</mapper>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.T_bi_mrbaseinfoDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.bi.entity.T_bi_mrbaseinfoEntity" >
+		<result column="rightid" property="rightid"/>
+		<result column="mineid" property="mineid"/>
+		<result column="mrcategory" property="mrcategory"/>
+		<result column="projectname" property="projectname"/>
+		<result column="projectquality" property="projectquality"/>
+		<result column="mrstate" property="mrstate"/>
+		<result column="ownway" property="ownway"/>
+		<result column="economictype" property="economictype"/>
+		<result column="companyname" property="companyname"/>
+		<result column="companyaddr" property="companyaddr"/>
+		<result column="companypost" property="companypost"/>
+		<result column="registeredfund" property="registeredfund"/>
+		<result column="legalrepresentative" property="legalrepresentative"/>
+		<result column="accountnum" property="accountnum"/>
+		<result column="bank" property="bank"/>
+		<result column="mrcardid" property="mrcardid"/>
+		<result column="eaststart" property="eaststart"/>
+		<result column="eastend" property="eastend"/>
+		<result column="northstart" property="northstart"/>
+		<result column="northend" property="northend"/>
+		<result column="geoposition" property="geoposition"/>
+		<result column="mrarea" property="mrarea"/>
+		<result column="expstartdate" property="expstartdate"/>
+		<result column="expenddate" property="expenddate"/>
+		<result column="dutyman" property="dutyman"/>
+		<result column="createdate" property="createdate"/>
+		<result column="createid" property="createid"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+		   
+	<!-- t_bi_mrbaseinfo table all fields -->
+	<sql id="Base_Column_List" >
+		rightid, 
+		mineid, 
+		mrcategory, 
+		projectname, 
+		projectquality, 
+		mrstate, 
+		ownway, 
+		economictype, 
+		companyname, 
+		companyaddr, 
+		companypost, 
+		registeredfund, 
+		legalrepresentative, 
+		accountnum, 
+		bank, 
+		mrcardid, 
+		eaststart, 
+		eastend, 
+		northstart, 
+		northend, 
+		geoposition, 
+		mrarea, 
+		date_format(expstartdate,'%Y-%m-%d') expstartdate, 
+		date_format(expenddate,'%Y-%m-%d') expenddate, 
+		dutyman, 
+		m.createdate, 
+		m.createid, 
+		m.modifyid, 
+		m.modifydate, 
+		m.remark
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+				projectname like '%${param}%' 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询矿业权基本信息表信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>, d1.paramname mrcategoryname, d2.paramname projectqualityname, 
+			d3.paramname mrstatename, d4.paramname ownwayname, d5.paramname economictypename
+		FROM  t_bi_mrbaseinfo m
+		LEFT JOIN sys_dict d1 ON d1.dictid = m.mrcategory 
+		LEFT JOIN sys_dict d2 ON d2.dictid = m.projectquality 
+		LEFT JOIN sys_dict d3 ON d3.dictid = m.mrstate
+		LEFT JOIN sys_dict d4 ON d4.dictid = m.ownway 
+		LEFT JOIN sys_dict d5 ON d5.dictid = m.economictype 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询矿业权基本信息表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_mrbaseinfo m
+		LEFT JOIN sys_dict d1 ON d1.dictid = m.mrcategory 
+		LEFT JOIN sys_dict d2 ON d2.dictid = m.projectquality 
+		LEFT JOIN sys_dict d3 ON d3.dictid = m.mrstate
+		LEFT JOIN sys_dict d4 ON d4.dictid = m.ownway 
+		LEFT JOIN sys_dict d5 ON d5.dictid = m.economictype 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 矿业权基本信息表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_bi_mrbaseinfo m
+		WHERE rightid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_bi_mrbaseinfo(
+		rightid, 
+		mineid, 
+		mrcategory, 
+		projectname, 
+		projectquality, 
+		mrstate, 
+		ownway, 
+		economictype, 
+		companyname, 
+		companyaddr, 
+		companypost, 
+		registeredfund, 
+		legalrepresentative, 
+		accountnum, 
+		bank, 
+		mrcardid, 
+		eaststart, 
+		eastend, 
+		northstart, 
+		northend, 
+		geoposition, 
+		mrarea, 
+		expstartdate, 
+		expenddate, 
+		dutyman, 
+		createdate, 
+		createid, 
+		remark
+		)
+		VALUES(		
+		#{rightid}, 
+		#{mineid}, 
+		#{mrcategory}, 
+		#{projectname}, 
+		#{projectquality}, 
+		#{mrstate}, 
+		#{ownway}, 
+		#{economictype}, 
+		#{companyname}, 
+		#{companyaddr}, 
+		#{companypost}, 
+		#{registeredfund}, 
+		#{legalrepresentative}, 
+		#{accountnum}, 
+		#{bank}, 
+		#{mrcardid}, 
+		#{eaststart}, 
+		#{eastend}, 
+		#{northstart}, 
+		#{northend}, 
+		#{geoposition}, 
+		#{mrarea}, 
+		#{expstartdate}, 
+		#{expenddate}, 
+		#{dutyman}, 
+		NOW(), 
+		#{createid}, 
+		#{remark}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_bi_mrbaseinfo 
+		SET 		
+		mineid = #{mineid}, 
+		mrcategory = #{mrcategory}, 
+		projectname = #{projectname}, 
+		projectquality = #{projectquality}, 
+		mrstate = #{mrstate}, 
+		ownway = #{ownway}, 
+		economictype = #{economictype}, 
+		companyname = #{companyname}, 
+		companyaddr = #{companyaddr}, 
+		companypost = #{companypost}, 
+		registeredfund = #{registeredfund}, 
+		legalrepresentative = #{legalrepresentative}, 
+		accountnum = #{accountnum}, 
+		bank = #{bank}, 
+		mrcardid = #{mrcardid}, 
+		eaststart = #{eaststart}, 
+		eastend = #{eastend}, 
+		northstart = #{northstart}, 
+		northend = #{northend}, 
+		geoposition = #{geoposition}, 
+		mrarea = #{mrarea}, 
+		expstartdate = #{expstartdate}, 
+		expenddate = #{expenddate}, 
+		dutyman = #{dutyman}, 
+		createdate = NOW(), 
+		createid = #{createid}, 
+		remark = #{remark}
+		WHERE 
+		rightid = #{rightid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_bi_mrbaseinfo		
+		WHERE 
+		rightid = #{rightid} 		
+	</delete>
+	
+</mapper>   

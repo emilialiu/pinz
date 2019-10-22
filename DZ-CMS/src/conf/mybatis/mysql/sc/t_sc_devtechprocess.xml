@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sc.dao.T_sc_devtechprocessDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sc.entity.T_sc_devtechprocessEntity" >
+		<result column="procid" property="procid"/>
+		<result column="devid" property="devid"/>
+		<result column="tdeptid" property="tdeptid"/>
+	</resultMap>
+		   
+	<!-- t_sc_devtechprocess table all fields -->
+	<sql id="Base_Column_List" >
+		a.procid, 
+		a.devid, 
+		a.tdeptid
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and d.devname like '%${param}%'
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			<if test="procid != null and procid != ''" >
+				and a.procid=#{procid}
+			</if>
+			<if test="procid == null or procid == ''" >
+				and a.procid='-1'
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询工序对应设备信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		d.deptid, 
+		d.devcode, 
+		d.devname, 
+		d.devmodel, 
+		d.userdate, 
+		d.createid, 
+		d.createdate, 
+		d.modifyid, 
+		d.modifydate, 
+		d.memo, 
+		d.belongunit,
+		t.teamname as belongname, <!-- 只在grid查询列表中显示时用 -->
+		d.engineno, 
+		d.frameno, 
+		d.enginehao, 
+		d.production, 
+		d.workhour, 
+		d.fuelconsumption, 
+		d.partsconsumption, 
+		d.bughour, 
+		d.source,
+		<include refid="Base_Column_List"/>
+		FROM  t_sc_devtechprocess a inner join 
+		t_dm_device d  on a.devid = d.devid left join t_sm_team t on d.belongunit=t.teamid
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询工序对应设备信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM  t_sc_devtechprocess a inner join 
+		t_dm_device d  on a.devid = d.devid left join t_sm_team t on d.belongunit=t.teamid
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 工序对应设备信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sc_devtechprocess 
+		WHERE 
+		procid = #{id}  AND 
+		devid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sc_devtechprocess(
+		procid, 
+		devid, 
+		tdeptid
+		)
+		VALUES(		
+		#{procid}, 
+		#{devid}, 
+		#{tdeptid}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sc_devtechprocess 
+		SET 		
+		procid = #{procid}, 
+		devid = #{devid}, 
+		tdeptid = #{tdeptid}
+		WHERE 
+		procid = #{procid}  AND 		
+		devid = #{devid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sc_devtechprocess		
+		WHERE 
+		procid = #{procid}  AND 		
+		devid = #{devid} 		
+	</delete>
+	
+	
+	<!-- 查询条件 -->
+	<sql id="Base_Where_Device">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (d.devcode like '%${param}%'  or d.devname like '%${param}%')
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			<if test="deptid != null and deptid != ''" >
+				and d.deptid=#{deptid}
+			</if>
+			<if test="procid != null and procid != ''" >
+				and d.devid not in (select devid from T_SC_DevTechProcess where procid=#{procid})
+			</if>
+		</trim>
+	</sql>
+	
+		<!-- 查询设备信息信息列表 -->
+	<select id="selectDeviceByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		d.devid, 
+		d.deptid, 
+		d.devcode, 
+		d.devname, 
+		d.devmodel, 
+		d.userdate, 
+		d.createid, 
+		d.createdate, 
+		d.modifyid, 
+		d.modifydate, 
+		d.memo, 
+		d.belongunit,
+		t.teamname as belongname, <!-- 只在grid查询列表中显示时用 -->
+		d.engineno, 
+		d.frameno, 
+		d.enginehao, 
+		d.production, 
+		d.workhour, 
+		d.fuelconsumption, 
+		d.partsconsumption, 
+		d.bughour, 
+		d.source
+		FROM  t_dm_device d left join t_sm_team t on d.belongunit=t.teamid
+		<include refid="Base_Where_Device"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询设备信息信息列表总数-->
+	<select id="selectDeviceByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM  t_dm_device d left join t_sm_team t on d.belongunit=t.teamid
+		<include refid="Base_Where_Device"/>
+	</select>
+	
+</mapper>   

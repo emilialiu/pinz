@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Echarts--标准折线图</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+	</head>
+
+	<body>
+		<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+		<div id="main" style="height: 400px"></div>
+		<!-- ECharts单文件引入 -->
+		<script src="./echarts-all.js"></script>
+		<script type="text/javascript">
+			// 基于准备好的dom，初始化echarts图表
+			var myChart = echarts.init(document.getElementById('main'));
+
+			var option = {
+				tooltip : {
+					show : true,
+					trigger : 'item'
+				},
+				toolbox : {
+					show : true,
+					feature : {
+						mark : {
+							show : true
+						},
+						dataView : {
+							show : true,
+							readOnly : false
+						},
+						magicType : {
+							show : true,
+							type : [ 'line', 'bar' ]
+						},
+						restore : {
+							show : true
+						},
+						saveAsImage : {
+							show : true
+						}
+					}
+				},
+				legend : {
+					data : [ '产品销量量统计' ]
+				},
+				xAxis : [ {
+					type : 'category',
+					data : [ "重晶石", "锌精矿", "铅精矿", "硫", "其他"]
+				} ],
+				yAxis : [ {
+					type : 'value'
+				} ],
+				series : [ {
+					name : "产品销量量统计",
+					type : "line",
+			        //smooth:false,//非平滑曲线显示
+					data : [ 5, 20, 40, 10, 10]
+				} ]
+			};
+
+			// 为echarts对象加载数据 
+			myChart.setOption(option);
+		</script>
+	</body>
+</html>

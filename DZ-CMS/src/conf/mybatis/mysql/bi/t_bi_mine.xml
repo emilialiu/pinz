@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.T_bi_mineDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.bi.entity.T_bi_mineEntity" >
+		<result column="mineid" property="mineid"/>
+		<result column="orgid" property="orgid"/>
+		<result column="mineno" property="mineno"/>
+		<result column="minename" property="minename"/>
+		<result column="oremanutype" property="oremanutype"/>
+		<result column="builddate" property="builddate"/>
+		<result column="startingdate" property="startingdate"/>
+		<result column="productivepower" property="productivepower"/>
+		<result column="siftpower" property="siftpower"/>
+		<result column="transportation" property="transportation"/>
+		<result column="miningmethod" property="miningmethod"/>
+		<result column="country" property="country"/>
+		<result column="province" property="province"/>
+		<result column="city" property="city"/>
+		<result column="address" property="address"/>
+		<result column="area" property="area"/>
+		<result column="minewidth" property="minewidth"/>
+		<result column="minelength" property="minelength"/>
+		<result column="mineheight" property="mineheight"/>
+		<result column="eastlognstart" property="eastlognstart"/>
+		<result column="eastlognend" property="eastlognend"/>
+		<result column="northlatstart" property="northlatstart"/>
+		<result column="northlatend" property="northlatend"/>
+		<result column="coordinatex" property="coordinatex"/>
+		<result column="coordinatey" property="coordinatey"/>
+		<result column="productivestatus" property="productivestatus"/>
+		<result column="serviceyear" property="serviceyear"/>
+		<result column="strippingratio" property="strippingratio"/>
+		<result column="explorationratio" property="explorationratio"/>
+		<result column="workusercount" property="workusercount"/>
+		<result column="techusercount" property="techusercount"/>
+		<result column="remark" property="remark"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+	</resultMap>
+		   
+	<!-- t_bi_mine table all fields -->
+	<sql id="Base_Column_List" >
+		mineid, 
+		m.orgid, 
+		mineno, 
+		minename, 
+		oremanutype, 
+		date_format(builddate,'%Y-%m-%d') builddate, 
+		date_format(startingdate,'%Y-%m-%d') startingdate, 
+		productivepower, 
+		siftpower, 
+		transportation, 
+		miningmethod, 
+		country, 
+		province, 
+		city, 
+		m.address, 
+		area, 
+		minewidth, 
+		minelength, 
+		mineheight, 
+		eastlognstart, 
+		eastlognend, 
+		northlatstart, 
+		northlatend, 
+		coordinatex, 
+		coordinatey, 
+		productivestatus, 
+		serviceyear, 
+		strippingratio, 
+		explorationratio, 
+		workusercount, 
+		techusercount, 
+		remark, 
+		m.createid, 
+		m.createdate, 
+		m.modifyid, 
+		m.modifydate
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+				mineno like '%${param}%'  or 
+				minename like '%${param}%' 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询矿山信息(T_BI_Mine)信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>, d.deptname orgname, d1.paramname oremanutypename, d2.paramname miningmethodname, 
+			d3.paramname productivestatusname, d4.paramname countryname, d5.paramname provincename, d6.paramname cityname
+		FROM t_bi_mine m
+		LEFT JOIN sys_dept d ON d.deptid = m.orgid 
+		LEFT JOIN sys_dict d1 ON d1.dictid = m.oremanutype 
+		LEFT JOIN sys_dict d2 ON d2.dictid = m.miningmethod 
+		LEFT JOIN sys_dict d3 ON d3.dictid = m.productivestatus
+		LEFT JOIN sys_dict d4 ON d4.dictid = m.country 
+		LEFT JOIN sys_dict d5 ON d5.dictid = m.province 
+		LEFT JOIN sys_dict d6 ON d6.dictid = m.city
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询矿山信息(T_BI_Mine)信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_mine m
+		LEFT JOIN sys_dept d ON d.deptid = m.orgid 
+		LEFT JOIN sys_dict d1 ON d1.dictid = m.oremanutype 
+		LEFT JOIN sys_dict d2 ON d2.dictid = m.miningmethod 
+		LEFT JOIN sys_dict d3 ON d3.dictid = m.productivestatus
+		LEFT JOIN sys_dict d4 ON d4.dictid = m.country 
+		LEFT JOIN sys_dict d5 ON d5.dictid = m.province 
+		LEFT JOIN sys_dict d6 ON d6.dictid = m.city
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 矿山信息(T_BI_Mine)信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" />, getDictName(oremanutype) oremanutypename, getDictName(miningmethod) miningmethodname
+		, getDictName(productivestatus) productivestatusname, d.deptname orgname 
+		FROM t_bi_mine m
+		LEFT JOIN sys_dept d ON d.deptid = m.orgid 
+		WHERE mineid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_bi_mine(
+		mineid, 
+		orgid, 
+		mineno, 
+		minename, 
+		oremanutype, 
+		builddate, 
+		startingdate, 
+		productivepower, 
+		siftpower, 
+		transportation, 
+		miningmethod, 
+		country, 
+		province, 
+		city, 
+		address, 
+		area, 
+		minewidth, 
+		minelength, 
+		mineheight, 
+		eastlognstart, 
+		eastlognend, 
+		northlatstart, 
+		northlatend, 
+		coordinatex, 
+		coordinatey, 
+		productivestatus, 
+		serviceyear, 
+		strippingratio, 
+		explorationratio, 
+		workusercount, 
+		techusercount, 
+		remark, 
+		createid, 
+		createdate
+		)
+		VALUES(		
+		#{mineid}, 
+		#{orgid}, 
+		#{mineno}, 
+		#{minename}, 
+		#{oremanutype}, 
+		#{builddate}, 
+		#{startingdate}, 
+		#{productivepower}, 
+		#{siftpower}, 
+		#{transportation}, 
+		#{miningmethod}, 
+		#{country}, 
+		#{province}, 
+		#{city}, 
+		#{address}, 
+		#{area}, 
+		#{minewidth}, 
+		#{minelength}, 
+		#{mineheight}, 
+		#{eastlognstart}, 
+		#{eastlognend}, 
+		#{northlatstart}, 
+		#{northlatend}, 
+		#{coordinatex}, 
+		#{coordinatey}, 
+		#{productivestatus}, 
+		#{serviceyear}, 
+		#{strippingratio}, 
+		#{explorationratio}, 
+		#{workusercount}, 
+		#{techusercount}, 
+		#{remark}, 
+		#{createid}, 
+		NOW()
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_bi_mine 
+		SET 		
+		mineid = #{mineid}, 
+		orgid = #{orgid}, 
+		mineno = #{mineno}, 
+		minename = #{minename}, 
+		oremanutype = #{oremanutype}, 
+		builddate = #{builddate}, 
+		startingdate = #{startingdate}, 
+		productivepower = #{productivepower}, 
+		siftpower = #{siftpower}, 
+		transportation = #{transportation}, 
+		miningmethod = #{miningmethod}, 
+		country = #{country}, 
+		province = #{province}, 
+		city = #{city}, 
+		address = #{address}, 
+		area = #{area}, 
+		minewidth = #{minewidth}, 
+		minelength = #{minelength}, 
+		mineheight = #{mineheight}, 
+		eastlognstart = #{eastlognstart}, 
+		eastlognend = #{eastlognend}, 
+		northlatstart = #{northlatstart}, 
+		northlatend = #{northlatend}, 
+		coordinatex = #{coordinatex}, 
+		coordinatey = #{coordinatey}, 
+		productivestatus = #{productivestatus}, 
+		serviceyear = #{serviceyear}, 
+		strippingratio = #{strippingratio}, 
+		explorationratio = #{explorationratio}, 
+		workusercount = #{workusercount}, 
+		techusercount = #{techusercount}, 
+		remark = #{remark}, 
+		modifyid = #{modifyid}, 
+		modifydate = NOW()
+		WHERE 
+		mineid = #{mineid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_bi_mine		
+		WHERE 
+		mineid = #{mineid} 		
+	</delete>
+	
+</mapper>   

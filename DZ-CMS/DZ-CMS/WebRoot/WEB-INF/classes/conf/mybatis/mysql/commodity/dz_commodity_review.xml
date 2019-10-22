@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.commodity.dao.Dz_commodity_reviewDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.commodity.entity.Dz_commodity_reviewEntity" >
+		<result column="id" property="id"/>
+		<result column="order_id" property="order_id"/>
+		<result column="commodity_id" property="commodity_id"/>
+		<result column="customer_id" property="customer_id"/>
+		<result column="satisfaction" property="satisfaction"/>
+		<result column="comments" property="comments"/>
+		<result column="create_time" property="create_time"/>
+		<result column="is_delete" property="is_delete"/>
+		<result column="img_url" property="img_url"/>
+		<result column="reply_content" property="reply_content"/>
+	</resultMap>
+		   
+	<!-- dz_commodity_review table all fields -->
+	<sql id="Base_Column_List" >
+		id, 
+		order_id, 
+		commodity_id, 
+		customer_id, 
+		satisfaction, 
+		comments, 
+		create_time, 
+		is_delete, 
+		img_url, 
+		reply_content
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询商品评价表信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_commodity_review 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询商品评价表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_commodity_review 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 商品评价表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_commodity_review 
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_commodity_review(
+		id, 
+		order_id, 
+		commodity_id, 
+		customer_id, 
+		satisfaction, 
+		comments, 
+		create_time, 
+		is_delete, 
+		img_url, 
+		reply_content
+		)
+		VALUES(		
+		#{id}, 
+		#{order_id}, 
+		#{commodity_id}, 
+		#{customer_id}, 
+		#{satisfaction}, 
+		#{comments}, 
+		#{create_time}, 
+		#{is_delete}, 
+		#{img_url}, 
+		#{reply_content}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_commodity_review 
+		SET 		
+		id = #{id}, 
+		order_id = #{order_id}, 
+		commodity_id = #{commodity_id}, 
+		customer_id = #{customer_id}, 
+		satisfaction = #{satisfaction}, 
+		comments = #{comments}, 
+		create_time = #{create_time}, 
+		is_delete = #{is_delete}, 
+		img_url = #{img_url}, 
+		reply_content = #{reply_content}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_commodity_review		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

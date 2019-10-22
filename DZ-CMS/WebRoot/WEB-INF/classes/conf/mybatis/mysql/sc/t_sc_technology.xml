@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sc.dao.T_sc_technologyDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sc.entity.T_sc_technologyEntity" >
+		<result column="techid" property="techid"/>
+		<result column="tdeptid" property="tdeptid"/>
+		<result column="techname" property="techname"/>
+		<result column="technameen" property="technameen"/>
+		<result column="techcode" property="techcode"/>
+		<result column="shortname" property="shortname"/>
+		<result column="parentid" property="parentid"/>
+		<result column="isplan" property="isplan"/>
+		<result column="isaccept" property="isaccept"/>
+		<result column="isdel" property="isdel"/>
+		<result column="isleaf" property="isleaf"/>
+		<result column="parentstr" property="parentstr"/>
+		<result column="serialno" property="serialno"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="memo" property="memo"/>
+	</resultMap>
+		   
+	<!-- t_sc_technology table all fields -->
+	<sql id="Base_Column_List" >
+		techid, 
+		tdeptid, 
+		techname, 
+		technameen,
+		techcode, 
+		shortname, 
+		parentid, 
+		isplan, 
+		isaccept, 
+		isdel, 
+		isleaf, 
+		parentstr, 
+		serialno, 
+		createid, 
+		createdate, 
+		modifyid, 
+		modifydate, 
+		memo
+	</sql>	   
+	<select id="getParentStr" resultType="java.lang.String" parameterType="com.dimine.sc.entity.T_sc_technologyEntity">
+		select IF(#{parentid}='1','1',CONCAT((SELECT parentstr from T_SC_technology WHERE techid=#{parentid}),",",#{parentid}))
+	</select>
+	<select id="getGyList" resultType="com.dimine.sc.entity.T_sc_technologyEntity" parameterType="com.dimine.sc.entity.T_sc_technologyEntity">
+	<!-- cacheModel="dept-cache" -->
+		SELECT TechID, TechName, ParentID, 
+			(select count(1) from T_SC_technology b where b.ParentID = a.TechID and b.isdel = '0') childCount
+		FROM T_SC_technology a WHERE isdel = '0'
+		<if test="techid ==null or techid =='' " >
+			and ParentID is null
+		</if>
+		<if test="techid != null and techid != ''" >
+			and ParentID = #{techid}
+		</if>
+		<if test="tdeptid != null and tdeptid != ''" >
+			and tdeptid = #{tdeptid}
+		</if>
+		ORDER BY SerialNo
+	</select>
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1 and isdel='0'
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			<if test="tdeptid != null and tdeptid != ''" >
+				and t.tdeptid = #{tdeptid}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 查询工艺信息信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>,level,(select TechName from T_SC_technology where TechID=t.ParentID) parentname
+		FROM  t_sc_technology t
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	<!-- 根据登录人所在矿山查询工艺名称 -->
+	<select id="selectGongXuByLoginUser" resultMap="BaseResultMap" parameterType="Object">
+		SELECT DISTINCT c.technameen,c.TechName,c.TechID from T_SC_Process a 
+		             LEFT JOIN T_SC_TechProcess b on a.ProcID=b.ProcID 
+		             LEFT JOIN T_SC_technology c on b.TechID=c.TechID 
+		             LEFT JOIN T_BI_Target d on a.ProcID=d.ProcID
+		where  a.TDeptID=#{tdeptid} and  a.IsDel='0' and d.IsDel='0'  and d.IsMPlan='1' and c.IsDel='0' and c.IsPlan='1' and b.IsPlan='1';
+	</select>
+	
+	<!-- 查询工艺信息信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_technology 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 工艺信息信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" />,level,(select TechName from T_SC_technology where TechID=t.ParentID) parentname 
+		FROM t_sc_technology t
+		WHERE 
+		techid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sc_technology(
+		techid, 
+		tdeptid, 
+		techname, 
+		technameen,
+		techcode, 
+		shortname, 
+		parentid, 
+		isplan, 
+		isaccept, 
+		isdel, 
+		isleaf, 
+		parentstr, 
+		serialno, 
+		createid, 
+		createdate, 
+		level,
+		memo
+		)
+		VALUES(		
+		#{techid}, 
+		#{tdeptid}, 
+		#{techname}, 
+		#{technameen},
+		#{techcode}, 
+		#{shortname}, 
+		#{parentid}, 
+		#{isplan}, 
+		#{isaccept}, 
+		#{isdel}, 
+		#{isleaf}, 
+		#{parentstr}, 
+		#{serialno}, 
+		#{createid}, 
+		now(), 
+		#{level}, 
+		#{memo}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sc_technology 
+		SET 		 
+		techname = #{techname}, 
+		technameen = #{technameen}, 
+		techcode = #{techcode}, 
+		shortname = #{shortname},   
+		serialno = #{serialno}, 
+		modifyid = #{modifyid}, 
+		modifydate = now(), 
+		memo = #{memo}
+		WHERE 
+		techid = #{techid} 		
+	</update>	
+	
+	<update id="updateTech" parameterType="Object" >
+		UPDATE t_sc_technology 
+		SET 	
+		isplan=#{isplan},
+		isaccept=#{isaccept},	 
+		modifyid = #{modifyid}, 
+		modifydate = now() 
+		WHERE 
+		techid = #{techid} 		
+	</update>
+	
+	<!-- 根据id，修改记录-->  
+	<update id="updateParentIsLeaf" parameterType="Object" >
+		UPDATE t_sc_technology 
+		SET 		
+		isleaf = '0' 
+		WHERE 
+		techid = #{parentid} 		
+	</update>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		UPDATE t_sc_technology 
+		SET 		
+		isdel= '1' 
+		WHERE 
+		techid = #{techid} 	or FIND_IN_SET(#{techid},ParentStr)
+	</delete>
+	<!-- 查询孩子节点的数量-->
+	<select id="selectChildCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_technology where ParentID=(select ParentID from t_sc_technology where techid = #{techid}) and isdel='0'
+	</select>
+	<!-- 根据id，修改记录-->  
+	<update id="updateParentLeafInfo" parameterType="Object" >
+		UPDATE t_sc_technology 
+		SET 		
+		isleaf = '1' 
+		WHERE 
+		techid = #{parentid} 		
+	</update>
+	
+	<!-- 药剂消耗 查询工艺id，名称 -->
+	<select id="selectList" resultMap="BaseResultMap">	
+		select techid ,techname from t_sc_technology
+		where
+		isdel= '0' 
+		and IsLeaf='1'
+	</select>
+	<!-- 日报，周报（报表） 查询工艺id，名称 -->
+	<select id="selectByReport"  resultMap="BaseResultMap"  parameterType="Object">	
+		SELECT  a.TechID,a.TechName from t_sc_technology a 
+		where (a.IsPlan='1' or a.IsAccept='1') and a.IsDel='0' and a.tdeptid=#{tdeptid} and a.IsLeaf = '1'
+	</select>
+	
+	<!-- 药剂消耗 查询工艺id，名称 -->
+	<select id="selectListByTeamid" resultMap="BaseResultMap"  parameterType="Object">	
+	SELECT t1.teamid,t2.techid,t3.techname from t_sc_teamtechprocess t1 LEFT JOIN t_sc_techprocess t2 on t1.procid=t2.procid LEFT JOIN t_sc_technology t3 on t2.techid=t3.techid
+	where
+	isdel= '0' 
+	and IsLeaf='1'
+	<if test="teamid != null and teamid != ''" >
+	and teamid=#{teamid}
+	</if>
+	</select>
+</mapper>   

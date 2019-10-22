@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.taglib.dao.CombogridDao">
+	<!-- 下拉列表 -->
+	<select id="selectByList" resultType="com.dimine.taglib.entity.CombogridEntity" parameterType="Object">
+		SELECT * FROM (
+		select row_number()over(order by id)temprownumber,*
+		from (
+		SELECT top ${pager.endrow}
+		id,name,remark
+		FROM t_combogrid 
+		 )t
+	)tt WHERE temprownumber>=${pager.startrow}
+	</select>
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_combogrid 
+	</select>
+</mapper>

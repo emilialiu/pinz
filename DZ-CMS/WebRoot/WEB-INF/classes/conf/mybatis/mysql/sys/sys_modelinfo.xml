@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.Sys_modelinfoDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.Sys_modelinfoEntity" >
+		<result column="modelid" property="modelid"/>
+		<result column="modelname" property="modelname"/>
+		<result column="mtable" property="mtable"/>
+		<result column="exceltb" property="exceltb"/>
+		<result column="targetname" property="targetname"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		modelid,
+		modelname,
+		mtable,
+		exceltb,
+		targetname
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and modelname like '%${param}%'
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM sys_modelinfo 
+		WHERE 
+		modelid = #{modelid} 		
+	</select>
+
+	<!-- 系统角色 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM sys_modelinfo 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM sys_modelinfo 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_modelinfo(
+		modelid,
+		modelname,
+		mtable,
+		exceltb,
+		targetname
+		)
+		VALUES(		
+		#{modelid},
+		#{modelname},
+		#{mtable},
+		#{exceltb},
+		#{targetname}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE sys_modelinfo 
+		SET 		
+		modelid = #{modelid},
+		modelname = #{modelname},
+		mtable = #{mtable},
+		exceltb = #{exceltb},
+		targetname = #{targetname}
+		WHERE 
+		modelid = #{modelid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM sys_modelinfo		
+		WHERE 
+		modelid = #{modelid} 		
+	</delete>
+	
+	<!-- 查询无翻页列表 -->
+	<select id="selectModelinfoList" resultType="com.dimine.sys.entity.Sys_modelinfoEntity" parameterType="com.dimine.sys.entity.Sys_modelinfoEntity">
+		SELECT * 
+		FROM sys_modelinfo
+	</select>
+	
+</mapper>   

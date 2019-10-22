@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.pub.dao.SelectListDao">
+
+	<!-- 查询下拉列表值 -->
+	<select id="selectList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select DICTID value ,PARAMNAME text from sys_dict where DICTTYPEID=#{value}
+	</select>
+	<!-- 查询下拉列表值 条件限制 -->
+	<select id="selectlimitList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select DICTID value ,PARAMNAME text from sys_dict where
+		DICTTYPEID=#{dicttypeid}
+		<if test="parentid != null and parentid != ''">
+			and parentid=#{parentid}
+		</if>
+		<if test="limitnum != null and limitnum != ''">
+			limit #{startposition},#{limitnum}
+		</if>
+	</select>
+	<!-- 查询工程签证下面所有的指标信息 -->
+	<select id="selectTarget" resultType="com.dimine.pub.entity.SelectListEntity">
+		SELECT
+		t2.TargetID as value,t2.TargetName as text
+		FROM t_bi_tddetail t1
+		LEFT JOIN
+		T_BI_Target t2 on t2.TargetID=t1.TargetID
+		LEFT JOIN T_BI_TargetDefine
+		t3 on t3.TDID=t1.TDID
+		where t3.StageType='JD007' GROUP BY VALUE
+	</select>
+	<!-- 查询月计划 班组下拉列表值 -->
+	<select id="selectBZList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select t.TeamID value,t.TeamName text from t_sm_busiteam bt
+		LEFT JOIN
+		t_sm_team t on t.TeamID=bt.TeamID
+		where bt.BusinessType=#{value} and
+		bt.TDeptID=#{text};
+	</select>
+	<!-- 查询班组下拉列表值 -->
+	<select id="selectClassList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select t.TeamID value,t.TeamName text from
+		t_sm_team t 
+		where t.TeamName is not null and t.TeamName!=''
+	</select>
+	<!-- 查询月计划 设备下拉列表值 -->
+	<select id="selectSBList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select d.DevID value,concat(d.devccode,d1.PARAMNAME) text from t_sm_device d
+		LEFT JOIN sys_dict d1 on d1.DICTID=d.DevName
+		where d.DevClass in(select
+		bd.DevClass from t_sm_busidevice bd where bd.BusinessType=#{value})
+		and deptid = #{text}
+		union all
+		select d.DevID
+		value,concat(d.devccode,d1.PARAMNAME) text from t_sm_plandevice d
+		LEFT JOIN sys_dict d1 on d1.DICTID=d.DevName
+		where d.DevClass in(select
+		bd.DevClass from t_sm_busidevice bd where bd.BusinessType=#{value})
+		and deptid = #{text};
+	</select>
+	<!-- 查询生产台账 设备下拉列表值 -->
+	<select id="selectPROSBList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select d.DevID value,concat(d.devccode,d1.PARAMNAME) text from t_sm_device d
+		LEFT JOIN sys_dict d1 on d1.DICTID=d.DevName
+		where d.DevClass in(select
+		bd.DevClass from t_sm_busidevice bd where bd.BusinessType=#{value})
+		and deptid = #{text}
+	</select>
+	<!-- 查询月计划 通过deptid查询对应业务 -->
+	<select id="selectBusinessByDeptid" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select DICTID value,PARAMNAME text from sys_dict where DICTTYPEID='YW' and
+		DICTID not in (select BusinessType from t_bi_pdeptbusiness where
+		deptid=#{value});
+	</select>
+	<!-- 查询月计划 通过deptid查询对应组合支护 -->
+	<select id="selectGroupsupportByDeptid" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select GSID value,GSName text from t_bi_groupsupport where deptid=#{value}
+	</select>
+	<!-- 查询月计划 通过Detailid查询未添加的组合支护 -->
+	<select id="selectGroupsupportByDetailid" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select GSID value,GSName text from t_bi_groupsupport where deptid=#{value}
+		and GSID not in(select xstype from t_bp_mptdetail where
+		detailid=#{text} GROUP BY xstype)
+	</select>
+	<!-- 查询周计划 通过Detailid查询未添加的组合支护 -->
+	<select id="selectGroupsupportByDetailidWeek" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select GSID value,GSName text from t_bi_groupsupport where deptid=#{value}
+		and GSID not in(select xstype from t_bp_wptdetail where
+		detailid=#{text} GROUP BY xstype)
+	</select>
+	<!-- 查询月计划 通过deptid查询对应组合支护单位 -->
+	<select id="selectsupportdwByDeptid" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select GSID value,SupportDensity text from t_bi_groupsupport where
+		deptid=#{value}
+	</select>
+	<!-- 查询月计划 通过deptid查询对应组合支护单位 -->
+	<select id="selectsupportdwnameByDeptid" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select GSID value,paramname text from t_bi_groupsupport
+		left join sys_dict on
+		SupportDensity=dictid
+		where deptid=#{value}
+	</select>
+	<!-- 查询月计划 通过deptid查询对应组合支护单位 -->
+	<select id="selectzhtypeByDeptid" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select gp.GSID value,gd.SType text from t_bi_groupsupport gp INNER JOIN
+		t_bi_gsdetail gd on gd.GSID=gp.GSID where deptid=#{value}
+	</select>
+	<select id="selectSBList2" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select DevID value,concat(d1.PARAMNAME,t.devccode) text from t_sm_device t
+		left join sys_dict d1 on d1.DICTID=t.DevName
+		where
+		t.deptid = #{text}
+		and t.devclass =#{businesstype};
+	</select>
+	<select id="selectallSB" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select DevID value,DevName text from t_sm_device
+		where devclass
+		=#{businesstype};
+	</select>
+	<!--<select id="selectSBList2" resultType="com.dimine.pub.entity.SelectListEntity" 
+		parameterType="com.dimine.pub.entity.SelectListEntity"> select DevID value,DevName 
+		text from t_sm_device where deptid = #{text} and devclass =#{businesstype}; 
+		</select> -->
+	<!-- 查询月计划 分段 下拉列表值 -->
+	<select id="selectfenduanList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select '' value,'请选择' text
+		union all
+		SELECT cp.PartPiece
+		value,p.ProjectName text from t_cg_contract c
+		LEFT JOIN t_cg_contractprice cp on c.ContractID=cp.ContractID
+		INNER JOIN t_bi_projectinfo p on p.ProjectID=cp.PartPiece
+		where 1=1 and
+		cp.DeptID=#{text} and cp.cptype = #{value}
+		<if test="businesstype != null and businesstype != ''">
+			and c.ProjectType=#{businesstype}
+		</if>
+		<if test="contractid != null and contractid != ''">
+			and cp.ContractID=#{contractid}
+		</if>
+		<if test="zhongduanid != null and zhongduanid != ''">
+			and cp.MidPiece=#{zhongduanid}
+		</if>
+		GROUP BY cp.ContractID,cp.ContractID,cp.PartPiece
+
+	</select>
+	<!-- 查询月计划 中段 下拉列表值 -->
+	<select id="selectzhongduanList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select '' value,'请选择' text
+		union all
+		SELECT cp.MidPiece
+		value,p.ProjectName text from t_cg_contract c
+		LEFT JOIN t_cg_contractprice cp on c.ContractID=cp.ContractID
+		INNER JOIN t_bi_projectinfo p on p.ProjectID=cp.MidPiece
+		where 1=1 and
+		cp.DeptID=#{text} and cp.cptype = #{value}
+		<if test="businesstype != null and businesstype != ''">
+			and c.ProjectType=#{businesstype}
+		</if>
+		<if test="contractid != null and contractid != ''">
+			and cp.ContractID=#{contractid}
+		</if>
+		GROUP BY cp.ContractID,cp.MidPiece
+	</select>
+	<!-- 查询月计划 合同编号 下拉列表值 -->
+	<select id="selectcontractcodeList" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		SELECT c.ContractID value, c.ContractCode text from t_cg_contract c
+		LEFT JOIN t_cg_contractprice cp on c.ContractID=cp.ContractID
+		where 1=1
+		and cp.DeptID=#{text} and cp.cptype = #{value}
+		<if test="businesstype != null and businesstype != ''">
+			and c.ProjectType=#{businesstype}
+		</if>
+		GROUP BY c.ContractID
+	</select>
+	<!-- 查询月计划 根据作业地点查合同 -->
+	<select id="selectcontractByProject" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select ContractID value from t_bi_contractproject where ProjectID=#{value}
+		and DeptID2=#{text}
+	</select>
+	<!-- 查询月计划 根据分段查合同 -->
+	<select id="selectcontractByfenduan" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		SELECT c.ContractID value, cp.MidPiece text from t_cg_contract c
+		LEFT JOIN t_cg_contractprice cp on c.ContractID=cp.ContractID
+		where 1=1 and
+		cp.DeptID=#{text} and cp.cptype = #{value}
+		<if test="businesstype != null and businesstype != ''">
+			and c.ProjectType=#{businesstype}
+		</if>
+		and cp.PartPiece=#{fenduanid}
+		GROUP BY
+		c.ContractID,cp.MidPiece,cp.PartPiece
+	</select>
+	<!-- 查询月计划 根据中断查合同 -->
+	<select id="selectcontractByzhongduan" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		SELECT c.ContractID value, cp.MidPiece text from t_cg_contract c
+		LEFT JOIN t_cg_contractprice cp on c.ContractID=cp.ContractID
+		where 1=1 and
+		cp.DeptID=#{text} and cp.cptype = #{value}
+		<if test="businesstype != null and businesstype != ''">
+			and c.ProjectType=#{businesstype}
+		</if>
+		and cp.MidPiece=#{zhongduanid}
+		GROUP BY c.ContractID,cp.MidPiece
+	</select>
+	<!-- 查询合同 单价类型 -->
+	<select id="selectdwlist" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select s.DICTID value,s.paramname text from t_sm_busiprice t
+		left join
+		sys_dict s
+		on t.Unit = s.dictid
+		where
+		s.DICTTYPEID = #{dicttypeid}
+		and
+		t.businessType = #{businesstype};
+	</select>
+	<!-- 业务类型对应的工序 -->
+	<select id="selectsjgxlist" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select dictid value,paramname text from sys_dict where
+		dicttypeid=#{dicttypeid} and parentid=#{parentid}
+	</select>
+
+	<!-- 对应部门的班次 -->
+	<select id="selectclasseslist" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="java.lang.String">
+		select classtype value,d.paramname text from t_sm_classcfg t
+		LEFT JOIN
+		sys_dict d on d.dictid=t.ClassType
+		where deptid=#{value};
+	</select>
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		<trim suffixOverrides=",">
+			<if test="param != null and param != ''">
+				and cp.projectname like
+				'%${param}%'
+			</if>
+			<if test="memo != null and memo != ''">
+				and c.ProjectType=#{memo}
+			</if>
+			<if test="contractid != null and contractid != ''">
+				and
+				c.ContractID=#{contractid}
+			</if>
+			<if test="midpiece != null and midpiece != ''">
+				and cp.MidPiece=#{midpiece}
+			</if>
+			<if test="partpiece != null and partpiece != ''">
+				and
+				cp.PartPiece=#{partpiece}
+			</if>
+			<if test="section != null and section != ''">
+				and
+				cp.Section=#{section}
+			</if>
+			<if test="stype != null and stype != ''">
+				and cp.stype=#{stype}
+			</if>
+			<if test="query != null and query != ''">
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询当前项目部是否配置了反井工程业务 -->
+	<select id="querybusinessbydept" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select businesstype from t_bi_pdeptbusiness where DeptID=#{text} and
+		BusinessType=#{value}
+	</select>
+
+	<!-- 查询当前项目部配置业务 -->
+	<select id="getBusinessConf" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		select businesstype from t_bi_pdeptbusiness where DeptID=#{deptid}
+	</select>
+
+	<!-- 根据工序id 查询出所有的设备信息 -->
+	<select id="selectdevlist" resultType="com.dimine.pub.entity.SelectListEntity" parameterType="com.dimine.pub.entity.SelectListEntity">
+		SELECT CONCAT(a.DevCCode,d.PARAMNAME) text,a.DevID value from t_dm_device a
+			LEFT JOIN t_sc_devtechprocess b on a.DevID=b.DevID
+			LEFT JOIN sys_dict d on d.DICTID=a.DevName
+		where  b.ProcID=#{procid} and b.TDeptID=#{deptid}
+	</select>		
+
+	<!-- 根据工序id,班组id 查询出工序，班组都配置了的的设备信息 -->
+	<select id="selectDevByProTea" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="com.dimine.pub.entity.SelectListEntity">
+		SELECT t.devid value,t.text text from(
+		SELECT a.DevID, CONCAT(b.devccode,c.PARAMNAME) text from t_dm_deviceteam a 
+		LEFT JOIN t_dm_device b on a.DevID=b.DevID 
+		LEFT JOIN sys_dict c on b.DevName=c.DICTID 
+        where a.TeamID=#{teamid} and b.DeptID=#{deptid} and a.DevID 
+        IN (SELECT aa.DevID  from t_dm_device aa 
+        LEFT JOIN t_sc_devtechprocess b on aa.DevID=b.DevID 
+        LEFT JOIN sys_dict d on d.DICTID=aa.DevName 
+        where b.ProcID=#{procid} and aa.DeptID=#{deptid})
+        )t
+	</select>
+</mapper>

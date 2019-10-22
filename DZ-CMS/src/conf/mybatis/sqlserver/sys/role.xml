@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.RoleDao" > 
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.RoleEntity" >
+		<result column="roleid" property="roleid"/>
+		<result column="rolename" property="rolename"/>
+		<result column="memo" property="memo"/>
+		<result column="acginame" property="acginame"/>
+		<result column="deptid" property="deptid"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		 tempcolumn=0,roleid,rolename,memo,acginame,deptid
+	</sql>
+	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (rolename like '%'+#{param}+'%' or acginame like '%'+#{param}+'%')
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_role(roleid,rolename,memo,acginame,deptid)
+		VALUES(#{roleid},#{rolename},#{memo},#{acginame},#{deptid})
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE sys_role 
+		SET rolename=#{rolename},memo=#{memo},acginame=#{acginame},deptid=#{deptid} 
+		WHERE roleid=#{roleid}
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM sys_role WHERE roleid = #{roleid}
+	</delete>
+	
+	<!-- 根据id查询 系统角色 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM sys_role WHERE roleid = #{id}
+	</select>
+
+	<!-- 系统角色 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM sys_role 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询系统角色列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+	SELECT * FROM (
+		select row_number()over(order by tempcolumn)temprownumber,*
+		from (
+		SELECT top ${pager.endrow}
+		<include refid="Base_Column_List"/>
+		FROM sys_role 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		 )t
+	)tt WHERE temprownumber>=${pager.startrow}
+	</select>
+ 
+	<!-- 查看角色名称是否已经存在 -->
+	<select id="countByIdAndName" parameterType="Object" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM sys_role WHERE (roleid = #{roleid} OR rolename=#{rolename}) AND deptid=#{deptid}
+	</select>
+	
+	<!-- 查询部门下的角色信息 -->
+	<select id="allRoleByDeptid" parameterType="java.lang.String" resultType="java.lang.String">
+		with cte_root(deptid,parentdeptid)
+		as
+		(
+		select deptid,parentdeptid
+		from sys_dept
+		where delflag = '0'
+		AND isorg='1' 
+		<if test="value != null and value != ''" >
+			and deptid=#{value}
+		</if>
+		union all
+		select a.deptid,a.parentdeptid
+		from
+		sys_dept a
+		inner join
+		cte_root b
+		on
+		a.parentdeptid=b.deptid
+		where a.delflag = '0' AND a.isorg='1'
+		)
+		SELECT roleid FROM sys_role r WHERE r.deptid IN ( 
+			select deptid from cte_root WHERE 1=1
+		<if test="value != null and value != ''" >
+			and deptid != #{value} 
+		</if>
+		)
+		GROUP BY roleid
+	</select>
+	
+	<!-- 删除与该角色的关联关系 -->
+	<delete id="deleteForFunc" parameterType="java.lang.String">
+		DELETE FROM sys_role_func WHERE roleid = #{value}
+	</delete>
+	
+	<!-- 删除与该角色的关联关系 -->
+	<delete id="deleteForUser" parameterType="java.lang.String">
+		DELETE FROM sys_user_role WHERE roleid = #{value}
+	</delete>
+	<!-- 查询机构下所拥有的角色ID -->
+	<select id="delteforDepet" parameterType="string"
+		resultType="string">
+		SELECT roleid FROM sys_role WHERE deptid=#{value}
+	</select>
+	<!-- 查询机构下所拥有的角色ID -->
+	<select id="getRolebydeptid" parameterType="string"
+		resultType="string">
+		SELECT roleid FROM sys_role WHERE deptid=#{value}
+	</select>
+	<!-- 删除与该角色的关联关系 -->
+	<delete id="deleteBydeptid" parameterType="string">
+		DELETE
+		FROM sys_role WHERE deptid = #{value}
+	</delete>
+	<!-- 修改角色 -->
+	<update id="Updateorg" parameterType="map">
+		UPDATE
+		sys_role SET deptid=#{orgID} WHERE deptid = (SELECT orgid
+		FROM sys_dept
+		WHERE deptid=#{deptid})
+	</update>
+	
+</mapper>   

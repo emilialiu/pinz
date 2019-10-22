@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.pub.dao.MessageDao" > 
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.pub.entity.MessageEntity" >
+ 		<result column="messageid" property="messageid"/>
+		<result column="messagetitle" property="messagetitle"/>
+		<result column="shorttile" property="shorttile"/>
+		<result column="mestype" property="mestype"/>
+		<result column="mescontent" property="mescontent"/>
+		<result column="mesfile" property="mesfile"/>
+		<result column="mestime" property="mestime"/>
+		<result column="istop" property="istop"/>
+		<result column="isdel" property="isdel"/>
+		<result column="fileurl" property="fileurl"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		 messageid,messagetitle,shorttile,mestype,mescontent,mesfile,date_format(mestime,'%Y-%m-%d %H:%i:%s')mestime,istop,isdel,fileurl,addname,updatename
+	</sql>
+	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (messagetitle like '%${param}%' or shorttile like '%${param}%' or mescontent like '%${param}%')
+			</if>
+			<if test="messageid != null and messageid != '' and messageid !='null'" >
+				and messageid=#{messageid}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO T_Pub_Message(messageid,messagetitle,shorttile,mestype,
+									mescontent,mesfile,mestime,istop,isdel,fileurl,adddate,addname)
+		VALUES(#{messageid},#{messagetitle},#{shorttile},#{mestype},
+								#{mescontent},#{mesfile},now(),0,0,#{fileurl},now(),#{fileurl})
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE T_Pub_Message 
+		SET messagetitle=#{messagetitle},shorttile=#{shorttile},mestype=#{mestype},mescontent=#{mescontent} 
+			,mesfile=#{mesfile},mestime=now() ,fileurl=#{fileurl},updatedate = now(),updatename=#{updatename} 
+		WHERE messageid=#{messageid}
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM T_Pub_Message WHERE messageid = #{messageid}
+	</delete>
+	
+	<!-- 根据id查询 系统角色 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM T_Pub_Message WHERE messageid = #{id}
+	</select>
+	
+	<!-- 查询系统角色列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+	
+		SELECT 
+		<include refid="Base_Column_List"/>
+		FROM T_Pub_Message 
+		<include refid="Base_Where"/>
+		ORDER BY mestime desc
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 系统角色 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM T_Pub_Message 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据当前登录人id取得此人可以看到的公告信息列表 -->
+	<select id="getMessageListByUserid" resultType="com.dimine.pub.entity.MessageEntity" parameterType="java.lang.String">
+		SELECT m.messageid,m.messagetitle,left(m.adddate,10) adddate,m.shorttile,m.mescontent,
+		m.mestype,m.mesfile,m.mestime,m.istop,m.isdel,m.fileurl,m.addname
+		 FROM T_PUB_MESSAGE m 
+		WHERE NOT exists (SELECT mv.bizid FROM T_Pub_MessageVist mv WHERE m.messageid = mv.bizid AND mv.userid = #{value}) 
+		ORDER BY mestime desc
+	</select>
+		<!-- 更改消息状态为已读 -->
+	<update id="updateMessageState" parameterType="Object"  >
+			update T_Pub_MessageVist set messagestate='XXZT002' where mid=#{mid}
+	</update>
+</mapper>   

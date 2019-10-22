@@ -1,0 +1,112 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>帮助中心</title>
+<STYLE TYPE="text/CSS">
+.weiz_title2 {
+	PADDING-LEFT: 5px; text-align:left;FONT-SIZE: 14px; font-weight:bold; COLOR: #10307a; HEIGHT: 22px; line-height:22px; background:#0099FF url(mem_19.jpg);
+}
+.abou_t {
+	FONT-SIZE: 14px; LINE-HEIGHT: 20px;COLOR: #000;border-bottom:#75BFFC 1px dotted;
+}
+.abou_n {
+	FONT-SIZE: 14px; LINE-HEIGHT: 20px;COLOR: #004390;
+}
+.lrbord{ border-left:#75BFFC 1px solid; border-right:#75BFFC 1px solid;padding:5px;}
+.thbord{ border-top:#75BFFC 1px solid; padding:5px;}
+</STYLE>
+<script type="text/javascript">
+
+function goTop(acceleration, time) {
+  acceleration = acceleration || 0.1;//加速度 acceleration
+   time = time || 15;//时间间隔
+var x=0,y=0;
+
+if (document.documentElement) {
+   x = document.documentElement.scrollLeft|| 0;
+   y = document.documentElement.scrollTop || 0;
+}
+
+var speed = 1 + acceleration;//滚动速度
+      //  floor()返回值为小于等于其数值参数的最大整数值 假如 y=36 speed=1.1   36/1.1=32;
+      // scrollTo()滚动条将要移动到x y 经过计算得出的值
+window.scrollTo(Math.floor(x / speed), Math.floor(y / speed));
+    //如果 x (scrollLeft!=0)||y(scrollTop!=0)还未移动到顶部.所以setTimeout()继续执行该函数
+    if(x > 0 || y > 0) {
+           var invokeFunction = "goTop(" + acceleration + ", " + time + ")";
+           window.setTimeout(invokeFunction, time);
+      }
+}
+</script>
+
+
+</head>
+
+<body>
+<table width="884" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td height="25" align="left" class="lrbord thbord"><div align="center" class="abou_t"><strong>操作步骤</strong></div></td>
+  </tr>
+  <tr>
+    <td height="25" align="left" class="weiz_title2"><span class="abou_n">1.系统用户登录：</span></td>
+  </tr>
+  <tr>
+    <td valign="top" class="weiz_title3 lrbord"><span class="abou_n">【1】输入用户名、密码登录系统：</span></td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><img src="login.png" width="617" height="239" /></td>
+  </tr>
+  <tr>
+    <td valign="top" class="weiz_title2">2.连接目标数据库</td>
+  </tr>
+  <tr>
+    <td valign="top" class="weiz_title3 lrbord"><span class="abou_n">【1】参照提示信息输入数据库SID、用户名、密码连接目标数据库：</span></td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><img src="conn.png" width="374" height="120" /></td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><span class="abou_n">【2】若连接成功系统给出提示：</span></td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><p><img src="alter.png" width="356" height="125" /></p>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top" class="weiz_title2">3.获取操作表信息</td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><span class="abou_n">【1】参照提示信息输入数据库SID、用户名、密码连接目标数据库：</span></td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><img src="table.png" width="737" height="119" /></td>
+  </tr>  
+  <tr>
+    <td valign="top" class="weiz_title2">4.设置页面信息</td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><span class="abou_n">【1】填写或勾选列表上的字段信息，点击生成源码按钮生成源代码信息：</span></td>
+  </tr>
+  <tr>
+    <td valign="top" class="lrbord"><img src="data.png" width="800" height="350" /></td>
+  </tr> 
+  <tr>
+    <td valign="top" bgcolor="#75BFFC" class="abou_n">&nbsp;<strong>注意事项</strong></td>
+  </tr>
+  <tr>
+    <td valign="top" class="abou_n lrbord">
+    【1】表单中带【<span style="color: red; font-weight: bold;">*</span>】选项为必填选项；<br />
+    【2】必须在生成源代码之后才能进行页面预览和源文件下载；<br />
+    【3】如果主键要求显示在列表页面上请选中【页面是否显示主键】选项；<br />
+    【4】列表描述必须填写；<br />
+    【5】表中必须有一个字段作为主键字段；<br />
+    </td>
+  </tr>
+  <tr>
+    <td align="right" valign="top" class="abou_n thbord"><img src="top.jpg" width="11" height="16" /><a href="help\help2.jsp" class="sub2"onclick="goTop();return false;">TOP</a></td>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Echarts--标准环形图</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+	</head>
+
+	<body>
+		<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+		<div id="main" style="height: 400px"></div>
+		<!-- ECharts单文件引入 -->
+		<script src="./echarts-all.js"></script>
+		<script type="text/javascript">
+			// 基于准备好的dom，初始化echarts图表
+			var myChart = echarts.init(document.getElementById('main'));
+
+			var option = {
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: "{a} <br/>{b} : {c} ({d}%)"
+			    },
+			    legend: {
+			        orient : 'vertical',
+			        x : 'left',
+			        data:['锌精矿','重晶石','辉银矿','硫砷铁矿','铅精矿']
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            mark : {show: true},
+			            dataView : {show: true, readOnly: false},
+			            magicType : {
+			                show: true, 
+			                type: ['pie', 'funnel'],
+			                option: {
+			                    funnel: {
+			                        x: '25%',
+			                        width: '50%',
+			                        funnelAlign: 'center',
+			                        max: 1548
+			                    }
+			                }
+			            },
+			            restore : {show: true},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    calculable : true,
+			    series : [
+			        {
+			            name:'访问来源',
+			            type:'pie',
+			            radius : ['50%', '70%'],
+			            itemStyle : {
+			                normal : {
+			                    label : {
+			                        show : true
+			                    },
+			                    labelLine : {
+			                        show : true
+			                    }
+			                },
+			                emphasis : {
+			                    label : {
+			                        show : true,
+			                        position : 'center',
+			                        textStyle : {
+			                            fontSize : '30',
+			                            fontWeight : 'bold'
+			                        }
+			                    }
+			                }
+			            },
+			            data:[
+			                {value:335, name:'锌精矿'},
+			                {value:310, name:'重晶石'},
+			                {value:234, name:'辉银矿'},
+			                {value:135, name:'硫砷铁矿'},
+			                {value:1548, name:'铅精矿'}
+			            ]
+			        }
+			    ]
+			};
+
+			// 为echarts对象加载数据 
+			myChart.setOption(option);
+		</script>
+	</body>
+</html>

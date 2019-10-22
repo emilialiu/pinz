@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sc.dao.T_sc_techprocessDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sc.entity.T_sc_techprocessEntity" >
+		<result column="techid" property="techid"/>
+		<result column="procid" property="procid"/>
+		<result column="tdeptid" property="tdeptid"/>
+		<result column="serialno" property="serialno"/>
+		<result column="isplan" property="isplan"/>
+		<result column="isaccept" property="isaccept"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="memo" property="memo"/>
+	</resultMap>
+		   
+	<!-- t_sc_techprocess table all fields -->
+	<sql id="Base_Column_List" >
+		t1.techid, 
+		t1.procid, 
+		t1.tdeptid, 
+		t1.serialno, 
+		t1.isplan, 
+		t1.isaccept, 
+		t1.createid, 
+		t1.createdate, 
+		t1.modifyid, 
+		t1.modifydate, 
+		t1.memo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1 and t3.isdel='0'
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and t3.ProctName like '%${param}%'
+			</if>
+			<if test="techid != null and techid != ''" >
+				and t1.techid=#{techid}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询工艺对应工序信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>,t3.ProctName processname,
+		(select ProctName from T_SC_Process where ProcID=(select parentid from T_SC_Process where ProcID=t1.ProcID)) parentprocess
+		FROM  t_sc_techprocess t1
+		left join T_SC_technology t2 on t2.TechID=t1.TechID
+		left join T_SC_Process t3 on t3.ProcID=t1.ProcID
+		<include refid="Base_Where"/> 
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询工艺对应工序信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_techprocess t1
+		left join T_SC_technology t2 on t2.TechID=t1.TechID
+		left join T_SC_Process t3 on t3.ProcID=t1.ProcID
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 工艺对应工序信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sc_techprocess 
+		WHERE 
+		techid = #{id}  AND 
+		procid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sc_techprocess(
+		techid, 
+		procid, 
+		tdeptid, 				
+		createid, 
+		createdate	
+		)
+		VALUES(		
+		#{techid}, 
+		#{procid}, 
+		#{tdeptid}, 		 		 
+		#{createid}, 
+		now()		
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sc_techprocess 
+		SET 		 
+		isplan = #{isplan}, 
+		isaccept = #{isaccept}, 
+		serialno = #{serialno},  
+		modifyid = #{modifyid}, 
+		modifydate = now()
+		WHERE 
+		techid = #{techid}  AND 		
+		procid = #{procid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sc_techprocess		
+		WHERE 
+		techid = #{techid}  AND 		
+		procid = #{procid} 		
+	</delete>
+	
+</mapper>   

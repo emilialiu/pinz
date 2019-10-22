@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.SystemParamDao">
+	<!-- 在数据表中查找满足条件的信息 -->
+	<select id="getValueByCode" parameterType="java.lang.String" resultType="java.lang.String" useCache="true">
+		SELECT ParamValue FROM sys_param WHERE ParamCode=#{value}
+	</select> 
+	<select id="selectByList" resultType="com.dimine.sys.entity.SystemParamEntity"
+			parameterType="com.dimine.sys.entity.SystemParamEntity">
+			SELECT * FROM (
+			select row_number()over(order by paramcode)temprownumber,*
+			from (
+			SELECT top ${pager.endrow} * FROM sys_param
+			<if test="deptID != null and deptID != ''">
+				where deptID = #{deptID}
+			</if>
+			<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+			${pager.orderCondition}
+			</if>
+			 )t
+		)tt WHERE temprownumber>=${pager.startrow}
+	</select>
+	<!-- 系统角色 列表总数 -->
+	<select id="selectByCount" resultType="java.lang.Integer"
+			parameterType="Object">
+			select count(1) from sys_param
+			<if test="deptID != null and deptID != ''">
+				where deptID = #{deptID}
+			</if>
+	</select>	
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_param(ParamCode, ParamName, ParamValue, deptID,
+			memo) VALUES(#{paramcode}, #{paramname}, #{paramvalue}, #{deptID},
+			#{memo})
+	</insert>
+	<!-- 根据id查询 系统角色 -->
+	<select id="selectById"  resultType="com.dimine.sys.entity.SystemParamEntity" parameterType="Object">
+		SELECT ParamCode, ParamName, ParamValue, deptID, memo FROM
+		sys_param WHERE ParamCode=#{id}
+	</select>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE sys_param SET ParamName=#{paramname},
+		ParamValue=#{paramvalue}, deptID=#{deptID}, memo=#{memo} WHERE
+		ParamCode=#{paramcode}
+	</update>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM sys_param WHERE ParamCode=#{paramcode}
+	</delete>
+</mapper>

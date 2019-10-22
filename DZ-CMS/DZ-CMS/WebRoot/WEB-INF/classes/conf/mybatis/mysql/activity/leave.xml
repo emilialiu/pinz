@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.activity.dao.LeaveDao">
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.activity.entity.LeaveEntity">
+		insert into oa_leave(id,apply_time,end_time,leave_type,process_instance_id,
+		reason,start_time,user_id)
+		values(
+		#{id},now(),#{endTime},#{leaveType},#{processInstanceId}
+		,#{reason},#{startTime},#{userId}
+		)
+	</insert>
+	<!-- 查询请假信息 -->
+	<select id="selectById" parameterType="java.lang.String" resultType="com.dimine.activity.entity.LeaveEntity">
+		select o.id,o.apply_time applyTime ,o.end_time endTime 
+		,o.leave_type leaveType ,o.process_instance_id processInstanceId,
+		o.reality_end_time realityEndTime,o.reality_start_time realityStartTime,o.reason,o.start_time startTime,o.user_id userId,u.username
+		from oa_leave o
+		inner join sys_user u on u.userid=o.user_id
+		 where o.id=#{value}
+	</select>
+	<!-- 修改数据 -->
+	<insert id="update" parameterType="com.dimine.activity.entity.LeaveEntity">
+		update oa_leave set id=#{id},end_time=#{endTime},leave_type=#{leaveType},process_instance_id=#{processInstanceId},
+		reality_end_time=#{realityEndTime},reality_start_time=#{realityStartTime},reason=#{reason},start_time=#{startTime},user_id=#{userId}
+		where id=#{id}
+	</insert>
+</mapper>  

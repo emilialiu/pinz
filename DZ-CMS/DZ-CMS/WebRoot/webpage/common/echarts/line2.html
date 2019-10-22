@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Echarts--标准面积图</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+	</head>
+
+	<body>
+		<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+		<div id="main" style="height: 400px"></div>
+		<!-- ECharts单文件引入 -->
+		<script src="./echarts-all.js"></script>
+		<script type="text/javascript">
+			// 基于准备好的dom，初始化echarts图表
+			var myChart = echarts.init(document.getElementById('main'));
+
+			var option = {
+			    title : {
+			        text: '矿山铅金属销售情况',
+			        subtext: ''
+			    },
+			    tooltip : {
+			        trigger: 'axis'
+			    },
+			    legend: {
+			        data:['意向','预购','成交']
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            mark : {show: true},
+			            dataView : {show: true, readOnly: false},
+			            magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+			            restore : {show: true},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    calculable : true,
+			    xAxis : [
+			        {
+			            type : 'category',
+			            boundaryGap : false,
+			            data : ['周一','周二','周三','周四','周五','周六','周日']
+			        }
+			    ],
+			    yAxis : [
+			        {
+			            type : 'value'
+			        }
+			    ],
+			    series : [
+			        {
+			            name:'成交',
+			            type:'line',
+			            smooth:true,//平滑曲线显示
+			            itemStyle: {normal: {areaStyle: {type: 'default'}}},//区域填充样式
+			            data:[10, 12, 21, 54, 260, 830, 710]
+			        },
+			        {
+			            name:'预购',
+			            type:'line',
+			            smooth:false,//非平滑曲线显示
+			            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+			            data:[30, 182, 434, 791, 390, 30, 10]
+			        },
+			        {
+			            name:'意向',
+			            type:'line',
+			            smooth:true,
+			            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+			            data:[520, 432, 601, 234, 120, 90, 20]
+			        }
+			    ]
+			};
+
+			// 为echarts对象加载数据 
+			myChart.setOption(option);
+		</script>
+	</body>
+</html>

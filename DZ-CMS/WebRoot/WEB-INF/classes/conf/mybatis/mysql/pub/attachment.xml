@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.pub.dao.AttachmentDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.pub.entity.AttachmentEntity" >
+		<result column="attachmentid" property="attachmentid"/>
+		<result column="deptid" property="deptid"/>
+		<result column="bzstype" property="bzstype"/>
+		<result column="businessid" property="businessid"/>
+		<result column="attachmenttype" property="attachmenttype"/>
+		<result column="attachmentname" property="attachmentname"/>
+		<result column="attachmenturl" property="attachmenturl"/>
+		<result column="yearvalue" property="yearvalue"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		tempcolumn=0,
+		attachmentid,
+		biztype,
+		bizid,
+		attachmenttype,
+		attachmentname,
+		attachmentpath,
+		remark,
+		createid,
+		createdate,
+		modifyid,
+		modifydate
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (attachmentname like '%${param}%')
+			</if>
+			<if test="bzstype != null and bzstype != ''" >
+				and bzstype = #{bzstype}
+			</if>
+			<if test="businessid != null and businessid != ''" >
+				and businessid = #{businessid}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT attachmentid,deptid,bzstype,businessid,attachmenttype,attachmentname,attachmenturl,yearvalue,memo,createid,createdate
+		FROM t_pub_attachment WHERE attachmentid = #{attachmentid} 		
+	</select>
+	
+	<!-- 根据bizid查询 -->
+	<select id="selectByBusinessid" resultMap="BaseResultMap" parameterType="Object">
+		SELECT attachmentid,deptid,bzstype,businessid,attachmenttype,attachmentname,attachmenturl,yearvalue,memo,createid,createdate
+		FROM t_pub_attachment WHERE businessid = #{businessid} 
+		<if test="bzstype != null and bzstype != ''" >
+			and bzstype = #{bzstype}
+		</if>
+	</select>
+
+	<!-- 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_pub_attachment a
+		LEFT JOIN SYS_DICT d ON a.bzstype = d.DICTID 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT attachmentid,deptid,bzstype, d.paramname bzstypename,businessid,attachmenttype,attachmentname,attachmenturl,yearvalue,memo,createid,createdate
+		FROM t_pub_attachment a
+		LEFT JOIN SYS_DICT d ON a.bzstype = d.DICTID 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+			${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 列表总数-->
+	<select id="selectCwCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_pub_attachment p
+		inner join t_aq_stclass c on c.classid = p.businessid
+		left join t_aq_trainingreg t on c.trainingid = t.trainingid
+		left join sys_dept dept on t.deptid = dept.deptid
+		left join sys_dict d on t.trainingtype = d.dictid
+		left join t_sm_staff s on p.createid = s.staffid
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectCwList" resultMap="BaseResultMap" parameterType="Object">
+		select p.attachmentid,t.deptid,dept.deptname,t.trainingtype,d.paramname trainingtypename, 
+			p.attachmentname, date_format(p.createdate,'%Y-%m-%d') createdate, s.staffname createid
+		from t_pub_attachment p
+		inner join t_aq_stclass c on c.classid = p.businessid
+		left join t_aq_trainingreg t on c.trainingid = t.trainingid
+		left join sys_dept dept on t.deptid = dept.deptid
+		left join sys_dict d on t.trainingtype = d.dictid
+		left join t_sm_staff s on p.createid = s.staffid
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+			${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_pub_attachment(attachmentid,deptid,bzstype,businessid,attachmenttype,attachmentname,attachmenturl,yearvalue,memo,createid,createdate)
+		VALUES(#{attachmentid},#{deptid},#{bzstype},#{businessid},#{attachmenttype},#{attachmentname},#{attachmenturl},#{yearvalue},#{memo},#{createid},now())
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_pub_attachment SET attachmentname = #{attachmentname},attachmenttype = #{attachmenttype},deptid = #{deptid},
+			bzstype = #{bzstype},yearvalue = #{yearvalue},attachmenturl = #{attachmenturl},memo=#{memo},modifyid = #{modifyid},modifydate = now()
+		WHERE attachmentid = #{attachmentid}
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_pub_attachment WHERE attachmentid = #{attachmentid} 		
+	</delete>
+	<!-- 删除记录 -->
+	<delete id="deleteByUrl" parameterType="Object">
+		DELETE FROM t_pub_attachment WHERE attachmenturl like CONCAT('%',#{attachmenturl},'%')
+	</delete>
+	<!-- 修改文件路径-->  
+	<update id="updateUrl" parameterType="Object" >
+		UPDATE t_pub_attachment SET attachmenturl = ''
+		WHERE attachmenturl like CONCAT('%',#{attachmenturl},'%')
+	</update>
+	
+</mapper>   

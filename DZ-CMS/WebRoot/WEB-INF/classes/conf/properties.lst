@@ -1,0 +1,2 @@
+classpath:conf/properties/app.properties
+classpath:conf/properties/app.jdbc.properties

@@ -1,0 +1,40 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="../../js/chart/FusionCharts.js"></script>
+	</head>
+	<body>
+		<div id="chart1div" style="float: left"></div>
+		<div id="chart1div1" style="float: left"></div>
+		<div id="chart1div2" style="float: right"></div>
+		<script>
+			var strXML = "<graph animation='0' caption='Hours worked' showNames='1'><set name='Tom' value='32' color='AFD8F8'/><set name='Mary' value='16' color='F6BD0F'/><set name='Jane' value='42' color='8BBA00'/></graph>";
+			var myChart = new FusionCharts("../../swf/Pie3D.swf", "chart1Id", "300", "400");
+			//myChart.setDataXML(strXML);
+			myChart.setDataURL("./data2.xml");
+			myChart.render("chart1div");
+
+			var myChart1 = new FusionCharts("../../swf/Column3D.swf", "chart1Id", "400", "400");
+			myChart1.setDataURL("./data.xml");
+			myChart1.render("chart1div1");
+
+			var areaObject=[{name:"班组一",count:1000,color:"008E8E"},
+                     		{name:"班组二",count:961,color:"A186BE"},
+                     		{name:"班组三",count:907,color:"F6BD0F"},
+                     		{name:"班组四",count:941,color:"AFD8F8"},
+                      		{name:"班组五",count:1041,color:"B3AA00"},
+                      		{name:"班组六",count:1021,color:"008ED6"}
+                     	];
+     		var strXML="<graph exportFileName='Column3D' exportEnabled='1' exportAction='download' exportAtClient='0' exportDialogMessage='正在生成,请稍候...' exportFormats='JPEG=另存为JPEG图片|PNG=另存为PNG图片|PDF=另存为PDF文件' exportHandler='/dmframedev1/FCExporter.do' caption='班组月产量对照表' xAxisName='班组名' yAxisName='产量' baseFont='宋体' baseFontSize='12'>";
+     		var strXMLstrXML="";
+     		var length=areaObject.length;
+     		for(var i=1;i<=length;i++){
+        		strXMLstrXML += "<set name='"+areaObject[i-1].name+"' value='"+areaObject[i-1].count+"' color='"+areaObject[i-1].color+"'/>";
+     		}
+        	strXML = strXML + strXMLstrXML+"</graph>";
+            var chart1 = new FusionCharts("../../swf/Column3D.swf", "chart1Id", "500", "400");
+            chart1.setDataXML(strXML);
+            chart1.render("chart1div2");
+		</script>
+	</body>
+</html>

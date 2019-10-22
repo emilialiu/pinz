@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.FuncDao">
+	<!-- 根据funccode查询功能信息 -->
+	<select id="selectById" parameterType="java.lang.String" resultType="com.dimine.sys.entity.FuncEntity">
+		SELECT t1.funccode, t1.parentfunccode, t1.funcname, t1.funcnameen,t1.url,
+		t1.funcicon, t1.functype, t1.orderno, t1.memo, t2.funcname
+		parentfuncName,t1.classpath,t1.FUNCNAMEPY,t1.FUNCNAMEPYSHORT,t1.MEMOPY,t1.MEMOPYSHORT FROM sys_func t1 LEFT JOIN sys_func t2 ON
+		t1.parentfunccode = t2.funccode WHERE t1.funccode=#{value}
+	</select>
+	
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.sys.entity.FuncEntity">
+		INSERT INTO sys_func (funccode, parentfunccode, funcname, funcnameen,url,functype, orderno, memo,classpath,funcnamepy,funcnamepyshort,memopy,memopyshort,funcicon) 
+		values(#{funccode}, #{parentfunccode}, #{funcname}, #{funcnameen},#{url}, #{functype}, #{orderno}, #{memo}, #{classpath},#{funcnamepy},#{funcnamepyshort},#{memopy},#{memopyshort},#{funcicon})
+	</insert>
+	
+	<update id="update" parameterType="com.dimine.sys.entity.FuncEntity">
+		<!-- 外键和主键一样，不能被修改  -->
+		UPDATE sys_func SET funcname=#{funcname}, funcnameen=#{funcnameen},url=#{url}, functype=#{functype}, 
+			parentfunccode=#{parentfunccode}, memo=#{memo}, orderno=#{orderno}, funcicon=#{funcicon} ,classpath=#{classpath},funcnamepy=#{funcnamepy},funcnamepyshort=#{funcnamepyshort},memopy=#{memopy},memopyshort=#{memopyshort}
+		WHERE funccode=#{funccode}
+	</update>
+
+	<!-- 删除记录信息 -->
+	<delete id="delete" parameterType="com.dimine.sys.entity.FuncEntity">
+		DELETE FROM sys_func WHERE funccode=#{value} or parentfunccode = #{value}
+	</delete>
+	
+	<!-- 功能树形菜单 -->
+	<select id="tree" parameterType="java.lang.String" resultType="com.dimine.sys.entity.FuncEntity"><!-- cacheModel="func-cache" -->
+		SELECT a.funccode, a.funcname, a.funcnameen,a.url, parentfunccode,
+		 (select count(1) from sys_func b where b.parentfunccode = a.funccode) childCount 
+		FROM sys_func a 
+		WHERE 1=1 
+		<if test="value == null or value == ''">
+			and a.parentfunccode is null
+		</if>
+		<if test="value != null and value != ''" >
+			and a.parentfunccode =#{value}
+		</if>
+		ORDER BY orderno
+	</select>
+	
+	<!-- 横向查询是否有相同名称的功能 -->
+	<select id="countByName" parameterType="com.dimine.sys.entity.FuncEntity" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM sys_func WHERE funcname=#{funcname}
+		<if test="parentfunccode != null and parentfunccode != ''" >
+			and parentfunccode = #{parentfunccode}
+		</if>
+		<if test="flag != null and flag != ''" >
+			and parentfunccode is null
+		</if>
+	</select>
+	
+	<!-- 查找与有无子功能 -->
+	<select id="listByChild" parameterType="com.dimine.sys.entity.FuncEntity" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM sys_func WHERE parentfunccode=#{funccode}
+	</select>
+	
+	<!-- 删除功能与角色关系表中的记录 -->
+	<delete id="deleteForRole" parameterType="com.dimine.sys.entity.FuncEntity">
+		DELETE FROM sys_role_func WHERE funccode=#{funccode}
+	</delete>
+	
+	<!-- 如果菜单类型设置为“操作”，则不显示这个菜单  -->
+	<select id="listByParent" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		SELECT a.funccode, a.funcname, a.funcnameen,a.url, a.orderno,a.funcicon,a.parentfunccode FROM
+		sys_func a WHERE parentfunccode=#{funccode} AND funccode IN(
+		SELECT funccode FROM sys_role_func WHERE roleid IN (SELECT
+		roleid FROM sys_user_role WHERE userid=#{userid}) )
+		and (a.functype = '0' or a.functype is null) 
+		ORDER BY a.orderno
+	</select>
+	
+	<!-- 如果菜单类型设置为“操作”，则不显示这个菜单  -->
+	<select id="listByParentTop" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		select f.funccode,f.funcname ,f.funcnameen,f.funcicon,f.url,
+		(select count(*) from sys_func where parentfunccode = f.funccode) childCount from 
+		sys_func f ,sys_user_role r,sys_role_func s
+		where f.funccode = s.funccode and s.roleid= r.roleid  and f.parentfunccode = '100000' and r.userid=#{userid}
+		order by f.orderno
+	</select>
+	<!-- 如果菜单类型设置为“操作”，则不显示这个菜单  -->
+	<select id="listByParentSec" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		select f.funccode,f.funcname ,f.funcnameen,f.funcicon,f.url,f.classpath,
+		(select count(*) from sys_func where parentfunccode = f.funccode) childCount from 
+		sys_func f ,sys_user_role r,sys_role_func s
+		where f.funccode = s.funccode and s.roleid= r.roleid  and f.parentfunccode = #{funccode} and r.userid=#{userid}
+		order by f.orderno
+	</select>
+
+	<!-- 如果菜单类型设置为“操作”，则不显示这个菜单，如果存在于快捷键中则不显示  -->
+	<select id="listByParentTopShortCut" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		select DISTINCT f.funccode,f.funcname ,f.funcnameen,f.funcicon,f.url,
+		(select count(*) from sys_func where parentfunccode = f.funccode) childCount,f.ORDERNO  from 
+		sys_func f ,sys_user_role r,sys_role_func s
+		where f.funccode = s.funccode and s.roleid= r.roleid and f.funccode not in(SELECT funccode FROM sys_shortcut where ownerid =#{userid})  and f.parentfunccode = '100000' and r.userid=#{userid}
+		order by f.ORDERNO 
+	</select>
+	<!-- 如果菜单类型设置为“操作”，则不显示这个菜单 ，如果存在于快捷键中则不显示 -->
+	<select id="listByParentSecShortCut" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		select  f.funccode,f.funcname ,f.funcnameen,f.funcicon,f.url,f.classpath,
+		(select count(*) from sys_func where parentfunccode = f.funccode) childCount,f.ORDERNO from 
+		sys_func f ,sys_user_role r,sys_role_func s
+		where f.funccode = s.funccode and s.roleid= r.roleid  and f.funccode not in(SELECT funccode FROM sys_shortcut where ownerid =#{userid})  and f.parentfunccode = #{funccode} and r.userid=#{userid}
+		order by f.ORDERNO
+	</select>
+	<!-- 显示快捷键列表-->
+	<select id="listByShortCut" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.ShortcutEntity" useCache="true">
+		select t.funccode,t.funcname from sys_shortcut t where t.ownerid=#{ownerid}
+	</select> 
+	<!-- 删除快捷键所有的记录 -->
+	<delete id="deleteAllShortcut" parameterType="com.dimine.sys.entity.ShortcutEntity">
+		DELETE FROM sys_shortcut where ownerid=#{ownerid}
+	</delete>
+	<!-- 添加快捷键数据 -->
+	<insert id="insertShortcut" parameterType="com.dimine.sys.entity.ShortcutEntity">
+		INSERT INTO sys_shortcut (funccode, funcname,ownerid,createtime,orderno) values(#{funccode},#{funcname},#{ownerid},now(),#{orderno})
+	</insert>
+	<!-- 根据ID查询fun-->
+	<select id="searchByFuncEntity" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		select t.* from sys_func t where funccode=#{funccode}
+	</select>
+	<!-- 根据ID查询shortcut关联的fun-->
+	<select id="listShortcutByFunc" parameterType="com.dimine.sys.entity.ShortcutEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		SELECT f.* FROM SYS_SHORTCUT s
+		LEFT JOIN SYS_FUNC f ON f.FUNCCODE = s.funccode
+		where s.ownerid=#{ownerid}
+	</select>
+	<!-- 根据角色查找满足条件的数据 -->
+	<select id="searchByRoleid" parameterType="com.dimine.sys.entity.FuncEntity"
+		resultType="com.dimine.sys.entity.FuncEntity" useCache="true">
+		SELECT DISTINCT a.funccode, a.funcname, a.url, a.orderno,a.parentfunccode FROM
+		sys_func A,sys_role_func B, sys_user_role C WHERE
+		A.funccode=b.funccode AND b.roleid=c.roleid AND a.funccode IS
+		NOT NULL AND c.userid=#{userid}
+		<if test="funccode == null or funccode == ''">
+			and parentfunccode is null
+		</if>
+		<if test="funccode != null and funccode != ''" >
+			and parentfunccode =#{funccode}
+		</if>
+		ORDER BY a.orderno
+	</select>
+	<!-- 查询字典图标类型信息 -->
+	<select id="getSelectTblx" parameterType="java.lang.String" resultType="com.dimine.sys.entity.DictEntity">
+		SELECT  dictid as code,paramname FROM  sys_dict WHERE   dicttypeid = 'TBLX'
+		<if test="value != null and value != ''" >
+			and PARAMREMARK=#{value}
+		</if>
+	</select>
+</mapper>   

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.LogExceptionDao" >
+<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.LogExceptionEntity" >
+		<result column="deptname" property="deptname"/>
+		<result column="exceptionmodule" property="exceptionmodule"/>
+		<result column="exceptiontime" property="exceptiontime"/>
+		<result column="useip" property="useip"/>
+		<result column="exceptioncontent" property="exceptioncontent"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		log.exceptionid,de.deptname,log.EXCEPTION_MODULE,date_format(log.EXCEPTION_TIME,'%Y-%m-%d %H:%i:%s') AS EXCEPTION_TIME,log.USEIP,log.EXCEPTION_CONTENT
+	</sql>
+   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (
+				log.EXCEPTION_MODULE like '%${param}%' 
+				or date_format(log.EXCEPTION_TIME,'%Y-%m-%d %H:%i:%s') like '%${param}%'
+				or log.USEIP like '%${param}%'
+				or log.EXCEPTION_CONTENT like '%${param}%'
+				)
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+ 		from log_exception log
+		left join sys_dept de on de.deptid=log.deptid   
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	<!-- 系统角色 列表总数 -->
+	<select id="selectByCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from log_exception log
+		left join sys_dept de on de.deptid=log.deptid   
+		<include refid="Base_Where"/>
+	</select>
+	<!-- 插入数据 -->
+	<insert id="insert" parameterType="Object">
+		INSERT INTO log_exception(exceptionid, userid, exception_module,
+		exception_time, exception_content, deptid, useIP )
+		values(#exceptionid#, #userid#, #exception_module#, now(),
+		#exception_content#, #deptid#, #useip#)
+	</insert>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM log_exception WHERE exceptionid = #{exceptionid}
+	</delete>
+	<!-- 删除所有的记录 -->
+	<delete id="deleteall" parameterType="Object">
+		DELETE FROM log_exception 
+	</delete>
+
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.taglib.dao.SelectmemuDao">
+	<!-- 下拉选择框 -->
+	<select id="selectmemulist" resultType="java.util.HashMap" parameterType="com.dimine.taglib.entity.SelectmemuEntity">
+		SELECT a.${checkboxid},a.${checkboxtext},a.${parentid},
+		(select count(1) from ${tablename} b
+		where b.${parentid} = a.${checkboxid}) childcount
+		FROM ${tablename} a
+	</select>
+</mapper>

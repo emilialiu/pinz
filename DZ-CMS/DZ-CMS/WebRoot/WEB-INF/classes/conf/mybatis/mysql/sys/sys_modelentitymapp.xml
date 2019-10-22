@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.Sys_modelentitymappDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.Sys_modelentitymappEntity" >
+		<result column="tablename" property="tablename"/>
+		<result column="entityclass" property="entityclass"/>
+		<result column="dbkey" property="dbkey"/>
+		<result column="isauto" property="isauto"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		tablename,
+		entityclass,
+		dbkey,
+		isauto
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and tablename like '%${param}%'
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 系统角色 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM sys_modelentitymapp 
+		WHERE 
+		tablename = #{tablename} 		
+	</select>
+
+	<!-- 系统角色 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM sys_modelentitymapp 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询系统角色列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM sys_modelentitymapp 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_modelentitymapp(
+		tablename,
+		entityclass,
+		dbkey,
+		isauto
+		)
+		VALUES(		
+		#{tablename},
+		#{entityclass},
+		#{dbkey},
+		#{isauto}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE sys_modelentitymapp 
+		SET 		
+		tablename = #{tablename},
+		entityclass = #{entityclass},
+		dbkey = #{dbkey},
+		isauto = #{isauto}
+		WHERE 
+		tablename = #{tablename} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM sys_modelentitymapp		
+		WHERE 
+		tablename = #{tablename} 		
+	</delete>
+	
+</mapper>   

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.pub.dao.T_pub_alarmDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.pub.entity.T_pub_alarmEntity" >
+		<result column="alarmid" property="alarmid"/>
+		<result column="alarmtitle" property="alarmtitle"/>
+		<result column="alarmtype" property="alarmtype"/>
+		<result column="alarmlevel" property="alarmlevel"/>
+		<result column="addtime" property="addtime"/>
+		<result column="memo" property="memo"/>
+		<result column="handletype" property="handletype"/>
+		<result column="handletime" property="handletime"/>
+		<result column="handlename" property="handlename"/>
+		<result column="handlecontent" property="handlecontent"/>
+		<result column="handleaddres" property="handleaddres"/>
+	</resultMap>
+		   
+	<!-- t_pub_alarm table all fields -->
+	<sql id="Base_Column_List" >
+		alarmid, 
+		alarmtitle, 
+		alarmtype, 
+		alarmlevel, 
+		addtime, 
+		memo, 
+		handletype, 
+		handletime, 
+		handlename, 
+		handlecontent, 
+		handleaddres
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询告警信息管理信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  t_pub_alarm 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询告警信息管理信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_pub_alarm 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 告警信息管理信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_pub_alarm 
+		WHERE 
+		alarmid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_pub_alarm(
+		alarmid, 
+		alarmtitle, 
+		alarmtype, 
+		alarmlevel, 
+		addtime,
+		handletype,
+		memo 
+		)
+		VALUES(		
+		#{alarmid}, 
+		#{alarmtitle}, 
+		#{alarmtype}, 
+		#{alarmlevel}, 
+		Now(),
+		 #{handletype},
+		 #{memo}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_pub_alarm 
+		SET 		
+		memo = #{memo}, 
+		handletype = #{handletype}, 
+		handletime = #{handletime}, 
+		handlename = #{handlename}, 
+		handlecontent = #{handlecontent}, 
+		handleaddres = #{handleaddres}
+		WHERE 
+		alarmid = #{alarmid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_pub_alarm		
+		WHERE 
+		alarmid = #{alarmid} 		
+	</delete>
+	<!-- 查询用户 -->
+	<select id="findUser" parameterType="Object" resultMap="BaseResultMap">
+		select distinct userid from sys_user_role where  roleid in (${ddzg})
+	 </select>
+	 <!-- 插入业务数据 -->
+	 <insert id="insetAlarmBiz" parameterType="Object">
+	 	INSERT INTO t_pub_messagevist(
+		mid, 
+		userid, 
+		Bizid
+		)
+		VALUES(		
+		#{mid}, 
+		#{userid}, 
+		#{bizid}
+		)
+	 </insert>
+	 <select id="findElementName" parameterType="Object" resultType="java.lang.String">
+			select paramname from sys_dict where dictid=#{code}
+	 </select>
+	 <!-- 插入代办 -->
+	 <insert id="insetTomatter"  parameterType="Object">
+		  insert into T_PUB_TOMATTER(
+		  	MATTERID,
+		  	MATTERNAME,
+		  	ADDTIME,
+		  	MATTERTYPE,
+		  	MEMO
+		  ) values(
+		  	#{matterid},
+		  	#{alarmtitle}, 
+		  	Now(),
+		  	#{handletype},
+		  	#{memo} 
+		  )	 
+	 </insert>
+</mapper>   

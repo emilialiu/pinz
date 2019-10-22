@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.activity.dao.BuinessProcessDao">
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.activity.entity.BuinessProcessEntity">
+		insert into buniess_process(bussinesskey,processinstanceid,uri)
+		values (#{bussinesskey},#{processinstanceid},#{uri})
+	</insert>
+	<!-- 查询业务信息 -->
+	<select id="selectById" parameterType="java.lang.String" resultType="com.dimine.activity.entity.BuinessProcessEntity">
+		 select bussinesskey,processinstanceid,uri from buniess_process
+		 where processinstanceid=#{value}
+	</select>
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.taglib.dao.ResourceDao">
+
+	<resultMap id="sourcemanage" type="com.dimine.sys.entity.DictEntity">
+		<result property="code" column="DictID" />
+		<result property="typeid" column="DictTypeID" />
+		<result property="paramname" column="ParamName" />
+		<result property="paramother" column="ParamOther" />
+		<result property="parentid" column="ParentID" />
+		<result property="canmodify" column="CanModify" />
+		<result property="orderno" column="OrderNO" />
+		<result property="paramremark" column="ParamRemark" />
+	</resultMap>
+	
+	<!-- 下拉选择框 -->
+	<select id="selectdictlist" parameterType="com.dimine.sys.entity.DictEntity" resultType="com.dimine.sys.entity.DictEntity">
+		SELECT DictID code, DictTypeID, ParamName,
+		CanModify, OrderNO, ParamRemark 
+		FROM sys_dict WHERE DictTypeID = #{typeid}
+		ORDER BY orderno
+	</select>
+	<!-- 获取元素表数据 -->
+	<select id="findElement" parameterType="com.dimine.sys.entity.DictEntity" resultType="com.dimine.sys.entity.DictEntity">
+		
+select DictID code, DictTypeID, ParamName,
+		CanModify, OrderNO, ParamRemark   from t_sc_element c LEFT JOIN sys_dict d on d.DictID = c.element where c.deptid =#{deptid}
+	</select>
+	<!-- 二级下拉支护子类型选择框 -->
+	<select id="selectdictsecondlist" parameterType="com.dimine.sys.entity.DictEntity" resultType="com.dimine.sys.entity.DictEntity">
+		SELECT DictID code, DictTypeID, ParamName,
+		CanModify, OrderNO, ParamRemark 
+		FROM sys_dict WHERE ParentID = #{parentid}
+		ORDER BY orderno
+	</select>
+	
+	<!-- 工序下拉选择框  -->
+	<select id="selectgxlist" parameterType="com.dimine.sys.entity.DictEntity" resultType="com.dimine.sys.entity.DictEntity">
+		SELECT DictID code, DictTypeID, ParamName,
+		CanModify, OrderNO, ParamRemark 
+		FROM sys_dict WHERE DICTID not IN 
+		(select WorkNo from T_BI_TargetDefine where StageType=#{stagetype} and BusinessType=#{parentid})
+		and ParentID = #{parentid}
+		ORDER BY orderno
+	</select>
+</mapper>

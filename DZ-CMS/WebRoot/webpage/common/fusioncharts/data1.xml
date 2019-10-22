@@ -1,0 +1,27 @@
+<graph exportFileName='Column3D' exportEnabled='1' exportAction='download' exportAtClient='0' exportDialogMessage='正在生成,请稍候...' exportFormats='JPEG=另存为JPEG图片|PNG=另存为PNG图片|PDF=另存为PDF文件' exportHandler='/dmframedev1/FCExporter.do' numberPrefix='$' decimalPrecision='0' animation='0' showValues='1' rotateValues='1' yaxismaxvalue='800000'>
+<categories><category name='一季度' /><category name='二季度' /><category name='三季度' /><category name='四季度' /></categories>
+<dataset seriesName='A矿山' color='AFD8F8' >
+<set value='659400' />
+<set value='465400' />
+<set value='764500' />
+<set value='650500' />
+</dataset>
+<dataset seriesName='B矿山' color='F6BD0F' >
+<set value='546300' />
+<set value='436500' />
+<set value='546500' />
+<set value='332500' />
+</dataset>
+<dataset seriesName='C矿山' color='8BBA00' >
+<set value='657600' />
+<set value='564600' />
+<set value='348600' />
+<set value='436600' />
+</dataset>
+<dataset seriesName='D矿山' color='FF8E46' >
+<set value='436500' />
+<set value='765700' />
+<set value='453900' />
+<set value='326400' />
+</dataset>
+</graph>

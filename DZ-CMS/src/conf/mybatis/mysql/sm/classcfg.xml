@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sm.dao.ClasscfgDao">
+	<!-- Result Map -->
+	<resultMap id="BaseResultMap" type="com.dimine.sm.entity.ClasscfgEntity">
+		<result column="classcfgid" property="classcfgid" />
+		<result column="deptid" property="deptid" />
+		<result column="classtype" property="classtype" />
+		<result column="starttime" property="starttime" />
+		<result column="endtime" property="endtime" />
+		<result column="createid" property="createid" />
+		<result column="createdate" property="createdate" />
+		<result column="modifyid" property="modifyid" />
+		<result column="modifydate" property="modifydate" />
+		<result column="demo" property="demo" />
+		<result column="classtypename" property="classtypename" />
+	</resultMap>
+
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List">
+		classcfgid,
+		deptid,
+		classtype,
+		starttime,
+		endtime,
+		createid,
+		createdate,
+		modifyid,
+		modifydate,
+		demo
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides=",">
+			<if test="param != null and param != ''">
+				and demo like
+				'%${param}%'
+			</if>
+			<if test="deptid != null and deptid != ''">
+				and deptid = #{deptid}
+			</if>
+			<if test="query != null and query != ''">
+				${query}
+			</if>
+		</trim>
+	</sql>
+	<!-- 查询条件 -->
+	<sql id="Base_Where1">
+		<trim suffixOverrides=",">
+			<if test="deptid != null and deptid != ''">
+				and DICTID not
+				in(select classType from t_sm_classcfg where deptid=#{deptid} )
+			</if>
+
+		</trim>
+	</sql>
+	<!-- 查询条件 -->
+	<sql id="Base_Where2">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="deptid != null and deptid != ''">
+				and deptid=#{deptid}
+			</if>
+			<if test="classcfgid != null and classcfgid != ''">
+				and classcfgid
+				not in(#{classcfgid})
+			</if>
+
+		</trim>
+	</sql>
+	<!-- 通过登录人的部门id找出该部门的班次信息 -->
+	<select id="selectBcinfo" parameterType="java.lang.String"
+		resultType="com.dimine.sm.entity.ClasscfgEntity">
+		SELECT b.ClassType as value,s.PARAMNAME as text FROM
+		T_SM_ClassCfg b
+		left join sys_dict s on s.dictid=b.ClassType
+		WHERE FIND_IN_SET(b.DeptID,FUNC_PARENT_LIST(#{deptid})) GROUP BY VALUE;
+	</select>
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM t_sm_classcfg
+		WHERE
+		classcfgid = #{classcfgid}
+	</select>
+
+	<!-- 列表总数 -->
+	<select id="selectByCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		SELECT count(1) FROM t_sm_classcfg c
+		LEFT JOIN sys_dict d on
+		c.ClassType=d.DICTID
+		<include refid="Base_Where" />
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap"
+		parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM t_sm_classcfg
+		<include refid="Base_Where" />
+	</select>
+	<!-- 查询列表 -->
+	<select id="selectalltime" resultMap="BaseResultMap"
+		parameterType="Object">
+		select StartTime,EndTime from t_sm_classcfg
+		<include refid="Base_Where2" />
+		ORDER BY StartTime
+	</select>
+	<!-- 需要修改 方法一样 -->
+	<select id="selectList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM t_sm_classcfg
+		<include refid="Base_Where" />
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectListData" resultMap="BaseResultMap"
+		parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" />
+		,d.PARAMNAME classtypename
+		FROM t_sm_classcfg c
+		LEFT JOIN sys_dict d on c.ClassType=d.DICTID
+		
+		<include refid="Base_Where" />
+		GROUP BY  c.DeptID,c.ClassType
+		<if test="pager.orderCondition != null and pager.orderCondition != ''">
+			${pager.orderCondition}
+		</if>
+		<if
+			test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''">
+			${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	<!-- 查询筛选班次列表 -->
+	<select id="selectBcByDeptid" resultType="com.dimine.pub.entity.SelectListEntity"
+		parameterType="Object">
+		select DICTID value,PARAMNAME text from sys_dict
+		where DICTTYPEID='BC'
+
+		<include refid="Base_Where1" />
+	</select>
+
+	<select id="selectCurClass" resultType="com.dimine.sm.entity.ClasscfgEntity" parameterType="Object">
+		select <include refid="Base_Column_List" /> from t_sm_classcfg t 
+		where deptid=#{deptid} 
+		and t.StartTime <![CDATA[ < ]]> DATE_FORMAT(now(),'%H:%i:%s')
+		and t.EndTime <![CDATA[ > ]]> DATE_FORMAT(now(),'%H:%i:%s')
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		INSERT INTO
+		t_sm_classcfg(
+		classcfgid,
+		deptid,
+		classtype,
+		starttime,
+		endtime,
+		createid,
+		createdate,
+		demo
+		)
+		VALUES(
+		#{classcfgid},
+		#{deptid},
+		#{classtype},
+		#{starttime},
+		#{endtime},
+		#{createid},
+		now(),
+		#{demo}
+		)
+	</insert>
+	<!-- 根据id，修改记录 -->
+	<update id="update" parameterType="Object">
+		UPDATE t_sm_classcfg
+		SET
+		classcfgid = #{classcfgid},
+		deptid = #{deptid},
+		classtype = #{classtype},
+		starttime = #{starttime},
+		endtime = #{endtime},
+		modifyid = #{modifyid},
+		modifydate = now(),
+		demo = #{demo}
+		WHERE classcfgid = #{classcfgid}
+	</update>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sm_classcfg
+		WHERE classcfgid = #{classcfgid}
+	</delete>
+
+</mapper>   

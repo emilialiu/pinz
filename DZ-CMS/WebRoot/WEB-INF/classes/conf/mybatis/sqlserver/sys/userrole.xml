@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.UserRoleDao">
+
+	<!-- 查找整个数据表的数据 -->
+	<select id="selectByList" parameterType="com.dimine.sys.entity.UserRoleEntity"
+		resultType="com.dimine.sys.entity.UserRoleEntity">
+		select *
+		from (
+		    select row_number()over(order by tempcolumn)temprownumber,*
+		    from (select top ${pager.endrow} tempcolumn=0,* FROM sys_role WHERE roleid IN (SELECT
+			roleid FROM sys_user_role WHERE userid=#{userid}) 
+			<if test="query != null and query != ''">
+				${query}
+			</if>
+			ORDER BY roleid,rolename
+		    )t
+		)tt
+		where temprownumber>=${pager.startrow}
+	</select>
+
+	<select id="selectByCount" parameterType="com.dimine.sys.entity.UserRoleEntity" resultType="java.lang.Integer">
+		SELECT count(*) FROM sys_role
+		WHERE roleid IN (SELECT roleid FROM sys_user_role WHERE userid=#{userid})
+		<if test="query != null and query != ''">
+			${query}
+		</if>
+	</select>
+
+	<!-- 在功能表中查找未被授权的所有角色（保证角色赋予了功能） -->
+	<select id="selectUnList" parameterType="com.dimine.sys.entity.UserRoleEntity"
+		resultType="com.dimine.sys.entity.UserRoleEntity">
+		select *
+		from (
+		    select row_number()over(order by tempcolumn)temprownumber,*
+		    from (select top ${pager.endrow} tempcolumn=0,* FROM sys_role a WHERE 
+				<if test="deptid != null and deptid != ''">a.deptid=#{deptid} AND</if>
+				a.roleid NOT IN (SELECT roleid FROM sys_user_role WHERE userid=#{userid})
+				<if test="query != null and query != ''">
+					${query}
+				</if>
+    		)t
+		)tt
+		where temprownumber>=${pager.startrow}
+	</select>
+
+	<select id="selectUnCount" parameterType="com.dimine.sys.entity.UserRoleEntity" resultType="java.lang.Integer">
+		SELECT count(*) FROM sys_role a
+		WHERE
+		<if test="deptid != null and deptid != ''">a.deptid=#{deptid} AND</if>
+		a.roleid NOT IN (SELECT roleid FROM sys_user_role WHERE userid=#{userid})
+		<if test="query != null and query != ''">
+			${query}
+		</if>
+	</select>
+
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.sys.entity.UserRoleEntity">
+		INSERT into sys_user_role(userid, roleid) values(#{userid},#{roleid})
+	</insert>
+
+	<!-- 删除记录信息 -->
+	<delete id="delete" parameterType="com.dimine.sys.entity.UserRoleEntity">
+		DELETE FROM sys_user_role WHERE roleid=#{roleid} and userid=#{userid}
+	</delete>
+</mapper>

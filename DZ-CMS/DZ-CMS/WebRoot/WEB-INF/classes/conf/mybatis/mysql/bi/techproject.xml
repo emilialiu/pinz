@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.TechnologyProjectDao" >
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.bi.entity.TechnologyProjectEntity">
+		INSERT INTO t_bi_technologyproject(apid,tdeptid,projectid,techid) VALUES(#{apid},#{tdeptid},#{projectid},#{techid})
+	</insert>
+	<insert id="insertByPrtid" parameterType="com.dimine.bi.entity.TechnologyProjectEntity">
+		INSERT INTO t_bi_technologyproject(apid,tdeptid,projectid,techid) 
+		SELECT replace(UUID(),'-',''),#{tdeptid},projectid,#{techid} FROM t_bi_projectinfo WHERE projecttype = 'ZYDDLX004' AND parentitemid = #{projectid}
+	</insert>
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_bi_technologyproject WHERE projectid = #{projectid} AND techid=#{techid}
+	</delete>
+	<delete id="deleteByPrtid" parameterType="Object">
+		DELETE FROM t_bi_technologyproject WHERE techid=#{techid} AND projectid in (SELECT projectid FROM t_bi_projectinfo where projecttype = 'ZYDDLX004' AND parentitemid = #{projectid})  
+	</delete>
+	
+	<!-- 查找已分配的作业地点 -->
+	<select id="yiFenPei" resultType="com.dimine.bi.entity.ProjectinfoEntity" parameterType="com.dimine.bi.entity.ProjectinfoEntity">
+		SELECT projectid, parentitemid, projectname, isleaf, 
+			(select count(1) from t_bi_projectinfo b where b.parentitemid = a.projectid and (b.ProjectType is null or b.ProjectType != 'ZYDDLX004')) childCount 		 
+		FROM t_bi_projectinfo a 
+		WHERE parentitemid = #{projectid} AND deptid = #{deptid} 
+			AND projectid IN (SELECT distinct rf.projectid FROM t_bi_technologyproject rf WHERE rf.techid=#{techid}) 
+		ORDER BY indexno,projecttype
+	</select>
+	<!-- 查找未分配的作业地点 -->
+	<select id="weiFenPei" resultType="com.dimine.bi.entity.ProjectinfoEntity" parameterType="com.dimine.bi.entity.ProjectinfoEntity">
+		SELECT * FROM (
+		SELECT projectid, parentitemid, projectname,isleaf, indexno,projecttype,
+			(select count(1) from t_bi_projectinfo b where b.parentitemid = a.projectid ) childCount
+		FROM t_bi_projectinfo a 
+		WHERE isdel = '0' and isleaf = '0' AND parentitemid = #{projectid} AND deptid = #{deptid} 
+		UNION 
+		SELECT projectid, parentitemid, projectname,isleaf, indexno,projecttype,
+			(select count(1) from t_bi_projectinfo b where b.parentitemid = a.projectid and b.ProjectType != 'ZYDDLX004') childCount
+		FROM t_bi_projectinfo a 
+		WHERE isdel = '0' and isleaf = '1' AND parentitemid = #{projectid} AND deptid = #{deptid} 
+		<!-- AND projectid not in (SELECT projectid FROM t_bi_technologyproject) -->
+		<if test="projecttype != null and projecttype != ''" >
+			AND projecttype = #{projecttype}
+		</if>
+		<if test="projectname != null and projectname != ''" >
+			AND projectname like CONCAT('%',#{projectname},'%')
+		</if>
+		) t
+		ORDER BY indexno,projecttype
+	</select>
+	
+	<select id="isFenPei" resultType="java.lang.Integer" parameterType="com.dimine.bi.entity.TechnologyProjectEntity">
+		SELECT count(1) FROM t_bi_technologyproject rf WHERE projectid = #{projectid} 
+		<if test="techid != null and techid != ''" >
+			AND techid=#{techid}
+		</if>
+	</select>
+	
+	<!--作业地点撤销 找叶子节点的兄弟节点 -->
+	<select id="yiFenPeiErJi" parameterType="com.dimine.bi.entity.TechnologyProjectEntity"
+		resultType="com.dimine.bi.entity.TechnologyProjectEntity">
+		select b.projectid from t_bi_projectinfo a,t_bi_projectinfo b 
+		where a.projectid=#{projectid} and a.parentitemid=b.parentitemid 
+		and b.projectid in(SELECT projectid FROM t_bi_technologyproject WHERE techid=#{techid})
+	</select>
+
+	<!--作业地点撤销 根据子节点找父节点 -->
+	<select id="fuJieDian" parameterType="com.dimine.bi.entity.TechnologyProjectEntity"
+		resultType="com.dimine.bi.entity.TechnologyProjectEntity">
+		SELECT projectid FROM t_bi_projectinfo 
+		WHERE projectid IN (SELECT projectid FROM t_bi_technologyproject WHERE techid=#{techid}) 
+		AND parentitemid IS NOT NULL 
+		AND projectid = (select parentitemid from t_bi_projectinfo where projectid=#{projectid})
+	</select>
+	<!--作业地点分配 根据父节点找子节点 -->
+	<select id="getChildList" parameterType="com.dimine.bi.entity.TechnologyProjectEntity"
+		resultType="com.dimine.bi.entity.ProjectinfoEntity">
+		SELECT projectid,isleaf FROM t_bi_projectinfo 
+		WHERE parentitemid = #{projectid} AND isdel = '0' AND projectid NOT IN 
+		(SELECT projectid FROM t_bi_technologyproject WHERE 1=1 
+		<if test="techid != null and techid != ''" >
+			AND techid=#{techid}
+		</if>)
+	</select>
+	<!--根据工程id查询信息 -->
+	<select id="selectByProjectid" parameterType="String"
+		resultType="com.dimine.bi.entity.TechnologyProjectEntity">
+		SELECT apid,tdeptid,projectid,techid 
+		FROM t_bi_technologyproject WHERE projectid = #{projectid}
+	</select>
+	
+</mapper>   

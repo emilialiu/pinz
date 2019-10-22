@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.T_bi_minerightDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.bi.entity.T_bi_minerightEntity" >
+		<result column="rightid" property="rightid"/>
+		<result column="cooperateent" property="cooperateent"/>
+		<result column="planscale" property="planscale"/>
+		<result column="involume" property="involume"/>
+		<result column="arearange" property="arearange"/>
+		<result column="mrarea" property="mrarea"/>
+		<result column="mineraltype" property="mineraltype"/>
+		<result column="catype" property="catype"/>
+		<result column="verifyreserve" property="verifyreserve"/>
+		<result column="mineway" property="mineway"/>
+		<result column="miningmethod" property="miningmethod"/>
+		<result column="benemethod" property="benemethod"/>
+		<result column="depthupper" property="depthupper"/>
+		<result column="depthlower" property="depthlower"/>
+		<result column="minegetway" property="minegetway"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+		   
+	<!-- t_bi_mineright table all fields -->
+	<sql id="Base_Column_List" >
+		rightid, 
+		cooperateent, 
+		planscale, 
+		involume, 
+		arearange, 
+		mrarea, 
+		mineraltype, 
+		catype, 
+		verifyreserve, 
+		mineway, 
+		miningmethod, 
+		benemethod, 
+		depthupper, 
+		depthlower, 
+		minegetway, 
+		remark
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询采矿权信息表信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  t_bi_mineright 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询采矿权信息表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_mineright 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 采矿权信息表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_bi_mineright 
+		WHERE 
+		rightid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_bi_mineright(
+		rightid, 
+		cooperateent, 
+		planscale, 
+		involume, 
+		arearange, 
+		mrarea, 
+		mineraltype, 
+		catype, 
+		verifyreserve, 
+		mineway, 
+		miningmethod, 
+		benemethod, 
+		depthupper, 
+		depthlower, 
+		minegetway, 
+		remark
+		)
+		VALUES(		
+		#{rightid}, 
+		#{cooperateent}, 
+		#{planscale}, 
+		#{involume}, 
+		#{arearange}, 
+		#{mrarea}, 
+		#{mineraltype}, 
+		#{catype}, 
+		#{verifyreserve}, 
+		#{mineway}, 
+		#{miningmethod}, 
+		#{benemethod}, 
+		#{depthupper}, 
+		#{depthlower}, 
+		#{minegetway}, 
+		#{remark}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_bi_mineright 
+		SET 		
+		rightid = #{rightid}, 
+		cooperateent = #{cooperateent}, 
+		planscale = #{planscale}, 
+		involume = #{involume}, 
+		arearange = #{arearange}, 
+		mrarea = #{mrarea}, 
+		mineraltype = #{mineraltype}, 
+		catype = #{catype}, 
+		verifyreserve = #{verifyreserve}, 
+		mineway = #{mineway}, 
+		miningmethod = #{miningmethod}, 
+		benemethod = #{benemethod}, 
+		depthupper = #{depthupper}, 
+		depthlower = #{depthlower}, 
+		minegetway = #{minegetway}, 
+		remark = #{remark}
+		WHERE 
+		rightid = #{rightid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_bi_mineright		
+		WHERE 
+		rightid = #{rightid} 		
+	</delete>
+	
+</mapper>   

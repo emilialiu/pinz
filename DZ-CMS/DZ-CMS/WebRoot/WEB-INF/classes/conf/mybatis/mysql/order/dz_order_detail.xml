@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.order.dao.Dz_order_detailDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.order.entity.Dz_order_detailEntity" >
+		<result column="id" property="id"/>
+		<result column="order_code" property="order_code"/>
+		<result column="commodity_id" property="commodity_id"/>
+		<result column="sku_content" property="sku_content"/>
+		<result column="style_content" property="style_content"/>
+		<result column="custome_size_content" property="custome_size_content"/>
+		<result column="commodity_title" property="commodity_title"/>
+		<result column="buy_count" property="buy_count"/>
+		<result column="product_price" property="product_price"/>
+		<result column="ear_money" property="ear_money"/>
+		<result column="commodity_img" property="commodity_img"/>
+		<result column="tail_money" property="tail_money"/>
+		<result column="linear_number" property="linear_number"/>
+		<result column="linear_material_name" property="linear_material_name"/>
+	</resultMap>
+		   
+	<!-- dz_order_detail table all fields -->
+	<sql id="Base_Column_List" >
+		a.id, 
+		order_code, 
+		commodity_id, 
+		title,
+		sku_content, 
+		style_content, 
+		custome_size_content, 
+		commodity_title, 
+		buy_count, 
+		product_price, 
+		ear_money, 
+		commodity_img, 
+		tail_money, 
+		linear_number, 
+		linear_material_name
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1 and order_code = #{order_code}
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询商品明细信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_order_detail a left join dz_commodity_base b on a.commodity_id = b.id
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询商品明细信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_order_detail a left join dz_commodity_base b on a.commodity_id = b.id
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 商品明细信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_order_detail a left join dz_commodity_base b on a.commodity_id = b.id
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_order_detail(
+		id, 
+		order_code, 
+		commodity_id, 
+		sku_content, 
+		style_content, 
+		custome_size_content, 
+		commodity_title, 
+		buy_count, 
+		product_price, 
+		ear_money, 
+		commodity_img, 
+		tail_money, 
+		linear_number, 
+		linear_material_name
+		)
+		VALUES(		
+		#{id}, 
+		#{order_code}, 
+		#{commodity_id}, 
+		#{sku_content}, 
+		#{style_content}, 
+		#{custome_size_content}, 
+		#{commodity_title}, 
+		#{buy_count}, 
+		#{product_price}, 
+		#{ear_money}, 
+		#{commodity_img}, 
+		#{tail_money}, 
+		#{linear_number}, 
+		#{linear_material_name}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_order_detail 
+		SET 		
+		sku_content = #{sku_content}, 
+		style_content = #{style_content}, 
+		custome_size_content = #{custome_size_content}, 
+		commodity_title = #{commodity_title}, 
+		buy_count = #{buy_count}, 
+		product_price = #{product_price}, 
+		ear_money = #{ear_money}, 
+		commodity_img = #{commodity_img}, 
+		tail_money = #{tail_money}, 
+		linear_number = #{linear_number}, 
+		linear_material_name = #{linear_material_name}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_order_detail		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

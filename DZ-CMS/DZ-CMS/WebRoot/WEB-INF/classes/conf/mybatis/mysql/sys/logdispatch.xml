@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.LogDispatchDao" >
+<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.LogDispatchEntity" >
+		<result column="name" property="name"/>
+		<result column="usetime" property="usetime"/>
+		<result column="usemodule" property="usemodule"/>
+		<result column="content" property="content"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		 logid,name,date_format(use_time, '%Y-%m-%d %H:%i:%s') AS use_time,use_module,content
+	</sql>
+	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (
+				name like '%${param}%' 
+				or convert(varchar, use_time, 120) like '%${param}%'
+				or use_module like '%${param}%'
+				or content like '%${param}%'
+				)
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>
+		FROM log_dispatch  
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	<!-- 系统角色 列表总数 -->
+	<select id="selectByCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from log_dispatch 
+		<include refid="Base_Where"/>
+	</select>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM log_dispatch WHERE logid = #{logid}
+	</delete>
+	<!-- 删除所有的记录 -->
+	<delete id="deleteall" parameterType="Object">
+		DELETE FROM log_dispatch 
+	</delete>
+
+</mapper>

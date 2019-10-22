@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sm.dao.ElementpropertyDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sm.entity.ElementpropertyEntity" >
+		<result column="eleproid" property="eleproid"/>
+		<result column="eletypeid" property="eletypeid"/>
+		<result column="elecode" property="elecode"/>
+		<result column="elename" property="elename"/>
+		<result column="eletype" property="eletype"/>
+		<result column="valuesql" property="valuesql"/>
+		<result column="servicename" property="servicename"/>
+		<result column="isedit" property="isedit"/>
+		<result column="iproname" property="iproname"/>
+		<result column="isprimary" property="isprimary"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="parenteleid" property="parenteleid"/>
+		<result column="memo" property="memo"/>
+		<result column="eleno" property="eleno"/>
+		<result column="projectlevel" property="projectlevel"/>
+		<result column="ishide" property="ishide"/>
+		<result column="isnull" property="isnull"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		t.eleproid,
+		t.eletypeid,
+		t.elecode,
+		t.elename,
+		t.valuesql,
+		t.servicename,
+		t.isedit,
+		t.iproname,
+		t.isprimary,
+		t.createid,
+		t.createdate,
+		t.modifyid,
+		t.modifydate,
+		t.memo,
+		t.eleno,
+		t.ishide
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (
+				)
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" />, t.parenteleid, t.eletype, t.projectlevel 
+		FROM t_sm_elementproperty t
+		WHERE 
+		eleproid = #{eleproid} 		
+	</select>
+	<!-- 查询所有元素名称 -->
+	<select id="selectelename" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sm_elementproperty t
+		WHERE 
+		t.eletypeid in(SELECT eletypeid FROM t_sm_elementtype where deptid=#{eleproid}) 	
+		and t.eletypeid = #{eletypeid}
+	</select>
+	<!-- 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sm_elementproperty 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/> ,d.PARAMNAME eletype,t1.elename parenteleid, d2.PARAMNAME projectlevel
+		FROM t_sm_elementproperty t
+		LEFT JOIN SYS_DICT d ON t.eletype = d.DICTID 
+		LEFT JOIN t_sm_elementproperty t1 ON t.parenteleid=t1.eleproid  
+		LEFT JOIN SYS_DICT d2 ON t.projectlevel = d2.DICTID 
+		<include refid="Base_Where"/> and
+		t.eletypeid in(SELECT eletypeid FROM t_sm_elementtype where deptid=#{eleproid})
+		ORDER BY elecode ASC
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>		
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+		
+	</select>
+	
+	<!-- 查询列表根据元素类型 -->
+	<select id="selectByListByeletype" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>,d.PARAMNAME eletype,t1.elename parenteleid , d2.PARAMNAME projectlevel
+		FROM t_sm_elementproperty t
+		LEFT JOIN SYS_DICT d ON t.eletype = d.DICTID 
+		LEFT JOIN t_sm_elementproperty t1 ON t.parenteleid=t1.eleproid 
+		LEFT JOIN SYS_DICT d2 ON t.projectlevel = d2.DICTID  
+		<include refid="Base_Where"/>
+		and t.eletypeid = #{eletypeid} ORDER BY t.elecode ASC
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>		
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	<!-- 列表总数-->
+	<select id="selectByListByeletypeCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1)
+		FROM t_sm_elementproperty t
+		LEFT JOIN SYS_DICT d ON t.eletype = d.DICTID 
+		LEFT JOIN t_sm_elementproperty t1 ON t.parenteleid=t1.eleproid 
+		LEFT JOIN SYS_DICT d2 ON t.projectlevel = d2.DICTID  
+		<include refid="Base_Where"/>
+		and t.eletypeid = #{eletypeid} ORDER BY t.elecode ASC
+	</select>
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sm_elementproperty(
+		eleproid,
+		eletypeid,
+		elecode,
+		elename,
+		eletype,
+		valuesql,
+		servicename,
+		isedit,
+		iproname,
+		isprimary,
+		createid,
+		createdate,
+		parenteleid,
+		eleno,
+		memo,
+		projectlevel,
+		ishide
+		)
+		VALUES(		
+		#{eleproid},
+		#{eletypeid},
+		#{elecode},
+		#{elename},
+		#{eletype},
+		#{valuesql},
+		#{servicename},
+		#{isedit},
+		#{iproname},
+		#{isprimary},
+		#{createid},
+		now(),
+		#{parenteleid},
+		#{eleno},
+		#{memo},
+		#{projectlevel},
+		#{ishide}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sm_elementproperty 
+		SET 		
+		eleproid = #{eleproid},
+		eletypeid = #{eletypeid},
+		elecode = #{elecode},
+		elename = #{elename},
+		eletype = #{eletype},
+		valuesql = #{valuesql},
+		servicename = #{servicename},
+		isedit = #{isedit},
+		iproname = #{iproname},
+		isprimary = #{isprimary},
+		modifyid = #{modifyid},
+		modifydate = now(),
+		eleno = #{eleno},
+		memo = #{memo},
+		projectlevel = #{projectlevel},
+		ishide = #{ishide}
+		WHERE 
+		eleproid = #{eleproid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sm_elementproperty WHERE eleproid = #{eleproid} 		
+	</delete>
+	
+	<select id="getProjectLevelByProID" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select t2.EleName,t2.ProjectLevel from T_SM_ElementType t1, T_SM_ElementProperty t2 
+		where t2.EleTypeID = t1.EleTypeID 
+		and t1.DeptID = #{deptid}
+		and t1.EleTypeKind = #{eletypekind}
+		and t2.ProjectLevel is not null order by t2.ProjectLevel
+	</select>
+	<!-- 查询列表根据元素类型 -->
+	<select id="selectList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List"/>, isnull, t.parenteleid
+		FROM t_sm_elementproperty t
+		WHERE t.eletypeid = #{eletypeid} ORDER BY t.elecode ASC
+	</select>
+</mapper>   

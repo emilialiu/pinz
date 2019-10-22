@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.coupon.dao.Dz_coupon_user_recordDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.coupon.entity.Dz_coupon_user_recordEntity" >
+		<result column="id" property="id"/>
+		<result column="order_id" property="order_id"/>
+		<result column="customer_id" property="customer_id"/>
+		<result column="create_time" property="create_time"/>
+		<result column="state" property="state"/>
+		<result column="expire_time" property="expire_time"/>
+		<result column="coupon_amount" property="coupon_amount"/>
+	</resultMap>
+		   
+	<!-- dz_coupon_user_record table all fields -->
+	<sql id="Base_Column_List" >
+		id, 
+		order_id, 
+		customer_id, 
+		create_time, 
+		state, 
+		expire_time, 
+		coupon_amount,
+		if(a.state=0,"已过期","未过期") as stateName
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询优惠券使用记录表信息列表 -->
+	<select id="selectByList" resultType="com.dimine.coupon.entity.Dz_coupon_user_recordEntity" parameterType="Object">
+		SELECT
+		id, 
+		order_id, 
+		customer_id, 
+		create_time, 
+		state, 
+		expire_time, 
+		coupon_amount,
+		case state when 1 then '未使用' 
+		else '已使用'
+		end stateName
+		FROM  dz_coupon_user_record 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询优惠券使用记录表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_coupon_user_record 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 优惠券使用记录表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_coupon_user_record 
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_coupon_user_record(
+		id, 
+		order_id, 
+		customer_id, 
+		create_time, 
+		state, 
+		expire_time, 
+		coupon_amount
+		)
+		VALUES(		
+		#{id}, 
+		#{order_id}, 
+		#{customer_id}, 
+		#{create_time}, 
+		#{state}, 
+		#{expire_time}, 
+		#{coupon_amount}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_coupon_user_record 
+		SET 		
+		id = #{id}, 
+		order_id = #{order_id}, 
+		customer_id = #{customer_id}, 
+		create_time = #{create_time}, 
+		state = #{state}, 
+		expire_time = #{expire_time}, 
+		coupon_amount = #{coupon_amount}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_coupon_user_record		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

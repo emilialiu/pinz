@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sc.dao.T_sc_processDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sc.entity.T_sc_processEntity" >
+		<result column="procid" property="procid"/>
+		<result column="tdeptid" property="tdeptid"/>
+		<result column="proctname" property="proctname"/>
+		<result column="proctnameen" property="proctnameen"/>
+		<result column="proccode" property="proccode"/>
+		<result column="shortname" property="shortname"/>
+		<result column="parentid" property="parentid"/>
+		<result column="isdel" property="isdel"/>
+		<result column="isleaf" property="isleaf"/>
+		<result column="parentstr" property="parentstr"/>
+		<result column="serialno" property="serialno"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="memo" property="memo"/>
+	</resultMap>
+		   
+	<!-- t_sc_process table all fields -->
+	<sql id="Base_Column_List" >
+		procid, 
+		tdeptid, 
+		proctname, 
+		proctnameen, 
+		proccode, 
+		shortname, 
+		parentid, 
+		isdel, 
+		isleaf, 
+		parentstr, 
+		serialno, 
+		createid, 
+		createdate, 
+		modifyid, 
+		modifydate, 
+		memo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1 and parentid is not null and isdel='0'
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and proctname like '%${param}%'
+			</if>
+			<if test="procid != null and procid != ''" >
+				and (FIND_IN_SET(#{procid},ParentStr))
+			</if>
+			<if test="techid != null and techid != ''" >
+				and procid not IN
+				(
+				 select ProcID
+ 				 from T_SC_TechProcess
+ 				 where techid=#{techid}
+				)
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			<if test="tdeptid != null and tdeptid != ''" >
+				and t.tdeptid=#{tdeptid}
+			</if>
+		</trim>
+	</sql>
+
+	<select id="getGxList" resultType="com.dimine.sc.entity.T_sc_processEntity" parameterType="com.dimine.sc.entity.T_sc_processEntity">
+	<!-- cacheModel="dept-cache" -->
+		SELECT distinct ProcID, ProctName, ParentID, tdeptid,
+			(select count(1) from T_SC_Process b where b.ParentID = a.ProcID and b.isdel = '0') childCount
+		FROM T_SC_Process a
+		<if test="procid != null and procid != '' and teamid != null and teamid != ''" >
+			,(
+				SELECT CONCAT(IFNULL(a1.parentstr,''),',',a1.procid,',') pid from T_SC_Process a1
+				where procid in (select procid from T_SC_TeamTechProcess where teamid=#{teamid})
+			) b
+		</if>
+		 WHERE isdel = '0'
+		<if test="procid ==null or procid =='' " >
+			and ParentID is null
+		</if>
+		<if test="procid != null and procid != ''" >
+			and ParentID = #{procid}
+		</if>
+		<if test="procid != null and procid != '' and teamid != null and teamid != ''" >
+			and FIND_IN_SET(a.procid, b.pid)  
+		</if>
+		<if test="tdeptid != null and tdeptid != ''" >
+			and tdeptid = #{tdeptid}
+		</if>
+		ORDER BY SerialNo
+	</select>
+	<!-- 查询工序信息信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>,(select ProctName from T_SC_Process where ProcID=t.parentid) parentname
+		FROM  t_sc_process t
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!--根据工艺查询月计划的工序 -->
+	<select id="selectGongXuByGongYi" resultMap="BaseResultMap" parameterType="Object">
+		SELECT b.ProcID,b.ProctName,b.ProctNameen,a.techid from T_SC_TechProcess a LEFT JOIN T_SC_Process b on a.ProcID=b.ProcID 
+		where a.IsPlan='1' and b.IsDel='0' and a.TechID=#{techid}
+	</select>
+	
+	<!-- 查询工序信息信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_process t
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 工序信息信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sc_process 
+		WHERE 
+		procid = #{id} 
+	</select>
+	
+	<select id="getParentStr" resultType="java.lang.String" parameterType="com.dimine.sc.entity.T_sc_processEntity">
+		select IF(#{parentid}='0000','0000',CONCAT((SELECT parentstr from t_sc_process WHERE procid=#{parentid}),",",#{parentid}))
+	</select>
+	
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sc_process(
+		procid, 
+		tdeptid, 
+		proctname, 
+		proctnameen,
+		proccode, 
+		shortname, 
+		parentid, 
+		isdel, 
+		isleaf, 
+		parentstr, 
+		serialno, 
+		createid, 
+		createdate
+		)
+		VALUES(		
+		#{procid}, 
+		#{tdeptid}, 
+		#{proctname}, 
+		#{proctnameen}, 
+		#{proccode}, 
+		#{shortname}, 
+		#{parentid}, 
+		#{isdel}, 
+		#{isleaf}, 
+		#{parentstr},
+		#{serialno}, 
+		#{createid}, 
+		now()
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sc_process 
+		SET 		 
+		proctname = #{proctname}, 
+		proctnameen = #{proctnameen}, 
+		proccode = #{proccode}, 
+		shortname = #{shortname},   
+		serialno = #{serialno}, 
+		modifyid = #{modifyid}, 
+		modifydate = now()
+		WHERE 
+		procid = #{procid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">	
+		UPDATE t_sc_process 
+		SET 		
+		isdel= '1',
+		modifyid = #{modifyid}, 
+		modifydate = now()
+		WHERE 
+		procid = #{procid} 	or FIND_IN_SET(#{procid},ParentStr)
+	</delete>
+	
+	<!-- 删除记录通过parentid -->
+	<delete id="deleteByParentid" parameterType="Object">
+		UPDATE t_sc_process 
+		SET 		  
+		isdel='1',
+		modifyid = #{modifyid}, 
+		modifydate = now()
+		WHERE 
+		parentid = #{parentid}		
+	</delete>
+	<!-- 查询孩子节点的数量-->
+	<select id="selectChildCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_process where ParentID=(select ParentID from t_sc_process where procid = #{procid}) and isdel='0'
+	</select>
+	<!-- 根据id，修改记录-->  
+	<update id="updateParentIsNotLeaf" parameterType="Object" >
+		UPDATE t_sc_process 
+		SET 		
+		isleaf = '0' 
+		WHERE 
+		ProcID = #{parentid} 		
+	</update>
+	<!-- 根据id，修改记录-->  
+	<update id="updateParentLeafInfo" parameterType="Object" >
+		UPDATE t_sc_process 
+		SET 		
+		isleaf = '1' 
+		WHERE 
+		ProcID = #{parentid} 		
+	</update>
+	<!-- 根据工艺信息，查询出工序信息 -->
+	<select id="genProcBytechId" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+	    	c.procid, 
+			c.tdeptid, 
+			c.proctname, 
+			c.proccode, 
+			c.shortname, 
+			c.parentid, 
+			c.isdel, 
+			c.isleaf, 
+			c.parentstr, 
+			c.serialno, 
+			c.createid, 
+			c.createdate, 
+			c.modifyid, 
+			c.modifydate, 
+			c.memo
+		from T_SC_technology a
+		LEFT JOIN T_SC_TechProcess b on a.TechID=b.TechID
+		LEFT JOIN T_SC_Process c on b.ProcID = c.ProcID
+		where a.TechID=#{techid} and c.IsDel='0' and c.IsLeaf='1'
+ 			and b.IsPlan='1'
+ 		<if test="procid != null and procid != ''" >
+			and <![CDATA[ c.procid <> #{procid}]]>
+		</if>
+		ORDER BY b.SerialNo
+	</select>
+	
+	
+		<!-- 根据工艺信息，查询出工序信息 -->
+	<select id="genYSProcBytechId" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+	    	c.procid, 
+			c.tdeptid, 
+			c.proctname, 
+			c.proccode, 
+			c.shortname, 
+			c.parentid, 
+			c.isdel, 
+			c.isleaf, 
+			c.parentstr, 
+			c.serialno, 
+			c.createid, 
+			c.createdate, 
+			c.modifyid, 
+			c.modifydate, 
+			c.memo
+		from T_SC_technology a
+		LEFT JOIN T_SC_TechProcess b on a.TechID=b.TechID
+		LEFT JOIN T_SC_Process c on b.ProcID = c.ProcID
+		where a.TechID=#{techid} and c.IsDel='0' and c.IsLeaf='1'
+ 			and b.isaccept='1'
+ 		<if test="procid != null and procid != ''" >
+			and <![CDATA[ c.procid <> #{procid}]]>
+		</if>
+		ORDER BY b.SerialNo
+	</select>
+	
+</mapper>   

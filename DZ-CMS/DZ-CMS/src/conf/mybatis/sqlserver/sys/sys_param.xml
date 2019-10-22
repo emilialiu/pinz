@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.Sys_paramDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sys.entity.Sys_paramEntity" >
+		<result column="paramcode" property="paramcode"/>
+		<result column="paramname" property="paramname"/>
+		<result column="paramvalue" property="paramvalue"/>
+		<result column="deptid" property="deptid"/>
+		<result column="memo" property="memo"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		tempcolumn=0,
+		paramcode,
+		paramname,
+		paramvalue,
+		deptid,
+		memo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+				paramname like '%'+#{param}+'%' 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 系统角色 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM sys_param 
+		WHERE 
+		paramcode = #{paramcode} 		
+	</select>
+
+	<!-- 系统角色 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM sys_param 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询系统角色列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+	SELECT * FROM (
+		select row_number()over(order by tempcolumn)temprownumber,*
+		from (
+		SELECT top ${pager.endrow}
+		<include refid="Base_Column_List"/>
+		FROM sys_param 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		 )t
+	)tt WHERE temprownumber>=${pager.startrow}
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO sys_param(
+		paramcode,
+		paramname,
+		paramvalue,
+		deptid,
+		memo
+		)
+		VALUES(		
+		#{paramcode},
+		#{paramname},
+		#{paramvalue},
+		#{deptid},
+		#{memo}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE sys_param 
+		SET 		
+		paramcode = #{paramcode},
+		paramname = #{paramname},
+		paramvalue = #{paramvalue},
+		deptid = #{deptid},
+		memo = #{memo}
+		WHERE 
+		paramcode = #{paramcode} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM sys_param		
+		WHERE 
+		paramcode = #{paramcode} 		
+	</delete>
+	
+</mapper>   

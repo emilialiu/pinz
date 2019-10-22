@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.commodity.dao.Dz_commodity_collocationDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.commodity.entity.Dz_commodity_collocationEntity" >
+		<result column="id" property="id"/>
+		<result column="banner_url" property="banner_url"/>
+		<result column="designer_said" property="designer_said"/>
+		<result column="single_ids" property="single_ids"/>
+		<result column="remarks" property="remarks"/>
+		<result column="create_time" property="create_time"/>
+		<result column="create_by" property="create_by"/>
+		<result column="update_time" property="update_time"/>
+		<result column="update_by" property="update_by"/>
+		<result column="designer_name" property="designer_name"/>
+		<result column="designer_head_url" property="designer_head_url"/>
+	</resultMap>
+		   
+	<!-- dz_commodity_collocation table all fields -->
+	<sql id="Base_Column_List" >
+		id, 
+		banner_url, 
+		designer_said, 
+		single_ids, 
+		remarks, 
+		create_time, 
+		create_by, 
+		update_time, 
+		update_by, 
+		designer_name, 
+		designer_head_url
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询商品搭配管理表信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_commodity_collocation 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询商品搭配管理表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_commodity_collocation 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 商品搭配管理表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_commodity_collocation 
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_commodity_collocation(
+		id, 
+		banner_url, 
+		designer_said, 
+		single_ids, 
+		remarks, 
+		create_time, 
+		create_by, 
+		update_time, 
+		update_by, 
+		designer_name, 
+		designer_head_url
+		)
+		VALUES(		
+		#{id}, 
+		#{banner_url}, 
+		#{designer_said}, 
+		#{single_ids}, 
+		#{remarks}, 
+		#{create_time}, 
+		#{create_by}, 
+		#{update_time}, 
+		#{update_by}, 
+		#{designer_name}, 
+		#{designer_head_url}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_commodity_collocation 
+		SET 		
+		id = #{id}, 
+		banner_url = #{banner_url}, 
+		designer_said = #{designer_said}, 
+		single_ids = #{single_ids}, 
+		remarks = #{remarks}, 
+		create_time = #{create_time}, 
+		create_by = #{create_by}, 
+		update_time = #{update_time}, 
+		update_by = #{update_by}, 
+		designer_name = #{designer_name}, 
+		designer_head_url = #{designer_head_url}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_commodity_collocation		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.customer.dao.Dz_customer_size_configDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.customer.entity.Dz_customer_size_configEntity" >
+		<result column="id" property="id"/>
+		<result column="customer_id" property="customer_id"/>
+		<result column="name" property="name"/>
+		<result column="sex" property="sex"/>
+		<result column="year" property="year"/>
+		<result column="height" property="height"/>
+		<result column="weight" property="weight"/>
+		<result column="waist" property="waist"/>
+		<result column="bust" property="bust"/>
+		<result column="clothes_length" property="clothes_length"/>
+		<result column="arm_length" property="arm_length"/>
+		<result column="arm_circum" property="arm_circum"/>
+		<result column="shoulder_width" property="shoulder_width"/>
+		<result column="content" property="content"/>
+		<result column="headlight_url" property="headlight_url"/>
+		<result column="side_shot_url" property="side_shot_url"/>
+		<result column="back_photo_url" property="back_photo_url"/>
+		<result column="imgs_url" property="imgs_url"/>
+		<result column="is_default" property="is_default"/>
+		<result column="remarks" property="remarks"/>
+	</resultMap>
+		   
+	<!-- dz_customer_size_config table all fields -->
+	<sql id="Base_Column_List" >
+		id, 
+		customer_id, 
+		name, 
+		sex, 
+		year, 
+		height, 
+		weight, 
+		waist, 
+		bust, 
+		clothes_length, 
+		arm_length, 
+		arm_circum, 
+		shoulder_width, 
+		content, 
+		headlight_url, 
+		side_shot_url, 
+		back_photo_url, 
+		imgs_url, 
+		is_default, 
+		remarks
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询客户尺寸信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_customer_size_config 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询客户尺寸信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_customer_size_config 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 客户尺寸信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_customer_size_config 
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_customer_size_config(
+		id, 
+		customer_id, 
+		name, 
+		sex, 
+		year, 
+		height, 
+		weight, 
+		waist, 
+		bust, 
+		clothes_length, 
+		arm_length, 
+		arm_circum, 
+		shoulder_width, 
+		content, 
+		headlight_url, 
+		side_shot_url, 
+		back_photo_url, 
+		imgs_url, 
+		is_default, 
+		remarks
+		)
+		VALUES(		
+		#{id}, 
+		#{customer_id}, 
+		#{name}, 
+		#{sex}, 
+		#{year}, 
+		#{height}, 
+		#{weight}, 
+		#{waist}, 
+		#{bust}, 
+		#{clothes_length}, 
+		#{arm_length}, 
+		#{arm_circum}, 
+		#{shoulder_width}, 
+		#{content}, 
+		#{headlight_url}, 
+		#{side_shot_url}, 
+		#{back_photo_url}, 
+		#{imgs_url}, 
+		#{is_default}, 
+		#{remarks}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_customer_size_config 
+		SET 		
+		id = #{id}, 
+		customer_id = #{customer_id}, 
+		name = #{name}, 
+		sex = #{sex}, 
+		year = #{year}, 
+		height = #{height}, 
+		weight = #{weight}, 
+		waist = #{waist}, 
+		bust = #{bust}, 
+		clothes_length = #{clothes_length}, 
+		arm_length = #{arm_length}, 
+		arm_circum = #{arm_circum}, 
+		shoulder_width = #{shoulder_width}, 
+		content = #{content}, 
+		headlight_url = #{headlight_url}, 
+		side_shot_url = #{side_shot_url}, 
+		back_photo_url = #{back_photo_url}, 
+		imgs_url = #{imgs_url}, 
+		is_default = #{is_default}, 
+		remarks = #{remarks}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_customer_size_config		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

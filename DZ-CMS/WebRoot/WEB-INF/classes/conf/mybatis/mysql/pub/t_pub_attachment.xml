@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.pub.dao.T_pub_attachmentDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.pub.entity.T_pub_attachmentEntity" >
+		<result column="attachmentid" property="attachmentid"/>
+		<result column="deptid" property="deptid"/>
+		<result column="bzstype" property="bzstype"/>
+		<result column="businessid" property="businessid"/>
+		<result column="attachmenttype" property="attachmenttype"/>
+		<result column="attachmentname" property="attachmentname"/>
+		<result column="attachmenturl" property="attachmenturl"/>
+		<result column="yearvalue" property="yearvalue"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="memo" property="memo"/>
+	</resultMap>
+		   
+	<!-- t_pub_attachment table all fields -->
+	<sql id="Base_Column_List" >
+		attachmentid, 
+		deptid, 
+		bzstype, 
+		businessid, 
+		attachmenttype, 
+		attachmentname, 
+		attachmenturl, 
+		yearvalue, 
+		createid, 
+		DATE_FORMAT(createdate,'%Y-%m-%d') as createdate, 
+		modifyid, 
+		modifydate, 
+		memo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1 and businessid = #{businessid}
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and attachmentname like '%${param}%' 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			
+		</trim>
+	</sql>
+
+	<!-- 查询附件表(T_PUB_Attachment)信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  t_pub_attachment 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<select id="selectByListm" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>,getDictName(attachmenttype) atname
+		FROM  t_pub_attachment 
+		<include refid="Base_Where"/>
+		and (attachmenttype != '' or attachmenttype != null)
+		<if test="attachmenttype != null and attachmenttype != ''" >
+			and attachmenttype = #{attachmenttype}
+		</if>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询附件表(T_PUB_Attachment)信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_pub_attachment 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<select id="selectByCountm" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_pub_attachment 
+		<include refid="Base_Where"/>
+		and (AttachmentType != '' or AttachmentType != null)
+	</select>
+	
+	<!-- 根据id查询 附件表(T_PUB_Attachment)信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" />,getDictName(attachmenttype) atname 
+		FROM t_pub_attachment 
+		WHERE attachmentid = #{id} 
+	</select>
+	
+	<!-- 根据bizid查询 -->
+	<select id="selectByBusinessid" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_pub_attachment WHERE businessid = #{businessid} 
+		<if test="bzstype != null and bzstype != ''" >
+			and bzstype = #{bzstype}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_pub_attachment(
+		attachmentid, 
+		deptid, 
+		bzstype, 
+		businessid, 
+		attachmenttype, 
+		attachmentname, 
+		attachmenturl, 
+		yearvalue, 
+		createid, 
+		createdate, 
+		memo
+		)
+		VALUES(		
+		#{attachmentid}, 
+		#{deptid}, 
+		#{bzstype}, 
+		#{businessid}, 
+		#{attachmenttype}, 
+		#{attachmentname}, 
+		#{attachmenturl}, 
+		#{yearvalue}, 
+		#{createid}, 
+		NOW(), 
+		#{memo}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_pub_attachment 
+		SET 		
+		attachmentid = #{attachmentid}, 
+		deptid = #{deptid}, 
+		bzstype = #{bzstype}, 
+		businessid = #{businessid}, 
+		attachmenttype = #{attachmenttype}, 
+		attachmentname = #{attachmentname}, 
+		attachmenturl = #{attachmenturl}, 
+		yearvalue = #{yearvalue}, 
+		modifyid = #{modifyid}, 
+		modifydate = NOW(), 
+		memo = #{memo}
+		WHERE 
+		attachmentid = #{attachmentid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_pub_attachment		
+		WHERE attachmentid = #{attachmentid} 		
+	</delete>
+	<delete id="deleteBybizid" parameterType="String">
+		DELETE FROM t_pub_attachment WHERE businessid = #{businessid} 		
+	</delete>
+	
+</mapper>   

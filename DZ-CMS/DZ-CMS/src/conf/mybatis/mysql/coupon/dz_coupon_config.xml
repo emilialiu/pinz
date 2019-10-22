@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.coupon.dao.Dz_coupon_configDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.coupon.entity.Dz_coupon_configEntity" >
+		<result column="id" property="id"/>
+		<result column="type_id" property="type_id"/>
+		<result column="expired_time" property="expired_time"/>
+		<result column="expired_num" property="expired_num"/>
+		<result column="remarks" property="remarks"/>
+		<result column="voucher_amount" property="voucher_amount"/>
+		<result column="commodity_id" property="commodity_id"/>
+		<result column="member_level" property="member_level"/>
+		<result column="commodity_type_id" property="commodity_type_id"/>
+		<result column="create_time" property="create_time"/>
+		<result column="create_by" property="create_by"/>
+		<result column="update_time" property="update_time"/>
+		<result column="update_by" property="update_by"/>
+		<result column="state" property="state"/>
+	</resultMap>
+		   
+	<!-- dz_coupon_config table all fields -->
+	<sql id="Base_Column_List" >
+		a.id, 
+		a.type_id, 
+		a.expired_time, 
+		a.expired_num, 
+		a.remarks, 
+		a.voucher_amount, 
+		a.commodity_id, 
+		a.member_level, 
+		a.commodity_type_id, 
+		a.create_time, 
+		a.create_by, 
+		a.update_time, 
+		a.update_by, 
+		a.state,
+		d.lever_name as levername,
+		b.title as commodityid,
+		c.name as commoditytypeid,
+		e.name as typename,
+		if(a.state=0,"已过期","未过期") as statename
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询优惠券配置信息列表 -->
+	<select id="selectByList" resultType="com.dimine.coupon.entity.Dz_coupon_configEntity" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" /> 
+		FROM  dz_coupon_config a  left join dz_commodity_base b on a.commodity_id = b.id
+		left join Dz_commodity_category c on a.commodity_type_id = c.id left join Dz_member d on a.member_level = d.id
+		left join dz_coupon_type e on e.id = a.type_id
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询优惠券配置信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM  dz_coupon_config a  left join dz_commodity_base b on a.commodity_id = b.id
+		left join Dz_commodity_category c on a.commodity_type_id = c.id left join Dz_member d on a.member_level = d.id
+		left join dz_coupon_type e on e.id = a.type_id
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 优惠券配置信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM  dz_coupon_config a  left join dz_commodity_base b on a.commodity_id = b.id
+		left join Dz_commodity_category c on a.commodity_type_id = c.id left join Dz_member d on a.member_level = d.id
+		left join dz_coupon_type e on e.id = a.type_id
+		WHERE 
+		a.id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_coupon_config(
+		type_id, 
+		expired_time, 
+		expired_num, 
+		remarks, 
+		voucher_amount, 
+		commodity_id, 
+		member_level, 
+		commodity_type_id, 
+		create_time, 
+		create_by, 
+		state
+		)
+		VALUES(		
+		#{type_id}, 
+		#{expired_time}, 
+		#{expired_num}, 
+		#{remarks}, 
+		#{voucher_amount}, 
+		#{commodity_id}, 
+		#{member_level}, 
+		#{commodity_type_id}, 
+		Now(), 
+		#{create_by}, 
+		#{state}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_coupon_config 
+		SET 		
+		type_id = #{type_id}, 
+		expired_time = #{expired_time}, 
+		expired_num = #{expired_num}, 
+		remarks = #{remarks}, 
+		voucher_amount = #{voucher_amount}, 
+		commodity_id = #{commodity_id}, 
+		member_level = #{member_level}, 
+		commodity_type_id = #{commodity_type_id}, 
+		update_time =Now(), 
+		update_by = #{update_by}, 
+		state = #{state}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_coupon_config		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

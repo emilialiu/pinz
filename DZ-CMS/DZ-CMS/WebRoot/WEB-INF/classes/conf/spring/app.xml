@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+           
+	<!-- 默认通过app.properties读取配置 -->
+    <bean id="applicationProperties" class="com.dimine.base.spring.ApplicationPropertiesFactoryBean"/>
+    
+    <!-- 定义受环境影响易变的变量-->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties" ref="applicationProperties"/>
+    </bean>
+    <!-- 在ApplicationContext环境外获取bean的工具类 -->
+	<bean id="applicationContextHelper" class="com.dimine.base.spring.ApplicationContextHelper"/>
+	
+	<!-- 配置数据库连接池 -->
+	<bean id="mysqlDS" class="com.alibaba.druid.pool.DruidDataSource" 
+		init-method="init" destroy-method="close"> 
+		<!-- 基本属性 url、user、password -->
+		<property name="driverClassName" value="${jdbc.driverClassName}"/>
+	      <property name="url" value="${jdbc.url}" />
+	      <property name="username" value="${jdbc.username}" />
+	      <property name="password" value="${jdbc.password}" />
+	      <!-- 配置初始化大小、最小、最大 -->
+	      <property name="initialSize" value="1" />
+	      <property name="minIdle" value="1" /> 
+	      <property name="maxActive" value="20" />
+	      <!-- 配置获取连接等待超时的时间 -->
+	      <property name="maxWait" value="60000" />
+	      <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+	      <property name="timeBetweenEvictionRunsMillis" value="60000" />
+	      <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+	      <property name="minEvictableIdleTimeMillis" value="300000" />
+	      <property name="validationQuery" value="SELECT 'x'" />
+	     <!-- <property name="testWhileIdle" value="true" />
+	      <property name="testOnBorrow" value="false" />
+	      <property name="testOnReturn" value="false" />-->
+	      <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+	      <property name="poolPreparedStatements" value="true" />
+	      <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+	      <!-- 配置监控统计拦截的filters -->
+	      <property name="filters" value="stat" />
+    </bean>
+
+    <bean id="dataSource" class="com.dimine.pub.mybatis.DynamicDataSource">
+	    <property name="targetDataSources">
+	        <map key-type="java.lang.String">
+	            <entry value-ref="mysqlDS" key="mysqlDS"></entry>
+	        </map>
+	    </property>
+	    <property name="defaultTargetDataSource" ref="mysqlDS"></property><!-- 默认使用ds1的数据源 -->
+	</bean>  
+
+    
+	<!-- 扫描 MyBatis Sql -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+		<property name="configLocation" value="classpath:/conf/spring/mybatis-config.xml"></property>
+        <property name="typeAliasesSuperType" value="com.dimine.base.entity.BaseEntity"/>
+        <property name="typeAliasesPackage" value="com.dimine"/>
+        <property name="mapperLocations" value="classpath:/conf/mybatis/${database.type}/**/*.xml"/>
+    </bean>
+    <!-- 扫描basePackage下所有以@MyBatisRepository注解的接口-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+        <property name="annotationClass" value="com.dimine.base.dao.BizDao"/>
+        <property name="basePackage" value="com.dimine"/>
+    </bean>
+    <!-- MyBatis end -->
+	
+	<!-- spring事务处理类配置 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="TxPatternBean"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true">
+		<property name="proxyTargetClass" >
+			<value>true</value>
+		</property>
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="insert*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="delete*">PROPAGATION_REQUIRED</prop>
+				<prop key="remove*">PROPAGATION_REQUIRED</prop>
+				<prop key="save*">PROPAGATION_REQUIRED</prop>
+				<prop key="modify*">PROPAGATION_REQUIRED</prop>
+				<prop key="select*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="list*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+	</bean>
+	
+	 <!-- Activiti begin -->
+    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="databaseSchemaUpdate" value="true"/>
+        <property name="jobExecutorActivate" value="false"/>
+        <!--<property name="history" value="full"/>-->
+        <property name="processDefinitionCacheLimit" value="10"/>
+
+        <!-- mail -->
+        <property name="mailServerHost" value="localhost"/>
+        <property name="mailServerUsername" value="kafeitu"/>
+        <property name="mailServerPassword" value="000000"/>
+        <property name="mailServerPort" value="2025"/>
+
+        <!-- UUID作为主键生成策略
+        <property name="idGenerator" ref="uuidGenerator" />
+        -->
+
+        <!-- 生成流程图的字体 -->
+        <property name="activityFontName" value="${diagram.activityFontName}"/>
+        <property name="labelFontName" value="${diagram.labelFontName}"/>
+
+        <!-- 缓存支持
+        <property name="processDefinitionCache">
+            <bean class="me.kafeitu.demo.activiti.util.cache.DistributedCache" />
+        </property>-->
+
+        <!-- 自动部署 -->
+        <property name="deploymentResources">
+            <list>
+                <value>classpath*:/deployments/*</value>
+            </list>
+        </property>
+
+        
+         <!-- 自定义SessionFactory -->
+        <property name="customSessionFactories">
+            <list>
+               
+                <bean class="com.dimine.activity.bpm.AiaGroupEntityManagerFactory">
+                    <property name="aiaGroupEntityManager">
+                        <bean class="com.dimine.activity.bpm.AiaGroupEntityManager"/>  
+                    </property>
+                </bean>
+                <bean class="com.dimine.activity.bpm.AiaUserEntityManagerFactory">
+                    <property name="aiaUserEntityManager">
+                        <bean class="com.dimine.activity.bpm.AiaUserEntityManager">
+                        </bean>
+                    </property>
+                </bean>
+                
+            </list>
+        </property>
+    </bean>
+
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+    </bean>
+
+    <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService"/>
+    <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService"/>
+    <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
+    <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService"/>
+    <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService"/>
+    <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService"/>
+    <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
+	<import resource="classpath:META-INF/cxf/cxf.xml"/>
+ 	<import resource="classpath:META-INF/cxf/cxf-extension-xml.xml"/>
+ 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+	<bean id="attachmentService" class="com.dimine.pub.service.AttachmentService">
+        <property name="pdfexestr" value="C:\\Program Files (x86)\\SWFTools\\pdf2swf.exe"/>
+    </bean>
+</beans>

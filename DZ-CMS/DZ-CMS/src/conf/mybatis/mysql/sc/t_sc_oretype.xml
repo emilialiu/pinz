@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sc.dao.T_sc_oretypeDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sc.entity.T_sc_oretypeEntity" >
+		<result column="oretypeid" property="oretypeid"/>
+		<result column="oretype" property="oretype"/>
+		<result column="deptid" property="deptid"/>
+		<result column="unit" property="unit"/>
+		<result column="indexno" property="indexno"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="demo" property="demo"/>
+	</resultMap>
+		   
+	<!-- t_sc_oretype table all fields -->
+	<sql id="Base_Column_List" >
+		a.oretypeid, 
+		a.oretype, 
+		a.deptid, 
+		a.unit, 
+		a.indexno, 
+		a.createid, 
+		a.createdate, 
+		a.modifyid, 
+		a.modifydate, 
+		a.demo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and(b.paramname like concat('%',#{param},'%') or c.paramname like concat('%',#{param},'%') )
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询矿种表信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  t_sc_oretype a
+		left join sys_dict b on a.oretype=b.dictid and b.dicttypeid='KZ'
+		left join sys_dict c on a.unit=c.dictid and c.dicttypeid='DW'
+		<if test="deptid != null and deptid != ''" >
+			,(select FUNC_PARENT_LIST(#{deptid}) deptid ) dlist
+		</if>
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询矿种表信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_oretype a
+		left join sys_dict b on a.oretype=b.dictid and b.dicttypeid='KZ'
+		left join sys_dict c on a.unit=c.dictid and c.dicttypeid='DW'
+		<if test="deptid != null and deptid != ''" >
+			,(select FUNC_PARENT_LIST(#{deptid}) deptid ) dlist
+		</if>
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 矿种表信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sc_oretype 
+		WHERE 
+		oretypeid = #{oretypeid} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sc_oretype(
+		oretypeid, 
+		oretype, 
+		deptid, 
+		unit, 
+		indexno, 
+		createid, 
+		createdate, 
+		demo
+		)
+		VALUES(		
+		#{oretypeid}, 
+		#{oretype}, 
+		#{deptid}, 
+		#{unit}, 
+		#{indexno}, 
+		#{createid}, 
+		now(), 
+		#{demo}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sc_oretype 
+		<set>	
+		<if test="oretypeid != null and oretypeid != ''" >oretypeid = #{oretypeid}, </if>
+		<if test="oretype != null and oretype != ''" >oretype = #{oretype}, </if>
+		<if test="deptid != null and deptid != ''" >deptid = #{deptid}, </if>
+		<if test="unit != null and unit != ''" >unit = #{unit}, </if>
+		<if test="indexno != null and indexno != ''" >indexno = #{indexno}, </if>
+		<if test="modifyid != null and modifyid != ''" >modifyid = #{modifyid}, </if>
+		<if test="modifyid != null and modifyid != ''" >modifydate = now(), </if>
+		<if test="demo != null and demo != ''" >demo = #{demo}</if>
+		</set>
+		WHERE 
+		oretypeid = #{oretypeid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sc_oretype		
+		WHERE 
+		oretypeid = #{oretypeid} 		
+	</delete>
+	
+	<!-- 查询元素是否已经有了-->
+	<select id="checkOretype" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_oretype a
+		where 1=1
+		<if test="oretype != null and oretype != ''" >
+			and a.oretype=#{oretype}
+		</if>
+		<if test="deptid != null and deptid != ''" >
+			and a.deptid=#{deptid}
+		</if>
+		<if test="oretypeid != null and oretypeid != ''" >
+			<![CDATA[ and a.oretypeid<>#{oretypeid}]]>
+		</if>
+	</select>
+	
+</mapper>   

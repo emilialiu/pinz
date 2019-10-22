@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Echarts--标准柱状图</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+	</head>
+
+	<body>
+		<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+		<div id="main" style="height: 400px"></div>
+		<!-- ECharts单文件引入 -->
+		<script src="./echarts-all.js"></script>
+		<script type="text/javascript">
+			// 基于准备好的dom，初始化echarts图表
+			var myChart = echarts.init(document.getElementById('main'));
+
+			var option = {
+			    title : {
+			        text: '矿年计划与实际生产量',
+			        subtext: ''
+			    },
+			    tooltip : {
+			        trigger: 'axis'
+			    },
+			    legend: {
+			        data:['计划量','生产量']
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            mark : {show: true},
+			            dataView : {show: true, readOnly: false},
+			            magicType : {show: true, type: ['line', 'bar']},
+			            restore : {show: true},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    calculable : true,
+			    xAxis : [
+			        {
+			            type : 'category',
+			            data : ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+			        }
+			    ],
+			    yAxis : [
+			        {
+			            type : 'value'
+			        }
+			    ],
+			    series : [
+			        {
+			            name:'计划量',
+			            type:'bar',
+			            data:[30.0, 29.9, 31.0, 33.2, 25.6, 37.7, 39.6, 40.2, 32.6, 20.0, 34.4, 33.3],
+			            markPoint : {
+			                data : [
+			                    {type : 'max', name: '最大值'},
+			                    {type : 'min', name: '最小值'}
+			                ]
+			            },
+			            markLine : {
+			                data : [
+			                    {type : 'average', name: '平均值'}
+			                ]
+			            }
+			        },
+			        {
+			            name:'生产量',
+			            type:'bar',
+			            data:[33.0, 39.9, 41.0, 23.2, 45.6, 37.7, 29.6, 50.2, 22.6, 30.0, 44.4, 43.3],
+			            markPoint : {
+			                data : [
+			                    {name : '年最高', value : 50.2, xAxis: 8, yAxis: 3, symbolSize:18},
+			                    {name : '年最低', value : 22.6, xAxis: 9, yAxis: 3}
+			                ]
+			            },
+			            markLine : {
+			                data : [
+			                    {type : 'average', name: '平均值'}
+			                ]
+			            }
+			        }
+			    ]
+			};
+
+			// 为echarts对象加载数据 
+			myChart.setOption(option);
+		</script>
+	</body>
+</html>

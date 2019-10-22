@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sc.dao.T_sc_weightparameterDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sc.entity.T_sc_weightparameterEntity" >
+		<result column="paraid" property="paraid"/>
+		<result column="tdeptid" property="tdeptid"/>
+		<result column="paracode" property="paracode"/>
+		<result column="paraname" property="paraname"/>
+		<result column="unit" property="unit"/>
+		<result column="paravalue" property="paravalue"/>
+		<result column="isdel" property="isdel"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="demo" property="demo"/>
+	</resultMap>
+		   
+	<!-- t_sc_weightparameter table all fields -->
+	<sql id="Base_Column_List" >
+		paraid, 
+		tdeptid, 
+		paracode, 
+		paraname, 
+		unit, 
+		paravalue, 
+		isdel, 
+		createid, 
+		createdate, 
+		modifyid, 
+		left(modifydate,19) modifydate, 
+		demo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (d1.ParamName like '%${param}%')
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询业务参数配置信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT d1.paramname,d2.paramname,
+		<include refid="Base_Column_List"/>
+		FROM  t_sc_weightparameter w
+		LEFT JOIN sys_dict d1 on w.paraname=d1.dictid
+		LEFT JOIN sys_dict d2 on w.unit=d2.dictid
+		<include refid="Base_Where"/>
+		and isdel = '0'
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询业务参数配置信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sc_weightparameter w
+		LEFT JOIN sys_dict d1 on w.paraname=d1.dictid
+		LEFT JOIN sys_dict d2 on w.paraname=d2.dictid
+		<include refid="Base_Where"/>
+		and isdel = '0'
+	</select>
+	
+	<!-- 根据id查询 业务参数配置信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sc_weightparameter 
+		WHERE 
+		paraid = #{paraid} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sc_weightparameter(
+		paraid, 
+		tdeptid, 
+		paracode, 
+		paraname, 
+		unit, 
+		paravalue, 
+		isdel, 
+		createid, 
+		createdate, 
+		demo
+		)
+		VALUES(		
+		#{paraid}, 
+		#{tdeptid}, 
+		#{paracode}, 
+		#{paraname}, 
+		#{unit}, 
+		#{paravalue}, 
+		'0', 
+		#{createid}, 
+		now(), 
+		#{demo}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sc_weightparameter 
+		SET 		
+		paraid = #{paraid}, 
+		tdeptid = #{tdeptid}, 
+		paracode = #{paracode}, 
+		paraname = #{paraname}, 
+		unit = #{unit}, 
+		paravalue = #{paravalue}, 
+		modifyid = #{modifyid}, 
+		modifydate = now(), 
+		demo = #{demo}
+		WHERE 
+		paraid = #{paraid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+	UPDATE t_sc_weightparameter
+	SET 		
+	isdel = '1'
+	WHERE 
+		paraid = #{paraid} 
+		<!-- DELETE FROM t_sc_weightparameter		
+		WHERE 
+		paraid = #{paraid} --> 		
+	</delete>
+	
+	<!-- 查询需要移除的参数名称 -->
+	<select id="selectList" resultMap="BaseResultMap" parameterType="Object">	
+		select paraname from t_sc_weightparameter 
+		where 1=1 and isdel='0'
+		<if test="paraname != null and paraname != ''" >
+			and paraname!=#{paraname}
+		</if>
+		
+	</select>
+	
+</mapper>   

@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.activity.dao.DMTaskDao">
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.activity.entity.TaskEntity" >
+		<id property="id" column="ID_" jdbcType="VARCHAR"/>
+	    <result property="revision" column="REV_" jdbcType="INTEGER"/>
+	    <result property="nameWithoutCascade" column="NAME_" jdbcType="VARCHAR"/>
+	    <result property="parentTaskIdWithoutCascade" column="PARENT_TASK_ID_" jdbcType="VARCHAR"/>
+	    <result property="descriptionWithoutCascade" column="DESCRIPTION_" jdbcType="VARCHAR"/>
+	    <result property="priorityWithoutCascade" column="PRIORITY_" jdbcType="INTEGER"/>
+	    <result property="createTime" column="CREATE_TIME_" jdbcType="TIMESTAMP" />
+	    <result property="ownerWithoutCascade" column="OWNER_" jdbcType="VARCHAR"/>
+	    <result property="assigneeWithoutCascade" column="ASSIGNEE_" jdbcType="VARCHAR"/>
+	    <result property="delegationStateString" column="DELEGATION_" jdbcType="VARCHAR"/>
+	    <result property="executionId" column="EXECUTION_ID_" jdbcType="VARCHAR" />
+	    <result property="processInstanceId" column="PROC_INST_ID_" jdbcType="VARCHAR" />
+	    <result property="processDefinitionId" column="PROC_DEF_ID_" jdbcType="VARCHAR"/>
+	    <result property="taskDefinitionKeyWithoutCascade" column="TASK_DEF_KEY_" jdbcType="VARCHAR"/>
+	    <result property="dueDateWithoutCascade" column="DUE_DATE_" jdbcType="TIMESTAMP"/>
+	    <result property="categoryWithoutCascade" column="CATEGORY_" jdbcType="VARCHAR" />
+	    <result property="suspensionState" column="SUSPENSION_STATE_" jdbcType="INTEGER" />
+	    <result property="tenantId" column="TENANT_ID_" jdbcType="VARCHAR" />
+	    <result property="formKey" column="FORM_KEY_" jdbcType="VARCHAR" />
+	    <result property="ywname" column="ywname" jdbcType="VARCHAR" />
+	    <result property="appusername" column="appusername" jdbcType="VARCHAR" />
+	    <result property="processname" column="processname" jdbcType="VARCHAR" />
+	    <result property="uri" column="uri" jdbcType="VARCHAR" />
+	    <result property="nodeaction" column="nodeaction" jdbcType="VARCHAR" />
+	    <result property="bussinesskey" column="BUSINESS_KEY_" jdbcType="VARCHAR" />
+	    <result property="mobileinfouri" column="mobileinfouri" jdbcType="VARCHAR" />
+	    <result property="mobilenodeaction" column="mobilenodeaction" jdbcType="VARCHAR" />
+	    <result property="comment1" column="comment1" jdbcType="VARCHAR" />
+	    <result property="comment2" column="comment2" jdbcType="VARCHAR" />
+	    <result property="delete_reason_" column="deletereason" jdbcType="VARCHAR" />
+	    <result property="username" column="username" jdbcType="VARCHAR" />
+	    <result property="endtime" column="END_TIME_" jdbcType="VARCHAR" />
+	    <result property="starttime" column="START_TIME_" jdbcType="VARCHAR" />
+	    <result property="duration" column="duration_" jdbcType="VARCHAR" />
+	    <result property="isend" column="isend" jdbcType="VARCHAR" />
+	</resultMap>
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		where  1=1
+		<if test="param != null and param != ''" >
+		and (
+				p.NAME_ like '%${param}%' 
+				or u.TEXT_ like '%${param}%' 
+		   )
+		</if>
+		<if test="query != null and query != ''" >
+				${query}
+		</if>
+	</sql>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+			SELECT * FROM 
+			(
+			select ta.*,staff.StaffName appusername from(
+			SELECT  distinct RES.ID_,RES.TASK_DEF_KEY_,RES.ASSIGNEE_,RES.NAME_,RES.PROC_DEF_ID_,RES.PRIORITY_
+						,date_format(RES.CREATE_TIME_,'%Y-%m-%d  %H:%i:%s')CREATE_TIME_,RES.DUE_DATE_,u.text_ ywname,RES.OWNER_
+						,RES.PROC_INST_ID_ ,p.NAME_ AS processname,
+						e.TEXT_ appuserid,
+						wf.INFOURI uri,wf.NODEACTION nodeaction,ru.BUSINESS_KEY_
+			FROM ACT_RU_TASK RES
+			LEFT JOIN ACT_RU_IDENTITYLINK I ON I.TASK_ID_ = RES.ID_
+			LEFT JOIN act_ru_variable v ON RES.PROC_INST_ID_ = v.PROC_INST_ID_ AND v.NAME_ = 'deptid'
+			INNER JOIN ACT_RE_PROCDEF p ON RES.PROC_DEF_ID_ = P.ID_
+			LEFT JOIN act_ru_variable e ON RES.PROC_INST_ID_ = e.PROC_INST_ID_ AND e.NAME_ = 'startuserid'
+			LEFT JOIN act_ru_variable u ON RES.PROC_INST_ID_ = u.PROC_INST_ID_ AND u.NAME_ = 'decription'
+			LEFT JOIN sys_wf_param wf ON wf.WFKEY = p.KEY_
+			LEFT JOIN act_ru_execution ru ON RES.PROC_INST_ID_ = ru.PROC_INST_ID_
+			WHERE RES.SUSPENSION_STATE_ = 1
+			AND ru.BUSINESS_KEY_ IS NOT NULL
+			AND	RES.ASSIGNEE_ = #{userid}
+			)ta , t_sm_staff staff
+			where staff.StaffID = ta.appuserid
+			union ALL
+			select ta.*,staff.StaffName appusername from(
+			SELECT  distinct RES.ID_,RES.TASK_DEF_KEY_,RES.ASSIGNEE_,RES.NAME_,RES.PROC_DEF_ID_,RES.PRIORITY_
+						,date_format(RES.CREATE_TIME_,'%Y-%m-%d  %H:%i:%s')CREATE_TIME_,RES.DUE_DATE_,u.text_ ywname,RES.OWNER_
+						,RES.PROC_INST_ID_ ,p.NAME_ AS processname
+						,e.TEXT_ appuserid,
+						wf.INFOURI uri,wf.NODEACTION nodeaction,ru.BUSINESS_KEY_
+			FROM ACT_RU_TASK RES
+			LEFT JOIN ACT_RU_IDENTITYLINK I ON I.TASK_ID_ = RES.ID_
+			LEFT JOIN act_ru_variable v ON RES.PROC_INST_ID_ = v.PROC_INST_ID_ AND v.NAME_ = 'deptid'
+			INNER JOIN ACT_RE_PROCDEF p ON RES.PROC_DEF_ID_ = P.ID_
+			LEFT JOIN act_ru_variable e ON RES.PROC_INST_ID_ = e.PROC_INST_ID_ AND e.NAME_ = 'startuserid'
+			LEFT JOIN act_ru_variable u ON RES.PROC_INST_ID_ = u.PROC_INST_ID_ AND u.NAME_ = 'decription'
+			LEFT JOIN sys_wf_param wf ON wf.WFKEY = p.KEY_
+			LEFT JOIN act_ru_execution ru ON RES.PROC_INST_ID_ = ru.PROC_INST_ID_
+			WHERE RES.SUSPENSION_STATE_ = 1
+			AND ru.BUSINESS_KEY_ IS NOT NULL
+			AND	RES.ASSIGNEE_ IS NULL
+			AND I.USER_ID_ = #{userid}
+			)ta , t_sm_staff staff
+			where staff.StaffID = ta.appuserid
+			UNION ALL
+			
+			select ta.*,staff.StaffName appusername
+			from (
+			SELECT distinct RES.ID_,RES.TASK_DEF_KEY_,RES.ASSIGNEE_,RES.NAME_,RES.PROC_DEF_ID_,RES.PRIORITY_ 
+			,date_format(RES.CREATE_TIME_,'%Y-%m-%d %H:%i:%s')CREATE_TIME_,RES.DUE_DATE_,u.text_ ywname,RES.OWNER_ ,RES.PROC_INST_ID_ ,p.NAME_ AS processname
+			,e.TEXT_ appuserid
+			, wf.INFOURI uri,wf.NODEACTION nodeaction,ru.BUSINESS_KEY_ 
+			FROM ACT_RU_TASK RES LEFT JOIN ACT_RU_IDENTITYLINK I ON I.TASK_ID_ = RES.ID_ LEFT JOIN act_ru_variable v ON RES.PROC_INST_ID_ = v.PROC_INST_ID_ 
+			AND v.NAME_ = 'deptid' INNER JOIN ACT_RE_PROCDEF p ON RES.PROC_DEF_ID_ = P.ID_ LEFT JOIN act_ru_variable e ON RES.PROC_INST_ID_ = e.PROC_INST_ID_ 
+			AND e.NAME_ = 'startuserid' LEFT JOIN act_ru_variable u ON RES.PROC_INST_ID_ = u.PROC_INST_ID_ 
+			AND u.NAME_ = 'decription' LEFT JOIN sys_wf_param wf ON wf.WFKEY = p.KEY_
+			 LEFT JOIN act_ru_execution ru ON RES.PROC_INST_ID_ = ru.PROC_INST_ID_ 
+			LEFT JOIN sys_user_role S ON S.USERID =#{userid}
+			LEFT JOIN ( SELECT ORGID FROM sys_dept sd,t_sm_staff sde where sd.DEPTID = sde.DEPTID and sde.staffid=#{userid} ) dept on 1=1 
+			LEFT JOIN sys_dept sorg ON sorg.DEPTID = v.TEXT_ WHERE RES.SUSPENSION_STATE_ = 1 
+			AND ru.BUSINESS_KEY_ IS NOT NULL AND RES.ASSIGNEE_ IS NULL AND i.GROUP_ID_ =S.roleid AND (dept.ORGID = v.TEXT_ or dept.ORGID = sorg.PARENTDEPTID)
+			) ta , t_sm_staff staff
+			where staff.StaffID = ta.appuserid
+			
+			) a
+    	<include refid="Base_Where"/>
+    	 order by a.ID_ desc	
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+			${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	<!-- 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+			SELECT COUNT(1) FROM 
+				(
+				
+			SELECT  distinct RES.ID_,RES.TASK_DEF_KEY_,RES.ASSIGNEE_,RES.NAME_,RES.PROC_DEF_ID_,RES.PRIORITY_
+						,date_format(RES.CREATE_TIME_,'%Y-%m-%d  %H:%i:%s')CREATE_TIME_,RES.DUE_DATE_,u.text_ ywname,RES.OWNER_
+						,RES.PROC_INST_ID_ ,p.NAME_ AS processname,
+						wf.INFOURI uri,wf.NODEACTION nodeaction,ru.BUSINESS_KEY_
+			FROM ACT_RU_TASK RES
+			LEFT JOIN ACT_RU_IDENTITYLINK I ON I.TASK_ID_ = RES.ID_
+			LEFT JOIN act_ru_variable v ON RES.PROC_INST_ID_ = v.PROC_INST_ID_ AND v.NAME_ = 'deptid'
+			INNER JOIN ACT_RE_PROCDEF p ON RES.PROC_DEF_ID_ = P.ID_
+			LEFT JOIN act_ru_variable e ON RES.PROC_INST_ID_ = e.PROC_INST_ID_ AND e.NAME_ = 'startuserid'
+			LEFT JOIN act_ru_variable u ON RES.PROC_INST_ID_ = u.PROC_INST_ID_ AND u.NAME_ = 'decription'
+			LEFT JOIN sys_wf_param wf ON wf.WFKEY = p.KEY_
+			LEFT JOIN act_ru_execution ru ON RES.PROC_INST_ID_ = ru.PROC_INST_ID_
+			WHERE RES.SUSPENSION_STATE_ = 1
+			AND ru.BUSINESS_KEY_ IS NOT NULL
+			AND	RES.ASSIGNEE_ = #{userid}
+			
+			union ALL
+			
+			SELECT  distinct RES.ID_,RES.TASK_DEF_KEY_,RES.ASSIGNEE_,RES.NAME_,RES.PROC_DEF_ID_,RES.PRIORITY_
+						,date_format(RES.CREATE_TIME_,'%Y-%m-%d  %H:%i:%s')CREATE_TIME_,RES.DUE_DATE_,u.text_ ywname,RES.OWNER_
+						,RES.PROC_INST_ID_ ,p.NAME_ AS processname,
+						wf.INFOURI uri,wf.NODEACTION nodeaction,ru.BUSINESS_KEY_
+			FROM ACT_RU_TASK RES
+			LEFT JOIN ACT_RU_IDENTITYLINK I ON I.TASK_ID_ = RES.ID_
+			LEFT JOIN act_ru_variable v ON RES.PROC_INST_ID_ = v.PROC_INST_ID_ AND v.NAME_ = 'deptid'
+			INNER JOIN ACT_RE_PROCDEF p ON RES.PROC_DEF_ID_ = P.ID_
+			LEFT JOIN act_ru_variable e ON RES.PROC_INST_ID_ = e.PROC_INST_ID_ AND e.NAME_ = 'startuserid'
+			LEFT JOIN act_ru_variable u ON RES.PROC_INST_ID_ = u.PROC_INST_ID_ AND u.NAME_ = 'decription'
+			LEFT JOIN sys_wf_param wf ON wf.WFKEY = p.KEY_
+			LEFT JOIN act_ru_execution ru ON RES.PROC_INST_ID_ = ru.PROC_INST_ID_
+			WHERE RES.SUSPENSION_STATE_ = 1
+			AND ru.BUSINESS_KEY_ IS NOT NULL
+			AND	RES.ASSIGNEE_ IS NULL
+			AND I.USER_ID_ = #{userid}
+			
+			UNION ALL
+	
+			SELECT distinct RES.ID_,RES.TASK_DEF_KEY_,RES.ASSIGNEE_,RES.NAME_,RES.PROC_DEF_ID_,RES.PRIORITY_ 
+			,date_format(RES.CREATE_TIME_,'%Y-%m-%d %H:%i:%s')CREATE_TIME_,RES.DUE_DATE_,u.text_ ywname,RES.OWNER_ ,RES.PROC_INST_ID_ ,p.NAME_ AS processname
+			, wf.INFOURI uri,wf.NODEACTION nodeaction,ru.BUSINESS_KEY_ 
+			FROM ACT_RU_TASK RES LEFT JOIN ACT_RU_IDENTITYLINK I ON I.TASK_ID_ = RES.ID_ LEFT JOIN act_ru_variable v ON RES.PROC_INST_ID_ = v.PROC_INST_ID_ 
+			AND v.NAME_ = 'deptid' INNER JOIN ACT_RE_PROCDEF p ON RES.PROC_DEF_ID_ = P.ID_ LEFT JOIN act_ru_variable e ON RES.PROC_INST_ID_ = e.PROC_INST_ID_ 
+			AND e.NAME_ = 'startuserid' LEFT JOIN act_ru_variable u ON RES.PROC_INST_ID_ = u.PROC_INST_ID_ 
+			AND u.NAME_ = 'decription' LEFT JOIN sys_wf_param wf ON wf.WFKEY = p.KEY_
+			 LEFT JOIN act_ru_execution ru ON RES.PROC_INST_ID_ = ru.PROC_INST_ID_ 
+			LEFT JOIN sys_user_role S ON S.USERID =#{userid}
+			LEFT JOIN ( SELECT ORGID FROM sys_dept sd,sys_dept_employee sde where sd.DEPTID = sde.DEPTID and sde.USERID=#{userid} ) dept on 1=1 
+			LEFT JOIN sys_dept sorg ON sorg.DEPTID = v.TEXT_ WHERE RES.SUSPENSION_STATE_ = 1 
+			AND ru.BUSINESS_KEY_ IS NOT NULL AND RES.ASSIGNEE_ IS NULL AND i.GROUP_ID_ =S.roleid AND (dept.ORGID = v.TEXT_ or dept.ORGID = sorg.PARENTDEPTID)
+				
+				) a
+
+    	<include refid="Base_Where"/>
+    	
+	</select>
+	
+	<!-- 删除记录 -->
+	<delete id="deleteHiact" parameterType="Object">
+		delete from  act_hi_actinst where TASK_ID_ = #{id}
+	</delete>
+	<!-- 我办结过的事务 -->
+	<select id="selectHispartList" resultMap="BaseResultMap" parameterType="Object">
+		select distinct a.ID_,a.PROC_DEF_ID_,a.TASK_DEF_KEY_,a.PROC_INST_ID_
+		,a.EXECUTION_ID_,a.NAME_,a.PARENT_TASK_ID_,a.DESCRIPTION_,a.OWNER_,a.ASSIGNEE_,a.START_TIME_,date_format(a.CLAIM_TIME_,'%Y-%m-%d  %H:%i:%s')CLAIM_TIME_
+		,date_format(a.END_TIME_,'%Y-%m-%d  %H:%i:%s')END_TIME_
+		,a.DURATION_,a.DELETE_REASON_,a.PRIORITY_,a.DUE_DATE_,a.FORM_KEY_,a.CATEGORY_,a.TENANT_ID_,d.BUSINESS_KEY_
+		,(SELECT b1.text_ from  act_hi_varinst b1 where a.EXECUTION_ID_=b1.EXECUTION_ID_ and  b1.Name_='decription') ywname 
+		,(SELECT c1.staffname from  act_hi_varinst b1 
+			LEFT JOIN t_sm_staff c1 on b1.text_=c1.staffid
+			where a.EXECUTION_ID_=b1.EXECUTION_ID_ and  b1.Name_='startuserid'
+		) appusername,b.staffname username,c.NAME_ processname,
+		(SELECT b1.Message_ from  act_hi_comment b1 
+			where a.EXECUTION_ID_=b1.PROC_INST_ID_ and  b1.TYPE_='nodepass'
+			and b1.TASK_ID_=a.ID_
+		)comment1 
+		,(SELECT b1.Message_ from  act_hi_comment b1 
+			where a.EXECUTION_ID_=b1.PROC_INST_ID_ and  b1.TYPE_='comment'
+			and b1.TASK_ID_=a.ID_
+		)comment2,e.infouri,e.mobileinfouri,e.mobilenodeaction,e.nodeaction
+		from ACT_HI_TASKINST a
+		LEFT JOIN t_sm_staff b on b.staffid=a.ASSIGNEE_
+		LEFT JOIN ACT_RE_PROCDEF c on c.ID_=a.Proc_DEF_ID_
+		LEFT JOIN act_ru_execution d on a.EXECUTION_ID_=d.ID_
+		LEFT JOIN sys_wf_param e on c.KEY_=e.WFKEY
+		where  1=1
+		<if test="param != null and param != ''" >
+		and (
+				a.NAME_ like '%${param}%' 
+		   )
+		</if>
+		<if test="assigneeWithoutCascade != null and assigneeWithoutCascade != ''" >
+			and a.ASSIGNEE_ = #{assigneeWithoutCascade}
+		</if>
+		<if test="deletereason != null and deletereason != ''" >
+			and a.DELETE_REASON_=#{deletereason}
+		</if>
+		<if test="id != null and id != ''and id != 'null'" >
+				and a.ID_=#{id}
+		</if>
+		<if test="query != null and query != ''" >
+				${query}
+		</if>
+		order by a.END_TIME_ desc
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+			${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<select id="selectHispartCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) from ACT_HI_TASKINST a
+		LEFT JOIN t_sm_staff b on b.staffid=a.ASSIGNEE_
+		LEFT JOIN ACT_RE_PROCDEF c on c.ID_=a.Proc_DEF_ID_
+		LEFT JOIN act_ru_execution d on a.EXECUTION_ID_=d.ID_
+		LEFT JOIN sys_wf_param e on c.KEY_=e.WFKEY
+		where 1=1 
+		<if test="param != null and param != ''" >
+		and (
+				a.NAME_ like '%${param}%' 
+		   )
+		</if>
+		<if test="assigneeWithoutCascade != null and assigneeWithoutCascade != ''" >
+			and a.ASSIGNEE_ = #{assigneeWithoutCascade}
+		</if>
+		<if test="deletereason != null and deletereason != ''" >
+			and a.DELETE_REASON_=#{deletereason}
+		</if>
+		<if test="id != null and id != ''and id != 'null'" >
+				and a.ID_=#{id}
+		</if>
+		<if test="query != null and query != ''" >
+				${query}
+		</if>
+	</select>
+	
+	
+	<!-- 我办结过的事务 -->
+	<select id="selectStartTaskList" resultMap="BaseResultMap" parameterType="Object">
+		select a.BUSINESS_KEY_,a.PROC_DEF_ID_,date_format(a.START_TIME_,'%Y-%m-%d  %H:%i:%s')START_TIME_,date_format(a.END_TIME_,'%Y-%m-%d  %H:%i:%s')END_TIME_
+		,case when a.DURATION_ is not null then round(a.DURATION_/1000/60,2) else TIMESTAMPDIFF(MINUTE,a.START_TIME_,now()) end DURATION_,a.ID_,b.TEXT_ ywname,c.NAME_ processname,c.KEY_
+		,e.infouri,e.mobileinfouri,e.mobilenodeaction,e.nodeaction,case when a.END_TIME_ is not null then '是' else '否' end isend
+ 		from ACT_HI_PROCINST a
+		LEFT JOIN act_hi_varinst b on a.PROC_INST_ID_=b.PROC_INST_ID_ AND b.NAME_='decription'
+		LEFT JOIN act_re_procdef c on a.PROC_DEF_ID_=c.ID_
+		LEFT JOIN sys_wf_param e on c.KEY_=e.WFKEY
+		WHERE 1=1 
+		<if test="param != null and param != ''" >
+		and (
+				c.NAME_ like '%${param}%' 
+		   )
+		</if>
+		<if test="userid != null and userid != ''" >
+			and a.START_USER_ID_ = #{userid}
+		</if>
+		<if test="query != null and query != ''" >
+				${query}
+		</if>
+		order by a.END_TIME_ desc
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+			${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<select id="selectStartTaskCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) 
+		from ACT_HI_PROCINST a
+		LEFT JOIN act_hi_varinst b on a.PROC_INST_ID_=b.PROC_INST_ID_ AND b.NAME_='decription'
+		LEFT JOIN act_re_procdef c on a.PROC_DEF_ID_=c.ID_
+		LEFT JOIN sys_wf_param e on c.KEY_=e.WFKEY
+		WHERE 1=1 
+		<if test="userid != null and userid != ''" >
+			and a.START_USER_ID_ = #{userid}
+		</if>
+		<if test="query != null and query != ''" >
+				${query}
+		</if>
+		order by a.END_TIME_ desc
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+			${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+</mapper>

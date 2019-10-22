@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.sys.dao.ExportExcelDao" >
+<!-- 查看所有记录数 -->
+<select id="exportuseExcel"
+	parameterType="java.util.HashMap"
+	resultType="com.dimine.sys.entity.LogUserEntity">
+	SELECT logid, u.userid, CONVERT(varchar(100), use_time, 120)usetime, use_module usermodule, u.deptid, use_ip 
+	userip, use_operation  useoperation,use_module usemodule,de.deptname,su.username FROM log_use u JOIN sys_user su ON
+	u.userid=su.userid 
+	left join sys_dept de on de.deptid = u.deptid
+	where 1=1
+	<if test="username != null and username != ''">
+			and su.username LIKE
+				'%'+#{username}+'%'
+		</if>
+		<if test="userip != null and userip != ''">
+			and use_ip = #{userip}+'%'
+		</if>
+		<if test="starttime != null and starttime != ''">
+			and <![CDATA[CONVERT(varchar(100), use_time, 23) >= #{starttime}]]>
+		</if>
+		<if test="endtime != null and endtime != ''">
+			and <![CDATA[CONVERT(varchar(100), use_time, 23) <= #{endtime}]]>
+		</if>
+	ORDER BY use_time DESC
+</select>
+<select id="exportLoginExcel" parameterType="com.dimine.sys.entity.LogLoginEntity" resultType="com.dimine.sys.entity.LogLoginEntity">
+	SELECT  log.logid,log.userid,log.login_name loginname,log.deptid,CONVERT(varchar(100), log.login_time, 120)logintime,log.login_ip loginip,de.deptname,log.login_message loginmessage FROM log_login log
+		left join sys_dept de on de.deptid=log.deptid where 1=1
+	<if test="loginname != null and loginname != ''">
+		and login_name LIKE
+			'%'+#{loginname}+'%'
+	</if>
+	<if test="loginip != null and loginip != ''">
+		and login_ip = #{loginip}+'%'
+	</if>
+	<if test="startTime != null and startTime != ''">
+		and <![CDATA[CONVERT(varchar(100), login_time, 23) >= #{startTime}]]>
+	</if>
+	<if test="endTime != null and endTime != ''">
+		and <![CDATA[CONVERT(varchar(100), login_time, 23) <= #{endTime}]]>
+	</if>
+</select>
+<!-- 异常日志导出 -->
+<select id="exportExceptionExcel" parameterType="com.dimine.sys.entity.LogExceptionEntity" resultType="com.dimine.sys.entity.LogExceptionEntity">
+		SELECT  log.exceptionid,log.userid,log.deptid,CONVERT(varchar(100), log.EXCEPTION_TIME, 120)exceptiontime,
+		log.USEIP useIP,de.deptname,u.username,log.EXCEPTION_MODULE exceptionmodule,log.EXCEPTION_CONTENT exceptioncontent
+		from log_exception log
+		left join sys_dept de on de.deptid=log.deptid 
+		left join sys_user u on u.userid = log.userid
+		where 1=1
+		
+		<if test="useIP != null and useIP != ''">
+			and useip = #{useIP}+'%'
+		</if>
+		<if test="startTime != null and startTime != ''">
+			and <![CDATA[CONVERT(varchar(100), exception_time, 23) >= #{startTime}]]>
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and <![CDATA[CONVERT(varchar(100), exception_time, 23) <= #{endTime}]]>
+		</if>
+</select>
+
+</mapper>

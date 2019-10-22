@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sys.dao.RolePopedomDao"> 
+	<!-- 查找指定角色所有的功能信息 -->
+	<select id="funcListByRoleid" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT funccode FROM sys_role_func WHERE roleid=#{value}
+	</select>
+	
+	<!-- 查找指定角色已经被授予的功能的节点 -->
+	<select id="yiShouYu" parameterType="com.dimine.sys.entity.RolePopedomEntity"
+		resultType="com.dimine.sys.entity.FuncEntity">
+		SELECT funccode, parentfunccode, funcname,
+		 (select count(1) from sys_func b where b.parentfunccode = a.funccode ) childCount 		 
+		FROM SYS_FUNC a WHERE
+		funccode IN (SELECT distinct rf.funccode FROM sys_role_func rf
+		WHERE rf.roleid=#{roleid}) AND parentfunccode = #{funccode} ORDER
+		BY orderno
+	</select>
+
+	<!--功能撤销 找叶子节点的兄弟节点 -->
+	<select id="yiShouYuErJi" parameterType="com.dimine.sys.entity.RolePopedomEntity"
+		resultType="com.dimine.sys.entity.FuncEntity">
+		select bfunc.funccode from sys_func func,sys_func bfunc where
+		func.funccode=#{funccode} and
+		bfunc.parentfunccode=func.parentfunccode and bfunc.funccode
+		in(SELECT funccode FROM sys_role_func WHERE roleid=#{roleid})
+	</select>
+
+	<!--功能撤销 根据子节点找父节点 -->
+	<select id="fuJieDian" parameterType="com.dimine.sys.entity.RolePopedomEntity"
+		resultType="com.dimine.sys.entity.FuncEntity">
+		SELECT funccode, funcname FROM SYS_FUNC WHERE funccode IN (SELECT funccode
+		FROM sys_role_func WHERE roleid=#{roleid}) AND parentfunccode IS
+		NOT NULL and funccode =(select parentfunccode from sys_func where funccode=#{funccode})
+	</select>
+	
+	<!-- 未授予功能 父节点找子节点 -->
+	<select id="weiShouYu" parameterType="java.util.Map" resultType="com.dimine.sys.entity.FuncEntity">
+		SELECT funccode, parentfunccode, funcname,
+			(select count(1) from sys_func b where b.parentfunccode = a.funccode ) childCount
+		FROM SYS_FUNC a WHERE parentfunccode = #{funccode}
+		AND funccode IN(SELECT distinct rf.funccode FROM sys_role_func rf
+		JOIN sys_user_role ur ON rf.roleid=ur.roleid WHERE
+		ur.userid=#{userID}) 
+		ORDER BY orderno
+	</select>
+	
+	<!-- 已授予功能 子节点找父节点 -->
+	<select id="yiShouYuFu" parameterType="com.dimine.sys.entity.RolePopedomEntity"
+		resultType="com.dimine.sys.entity.FuncEntity">
+		WITH TEMPFUNC(FUNCCODE, FUNCNAME, PARENTFUNCCODE) AS (
+	       SELECT ROOT.FUNCCODE, ROOT.FUNCNAME, ROOT.PARENTFUNCCODE FROM SYS_FUNC ROOT WHERE 
+	            ROOT.PARENTFUNCCODE IS NOT NULL AND ROOT.FUNCCODE = #{funccode}
+	       UNION ALL
+	       SELECT SUB.FUNCCODE, SUB.FUNCNAME, SUB.PARENTFUNCCODE FROM SYS_FUNC SUB, TEMPFUNC SUPER WHERE SUB.FUNCCODE = SUPER.PARENTFUNCCODE
+	    )
+	    SELECT * FROM TEMPFUNC where FUNCCODE NOT IN (SELECT FUNCCODE FROM SYS_ROLE_FUNC WHERE ROLEID=#{roleid})
+	</select>
+	
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.sys.entity.RolePopedomEntity">
+		INSERT INTO sys_role_func(funccode,roleid) VALUES(#{funccode},#{roleid})
+	</insert>
+
+	<!-- 删除记录信息 -->
+	<delete id="delete" parameterType="com.dimine.sys.entity.RolePopedomEntity">
+		DELETE FROM sys_role_func WHERE roleid=#{roleid} and funccode=#{funccode}
+	</delete>
+
+</mapper>   

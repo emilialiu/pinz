@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.taglib.dao.ZtreeDao">
+	<!-- 加载树节点 -->
+	<select id="selectztreelist" resultType="java.util.HashMap" parameterType="com.dimine.taglib.entity.ZtreeEntity">
+		SELECT a.${ztreeid},a.${ztreetext},a.${parentid},
+		(select count(1) from ${tablename} b
+		where b.${parentid} = a.${ztreeid}) childCount
+		FROM ${tablename} a where a.${parentid} = #{parent}
+	</select>
+	<!-- 初始化根节点 -->
+	<select id="selectztreehead" resultType="java.util.HashMap" parameterType="com.dimine.taglib.entity.ZtreeEntity">
+		SELECT a.${ztreeid},a.${ztreetext},a.${parentid},
+		(select count(1) from ${tablename} b
+		where b.${parentid} = a.${ztreeid}) childCount
+		FROM ${tablename} a where ${parameter} and (a.${parentid} is null or a.${parentid} = '')
+	</select>
+	<!-- 修改节点 -->
+	<update id="update" parameterType="com.dimine.taglib.entity.ZtreeEntity">
+		update ${tablename} set ${ztreetext} = #{name} where ${ztreeid} = #{id}
+	</update>
+	<!-- 拖拽节点 -->
+	<update id="updatedrop" parameterType="com.dimine.taglib.entity.ZtreeEntity">
+		update ${tablename} set ${parentid} = #{parent} where ${ztreeid} = #{id}
+	</update>
+	<!-- 删除节点 -->
+	<delete id="delete" parameterType="com.dimine.taglib.entity.ZtreeEntity">
+		delete from ${tablename} where ${ztreeid} = #{id}
+	</delete>
+	<!-- 新增节点 -->
+	<insert id="insert" parameterType="com.dimine.taglib.entity.ZtreeEntity">
+		insert into ${tablename} (${ztreeid},${ztreetext},${parentid}) values (#{id},#{name},#{parent})
+	</insert>
+</mapper>

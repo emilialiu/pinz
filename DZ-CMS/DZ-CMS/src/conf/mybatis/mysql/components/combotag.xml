@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.taglib.dao.ComboDao">
+	<!-- 组合框 -->
+	<select id="selectcombolist" resultType="java.util.HashMap" parameterType="com.dimine.taglib.entity.ComboEntity">
+		select ${comboid},${combotext}
+		<if test="comcode != null and comcode != ''" >
+			,${comcode}
+		</if>
+	    from ${tablename} where ${parameter}
+	</select>
+</mapper>

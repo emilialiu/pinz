@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.activity.dao.FeeborrowDao">
+
+	<!-- 查询借支管理 -->
+	<select id="selectByList" resultType="com.dimine.activity.entity.FeeborrowEntity"
+		parameterType="com.dimine.activity.entity.FeeborrowEntity">
+		select f.borrowid,f.state,f.userid,f.cause,f.borrowamount,date_format(f.borrowdate,'%Y-%m-%d')borrowdate
+		,u.staffname username ,di.paramname statename
+		 from fee_borrow f
+		 left join t_sm_staff u on f.userid=u.staffid
+		 left join sys_dict di on di.dictid=f.state 
+		 where 1=1
+		 <if test="query != null and query != ''">
+			${query}
+		</if>
+		 <if test="userid != null and userid != ''">
+			and f.userid=#{userid}
+		</if>
+		<if test="param != null and param != ''" >
+				and (u.staffname like '%${param}%' or di.paramname like '%${param}%')
+		</if>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''">
+			${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+			${pager.mysqlQueryCondition}
+		</if>
+		
+	</select>
+	<!-- 借支管理 列表总数 -->
+	<select id="selectByCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(0)
+		 from fee_borrow f
+		 left join t_sm_staff u on f.userid=u.staffid
+		 left join sys_dict di on di.dictid=f.state 
+		 
+		WHERE 1=1
+		<if test="query != null and query != ''">
+			${query}
+		</if>
+		 <if test="userid != null and userid != ''">
+			and f.userid=#{userid}
+		</if>
+		<if test="param != null and param != ''" >
+				and (u.staffname like '%${param}%' or di.paramname like '%${param}%')
+		</if>
+	</select>
+	
+	<!-- 添加数据 -->
+	<insert id="insert" parameterType="com.dimine.activity.entity.FeeborrowEntity">
+		insert into fee_borrow(borrowid,state,userid,cause,borrowamount,borrowdate,createdate,createid)
+		values (#{borrowid},#{state},#{userid},#{cause},#{borrowamount},now(),now(),#{createid})
+	</insert>
+	<!-- 查询请假信息 -->
+	<select id="selectById" parameterType="java.lang.String" resultType="com.dimine.activity.entity.FeeborrowEntity">
+		select f.borrowid,f.state,f.userid,f.cause,f.borrowamount,date_format(f.borrowdate,'%Y-%m-%d')borrowdate
+		,u.staffname username ,di.paramname statename
+		 from fee_borrow f
+		 left join t_sm_staff u on f.userid=u.staffid
+		 left join sys_dict di on di.dictid=f.state
+		 where f.borrowid=#{value}
+	</select>
+	
+	<!-- 修改数据 -->
+	<update id="update" parameterType="com.dimine.activity.entity.FeeborrowEntity">
+		update fee_borrow set borrowid=#{borrowid},state=#{state},cause=#{cause},borrowamount=#{borrowamount}
+		,modifyid=#{userid},modifydate=now() where borrowid=#{borrowid}
+	</update>
+	<!-- 修改流程状态 -->
+	<update id="updatestate" parameterType="com.dimine.activity.entity.FeeborrowEntity">
+		update fee_borrow set state=#{state}  where borrowid=#{borrowid}
+	</update>
+	
+	
+	<!-- 修改数据 -->
+	<update id="delete" parameterType="com.dimine.activity.entity.FeeborrowEntity">
+		delete from  fee_borrow where borrowid=#{borrowid}
+	</update>
+	
+	
+
+</mapper>

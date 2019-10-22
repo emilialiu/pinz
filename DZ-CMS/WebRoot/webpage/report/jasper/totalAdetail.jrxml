@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="totalAdetail"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="793"
+		 pageHeight="842"
+		 columnWidth="733"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoDataSection"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="monthvalue" isForPrompting="true" class="java.lang.String"/>
+	<queryString><![CDATA[select (@rowNO := @rowNo+1) AS rowno,o.proctname,o.TargetName,o.paramname,o.tz,o.jh,o.ys,
+case when o.jh!=0 then o.ys/o.jh else 0 end yjhwcl
+from (
+select h.proctname,h.TargetName,h.paramname,ifnull(i.value,0) ys,ifnull(k.value,0) jh,ifnull(j.value,0) tz from 
+(
+/*验收汇总查看*/
+select a.proctname,b.TargetName,c.paramname,b.ProcID,b.serialno from T_SC_Process a
+left join T_BI_Target b on a.ProcID = b.ProcID
+left join sys_dict c on c.dictid = b.TargetUnit
+where b.IsUsed = '1' and b.IsAccept = '1' and b.IsDel = '0' and b.issum = '1'
+) h
+
+inner join 
+
+/*验收查看信息*/
+(
+/*验收查看信息*/
+select a.procid,sum(column_1) value,1 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_2) value,2 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_3) value,3 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_4) value,4 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_5) value,5 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_6) value,6 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_7) value,7 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_8) value,8 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_9) value,9 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_10) value,10 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_11) value,11 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_12) value,12 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_13) value,13 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_14) value,14 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_15) value,15 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_16) value,16 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_17) value,17 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_18) value,18 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_19) value,19 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_20) value,20 serialno 
+from T_AM_ADetail a
+left join T_AM_Acceptance b on a.aid = b.aid
+where b.ymvalue = $P{monthvalue} and a.ADStatus = 'YSZT001' and b.AuditStatus = 'SPZT003'
+group by a.procid 
+) i on h.ProcID = i.procid and h.serialno = i.serialno  
+
+left join 
+
+(
+/*月计划查看信息*/
+select a.procid,sum(column_1) value,1 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid
+union ALL
+select a.procid,sum(column_2) value,2 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_3) value,3 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_4) value,4 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_5) value,5 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_6) value,6 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_7) value,7 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_8) value,8 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_9) value,9 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_10) value,10 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_11) value,11 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_12) value,12 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_13) value,13 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_14) value,14 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_15) value,15 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_16) value,16 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_17) value,17 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_18) value,18 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_19) value,19 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+union ALL
+select a.procid,sum(column_20) value,20 serialno 
+from T_PM_MPDetail a
+left join T_PM_MonthPlan b on a.PlanID = b.PlanID
+where b.ymvalue = $P{monthvalue} and b.AuditStatus = 'SPZT003'
+group by a.procid 
+) k on h.ProcID = k.procid and h.serialno = k.serialno 
+
+left join
+(
+/*生产台账查看信息*/
+select a.procid,sum(column_1) value,1 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like  CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_2) value,2 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_3) value,3 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_4) value,4 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_5) value,5 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_6) value,6 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_7) value,7 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_8) value,8 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_9) value,9 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_10) value,10 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_11) value,11 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_12) value,12 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_13) value,13 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_14) value,14 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_15) value,15 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_16) value,16 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_17) value,17 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_18) value,18 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_19) value,19 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%') 
+group by a.procid
+union ALL
+select a.procid,sum(column_20) value,20 serialno 
+from T_PD_PBDetail a
+left join T_PD_ProductionBill b on a.PBID = b.PBID
+where b.ReportDate like CONCAT_WS('%',$P{monthvalue},'%')
+group by a.procid
+) j on h.ProcID = j.procid and h.serialno = j.serialno 
+order by h.proctname asc,h.serialno asc
+) o,(select @rowNO :=0) p]]></queryString>
+
+	<field name="rowno" class="java.lang.Long"/>
+	<field name="proctname" class="java.lang.String"/>
+	<field name="TargetName" class="java.lang.String"/>
+	<field name="paramname" class="java.lang.String"/>
+	<field name="tz" class="java.lang.Double"/>
+	<field name="jh" class="java.lang.Double"/>
+	<field name="ys" class="java.lang.Double"/>
+	<field name="yjhwcl" class="java.lang.Double"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="30"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="733"
+						height="30"
+						key="staticText-1"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[月验收汇总查看信息表]]></text>
+				</staticText>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="35"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="60"
+						height="35"
+						key="staticText-2"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[序号]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="60"
+						y="0"
+						width="89"
+						height="35"
+						key="staticText-3"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[项目分类]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="149"
+						y="0"
+						width="87"
+						height="35"
+						key="staticText-4"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[指标名称]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="236"
+						y="0"
+						width="87"
+						height="35"
+						key="staticText-5"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[单位]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="323"
+						y="0"
+						width="97"
+						height="35"
+						key="staticText-7"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[汇报产量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="420"
+						y="0"
+						width="97"
+						height="35"
+						key="staticText-8"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[验收产量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="517"
+						y="0"
+						width="97"
+						height="35"
+						key="staticText-9"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[月计划量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="614"
+						y="0"
+						width="119"
+						height="35"
+						key="staticText-10"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[月计划完成率]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="30"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="60"
+						y="0"
+						width="89"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{proctname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="149"
+						y="0"
+						width="87"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{TargetName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="236"
+						y="0"
+						width="87"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{paramname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="420"
+						y="0"
+						width="97"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{ys}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="517"
+						y="0"
+						width="97"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{jh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="323"
+						y="0"
+						width="97"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{tz}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="60"
+						height="30"
+						key="textField"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{rowno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="614"
+						y="0"
+						width="119"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{yjhwcl}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+		<noData>
+			<band height="95"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="733"
+						height="30"
+						key="staticText-11"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[月验收汇总查看信息表]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="30"
+						width="60"
+						height="35"
+						key="staticText-12"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[序号]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="60"
+						y="30"
+						width="89"
+						height="35"
+						key="staticText-13"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[项目分类]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="149"
+						y="30"
+						width="87"
+						height="35"
+						key="staticText-14"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[指标名称]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="236"
+						y="30"
+						width="87"
+						height="35"
+						key="staticText-15"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[单位]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="323"
+						y="30"
+						width="97"
+						height="35"
+						key="staticText-16"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[汇报产量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="420"
+						y="30"
+						width="97"
+						height="35"
+						key="staticText-17"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[验收产量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="517"
+						y="30"
+						width="97"
+						height="35"
+						key="staticText-18"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[月计划量]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="614"
+						y="30"
+						width="119"
+						height="35"
+						key="staticText-19"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[月计划完成率]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="65"
+						width="733"
+						height="30"
+						key="staticText-20"/>
+					<box>					<pen lineWidth="0.0" lineStyle="Solid"/>
+					<topPen lineWidth="0.25" lineStyle="Solid"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[此条件下没有数据显示!]]></text>
+				</staticText>
+			</band>
+		</noData>
+</jasperReport>

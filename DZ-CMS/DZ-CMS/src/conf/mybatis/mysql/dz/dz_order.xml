@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.dz.dao.Dz_orderDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.dz.entity.Dz_orderEntity" >
+		<result column="id" property="id"/>
+		<result column="order_code" property="order_code"/>
+		<result column="customer_id" property="customer_id"/>
+		<result column="total_money" property="total_money"/>
+		<result column="deposit_paid" property="deposit_paid"/>
+		<result column="deposit_paid_time" property="deposit_paid_time"/>
+		<result column="final_payment" property="final_payment"/>
+		<result column="freight" property="freight"/>
+		<result column="state" property="state"/>
+		<result column="is_cancel" property="is_cancel"/>
+		<result column="create_time" property="create_time"/>
+		<result column="create_by" property="create_by"/>
+		<result column="update_time" property="update_time"/>
+		<result column="update_by" property="update_by"/>
+		<result column="payment_time" property="payment_time"/>
+		<result column="payment_money" property="payment_money"/>
+		<result column="logistics_number" property="logistics_number"/>
+	</resultMap>
+		   
+	<!-- dz_order table all fields -->
+	<sql id="Base_Column_List" >
+		a.id, 
+		order_code, 
+		customer_id, 
+		b.nick_name as nickname,
+		total_money, 
+		deposit_paid, 
+		deposit_paid_time, 
+		final_payment, 
+		freight, 
+		state, 
+		is_cancel, 
+		if(is_cancel=0,"是","否") as iscancelname,
+		a.create_time, 
+		a.create_by, 
+		a.update_time, 
+		a.update_by, 
+		payment_time, 
+		payment_money, 
+		logistics_number
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and nick_name = like '%${param}%'
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询订单管理信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM  dz_order a
+		left join dz_customer b on b.uid = a.customer_id
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询订单管理信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM dz_order a left join dz_customer b on b.uid = a.customer_id
+		
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 订单管理信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM dz_order a left join dz_customer b on b.uid = a.customer_id
+		WHERE 
+		id = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO dz_order(
+		id, 
+		order_code, 
+		customer_id, 
+		total_money, 
+		deposit_paid, 
+		deposit_paid_time, 
+		final_payment, 
+		freight, 
+		state, 
+		is_cancel, 
+		create_time, 
+		create_by, 
+		payment_time, 
+		payment_money, 
+		logistics_number
+		)
+		VALUES(		
+		#{id}, 
+		#{order_code}, 
+		#{customer_id}, 
+		#{total_money}, 
+		#{deposit_paid}, 
+		#{deposit_paid_time}, 
+		#{final_payment}, 
+		#{freight}, 
+		#{state}, 
+		#{is_cancel}, 
+		Now(), 
+		#{create_by}, 
+		#{payment_time}, 
+		#{payment_money}, 
+		#{logistics_number}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE dz_order 
+		SET 		
+		id = #{id}, 
+		order_code = #{order_code}, 
+		customer_id = #{customer_id}, 
+		total_money = #{total_money}, 
+		deposit_paid = #{deposit_paid}, 
+		deposit_paid_time = #{deposit_paid_time}, 
+		final_payment = #{final_payment}, 
+		freight = #{freight}, 
+		state = #{state}, 
+		is_cancel = #{is_cancel}, 
+		update_time = Now(), 
+		update_by = #{update_by}, 
+		payment_time = #{payment_time}, 
+		payment_money = #{payment_money}, 
+		logistics_number = #{logistics_number}
+		WHERE 
+		id = #{id} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM dz_order		
+		WHERE 
+		id = #{id} 		
+	</delete>
+	
+</mapper>   

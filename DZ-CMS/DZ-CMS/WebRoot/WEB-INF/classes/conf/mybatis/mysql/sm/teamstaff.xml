@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sm.dao.TeamstaffDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sm.entity.TeamstaffEntity" >
+		<result column="teamid" property="teamid"/>
+		<result column="staffid" property="staffid"/>
+		<result column="staffname" property="staffname"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		teamid, t.staffid
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and ()
+			</if>
+			<if test="teamid != null and teamid != ''" >
+				and teamid = #{teamid}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sm_teamstaff t
+		WHERE teamid = #{teamid} AND staffid = #{staffid} 		
+	</select>
+
+	<!-- 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sm_teamstaff t
+		LEFT JOIN t_sm_staff s ON t.staffid = s.staffid 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>, s.staffname
+		FROM t_sm_teamstaff t
+		LEFT JOIN t_sm_staff s ON t.staffid = s.staffid 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>		
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sm_teamstaff(teamid,staffid) VALUES(#{teamid},#{staffid})
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sm_teamstaff 
+		SET teamid = #{teamid}, staffid = #{staffid}
+		WHERE teamid = #{teamid} AND staffid = #{staffid} 
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sm_teamstaff WHERE teamid = #{teamid} AND staffid = #{staffid} 		
+	</delete>
+	<!-- 插入记录 -->
+	<insert id="batchInsert" parameterType="java.util.List">
+		INSERT INTO t_sm_teamstaff( teamid, staffid)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator="," >  
+	        (#{item.teamid},#{item.staffid})
+	    </foreach>
+	</insert>
+	<!-- 在员工表中查找未被添加的所有员工 -->
+	<select id="selectUnList" parameterType="Object" resultMap="BaseResultMap">
+		select staffid, staffname FROM t_sm_staff s 
+		WHERE <if test="deptid != null and deptid != ''">s.deptid=#{deptid} AND</if>
+		s.staffid NOT IN (SELECT staffid FROM t_sm_teamstaff)
+    	<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+			${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<select id="selectUnCount" parameterType="Object" resultType="java.lang.Integer">
+		SELECT count(*) FROM t_sm_staff s
+		WHERE <if test="deptid != null and deptid != ''">s.deptid=#{deptid} AND</if>
+		s.staffid NOT IN (SELECT staffid FROM t_sm_teamstaff)
+	</select>
+
+	<select id="getTeamInfoByUserid" parameterType="Object" resultType="com.dimine.sm.entity.TeamEntity">
+		SELECT t.TeamID, t.TeamType,t.TeamName FROM t_sm_team t
+		LEFT JOIN t_sm_teamstaff ts ON t.TeamID = ts.TeamID
+		WHERE ts.StaffID = #{value}
+	</select>
+</mapper>   

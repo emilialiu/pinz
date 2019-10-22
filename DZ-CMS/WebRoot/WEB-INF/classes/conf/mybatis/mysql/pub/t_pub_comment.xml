@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.pub.dao.T_pub_commentDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.pub.entity.T_pub_commentEntity" >
+		<result column="commid" property="commid"/>
+		<result column="deptid" property="deptid"/>
+		<result column="commmemo" property="commmemo"/>
+		<result column="commtype" property="commtype"/>
+		<result column="busiid" property="busiid"/>
+		<result column="commtime" property="commtime"/>
+		<result column="commman" property="commman"/>
+	</resultMap>
+		   
+	<!-- t_pub_comment table all fields -->
+	<sql id="Base_Column_List" >
+		commid, 
+		deptid, 
+		commmemo, 
+		commtype, 
+		busiid, 
+		commtime, 
+		commman
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and 
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			<if test="commtype != null and commtype != ''" >
+				and commtype=#{commtype}
+			</if>
+			<if test="busiid != null and busiid != ''" >
+				and busiid=#{busiid}
+			</if>
+			<if test="deptid != null and deptid != ''" >
+				and deptid=#{deptid}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 查询评论信息（T_PUB_COMMENT）信息列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>,t1.username username
+		FROM  t_pub_comment t
+		left join sys_user t1 on t1.userid=t.commman
+		<include refid="Base_Where"/> order by commtime desc
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<!-- 查询评论信息（T_PUB_COMMENT）信息列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_pub_comment 
+		<include refid="Base_Where"/>
+	</select>
+	
+	<!-- 根据id查询 评论信息（T_PUB_COMMENT）信息 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_pub_comment 
+		WHERE 
+		commid = #{id} 
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_pub_comment(
+		commid, 
+		deptid, 
+		commmemo, 
+		commtype, 
+		busiid, 
+		commtime, 
+		commman
+		)
+		VALUES(		
+		#{commid}, 
+		#{deptid}, 
+		#{commmemo}, 
+		#{commtype}, 
+		#{busiid}, 
+		now(), 
+		#{commman}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_pub_comment 
+		SET 		
+		commid = #{commid}, 
+		deptid = #{deptid}, 
+		commmemo = #{commmemo}, 
+		commtype = #{commtype}, 
+		busiid = #{busiid}, 
+		commtime = #{commtime}, 
+		commman = #{commman}
+		WHERE 
+		commid = #{commid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_pub_comment		
+		WHERE 
+		commid = #{commid} 		
+	</delete>
+	
+</mapper>   

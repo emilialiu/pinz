@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="monthreport_son_son"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="1210"
+		 pageHeight="623"
+		 columnWidth="1210"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoDataSection"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<style 
+		name="month1"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month1}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month1"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month2"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month2}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month2"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month3"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month3}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month3"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month4"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month4}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month4"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month5"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month5}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month5"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month6"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month6}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month6"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month7"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month7}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month7"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month8"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month8}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month8"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month9"
+		isDefault="false"
+		isBlankWhenNull="true"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month9}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month9"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month10"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month10}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month10"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month11"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month11}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month11"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="month12"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{month12}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="month12"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="yearly"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{Yearly}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="yearly"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="Q1"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{Quarter1}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="Q1"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="Q2"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{Quarter2}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="Q2"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="Q3"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{Quarter3}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="Q3"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="Q4"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{Quarter4}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="Q4"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+	<style 
+		name="FHY"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{FHYear}.intValue()<1)? new Boolean(true):new Boolean(false)]]></conditionExpression>
+			<style 
+				name="FHY"
+				isDefault="false"
+				forecolor="#FF0000"
+				isBold="true"
+				isBlankWhenNull="true"
+			>
+					<box>					<pen lineWidth="0.0" lineColor="#000000"/>
+					<topPen lineWidth="0.0" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineColor="#000000"/>
+</box>
+			</style>
+		</conditionalStyle>
+	</style>
+
+	<parameter name="deptid" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="count" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="yearmonth" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="techid" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="pwrptid" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="targetid" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="procid" isForPrompting="false" class="java.lang.String"/>
+	<queryString><![CDATA[SELECT  sum(t.wpres)wpres, SUM(t.wwcres)wwcres,SUM(t.mpres)mpres,  SUM(t.wljpres)wljpres,
+         ROUND(IFNULL(100*sum(t.wwcres)/sum(t.wljpres),0),2) wljpc,
+         ROUND(IFNULL(100*sum(t.wwcres)/sum(t.wpres),0),2) wjdpc, 
+         SUM(t.mwcres)mwcres,SUM(t.mljpres)mljpres, 
+         ROUND(IFNULL(100*sum(t.mwcres)/sum(t.mljpres),0),2) mljpc, 
+         ROUND(IFNULL(100*sum(t.mwcres)/sum(t.mpres),0),2) mjdpc
+FROM t_pd_pwrptdetail t LEFT JOIN T_SC_Process tp ON tp.ProcID = t.procid 
+LEFT JOIN T_BI_Target tt ON tt.TargetID = t.targetid 
+LEFT JOIN t_bi_projectinfo ti ON ti.ProjectID = t.ProjectID 
+LEFT JOIN T_PD_ProductWeekRPT a on a.pwrptid=t.pwrptid
+WHERE 1=1  and t.procid=$P{procid} and tt.targetid=$P{targetid} 
+and a.yyvalue=$P{yearmonth} and t.techid=$P{techid}]]></queryString>
+
+	<field name="wpres" class="java.lang.String"/>
+	<field name="wwcres" class="java.lang.String"/>
+	<field name="mpres" class="java.lang.String"/>
+	<field name="wljpres" class="java.lang.String"/>
+	<field name="wljpc" class="java.lang.String"/>
+	<field name="wjdpc" class="java.lang.String"/>
+	<field name="mwcres" class="java.lang.String"/>
+	<field name="mljpres" class="java.lang.String"/>
+	<field name="mljpc" class="java.lang.String"/>
+	<field name="mjdpc" class="java.lang.String"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="30"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-2"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{wpres}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="100"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-3"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{wwcres}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="200"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-4"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{mpres}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="300"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-5"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{wljpres}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="400"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-6"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{wljpc}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="500"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-7"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{wjdpc}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="600"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-8"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{mwcres}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="700"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-9"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{mljpres}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="900"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-11"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{mjdpc}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="800"
+						y="0"
+						width="100"
+						height="30"
+						key="textField-12"/>
+					<box>					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{mljpc}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

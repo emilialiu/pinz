@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="equipment_cost"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="1301"
+		 pageHeight="842"
+		 columnWidth="1241"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoDataSection"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="startDate" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="endDate" isForPrompting="true" class="java.lang.String"/>
+	<queryString><![CDATA[select (@i:=@i+1) xh,
+h.DevID,h.DevName,
+ifnull(f.tbzcb,0) as tbzcb,
+ifnull(f.zcb,0) as zcb,
+ifnull(f.tbcyxh,0) as tbcyxh,
+ifnull(f.cyxh,0) as cyxh,
+ifnull(f.cydh,0) as cydh,
+ifnull(f.tbbjxh,0) as tbbjxh,
+ifnull(f.bjxh,0) as bjxh,
+ifnull(f.tbltxh,0) as tbltxh,
+ifnull(f.ltxh,0) as ltxh,
+ifnull(f.tbrhyxh,0) as tbrhyxh,
+ifnull(f.rhyxh,0) as rhyxh
+from 
+t_dm_device h  left join 
+(
+select 
+d.DevID,d.DevName,
+sum(ifnull(d.zcb,0))/avg(ifnull(e.ts,0)) as tbzcb,
+sum(ifnull(d.zcb,0)) as zcb,
+sum(ifnull(d.cyxh,0))/avg(ifnull(e.ts,0)) as tbcyxh,
+sum(ifnull(d.cyxh,0)) as cyxh,
+sum(ifnull(d.cyxh,0))/avg(ifnull(f.rcl,0)) as cydh,
+sum(ifnull(d.bjxh,0))/avg(ifnull(f.rcl,0)) as tbbjxh,
+sum(ifnull(d.bjxh,0)) as bjxh,
+sum(ifnull(d.ltxh,0))/avg(ifnull(f.rcl,0)) as tbltxh,
+sum(ifnull(d.ltxh,0)) as ltxh,
+sum(ifnull(d.rhyxh,0))/avg(ifnull(f.rcl,0)) as tbrhyxh,
+sum(ifnull(d.rhyxh,0)) as rhyxh
+from (
+		-- 总成本
+		select b.DevID,b.DevName,a.JINE as zcb,0 as cyxh,0 as bjxh,0 as ltxh,0 as rhyxh,a.SYSJ
+		from T_DM_DeviceXH a 
+		left join t_dm_device b on a.DevID = b.DevID
+		left join t_mm_material c on a.WZMC = c.materialid
+		where DATE_FORMAT(a.SYSJ,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(a.SYSJ,'%Y-%m-%d')<=$P{endDate}and c.wzmc  not in( '柴油')
+		union all 
+		-- 柴油消耗
+		select b.DevID,b.DevName,0 as zcb,a.SHUL as cyxh,0 as bjxh,0 as ltxh,0 as rhyxh,a.SYSJ
+		from T_DM_DeviceXH a 
+		left join t_dm_device b on a.DevID = b.DevID
+		left join t_mm_material c on a.WZMC = c.materialid
+		where DATE_FORMAT(a.SYSJ,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(a.SYSJ,'%Y-%m-%d')<=$P{endDate}and c.wzmc  = '柴油'
+		union all 
+		-- 备件消耗
+		select b.DevID,b.DevName,0 as zcb,0 as cyxh,a.JINE as bjxh,0 as ltxh,0 as rhyxh,a.SYSJ
+		from T_DM_DeviceXH a 
+		left join t_dm_device b on a.DevID = b.DevID
+		left join t_mm_material c on a.WZMC = c.materialid
+		where DATE_FORMAT(a.SYSJ,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(a.SYSJ,'%Y-%m-%d')<=$P{endDate}and (FIND_IN_SET(c.mcid,FUNC_FIND_CHILD_SPID('WZ12')) or FIND_IN_SET(c.mcid,FUNC_FIND_CHILD_SPID('BJ12')))
+		union all 
+		-- 轮胎消耗
+		select b.DevID,b.DevName,0 as zcb,0 as cyxh,0 as bjxh,a.JINE as ltxh,0 as rhyxh,a.SYSJ
+		from T_DM_DeviceXH a 
+		left join t_dm_device b on a.DevID = b.DevID
+		left join t_mm_material c on a.WZMC = c.materialid
+		where DATE_FORMAT(a.SYSJ,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(a.SYSJ,'%Y-%m-%d')<=$P{endDate}and c.wzmc  = '轮胎'
+		union all 
+		-- 润滑油消耗
+		select b.DevID,b.DevName,0 as zcb,0 as cyxh,0 as bjxh,0 as ltxh,a.JINE as rhyxh,a.SYSJ
+		from T_DM_DeviceXH a 
+		left join t_dm_device b on a.DevID = b.DevID
+		left join t_mm_material c on a.WZMC = c.materialid
+		where DATE_FORMAT(a.SYSJ,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(a.SYSJ,'%Y-%m-%d')<=$P{endDate}and c.wzmc  = '润滑油'
+) d left join 
+(		
+		-- 穿孔运行班次
+		select e.DevID, count(1)as ts from (select a.DevID,Classes as ts,b.ReportDate from t_pd_pbdetail a
+		left join T_PD_ProductionBill b on a.PBID = b.PBID
+		left join t_dm_device c on a.DevID = c.DevID
+		where a.procid = '289e476b86af45b2800ae099d5477853'
+		and  DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate}
+		GROUP BY b.ReportDate,Classes,a.DevID)e GROUP BY e.devid
+		union all 
+		-- 卡车运行班次(设备类型：红岩金刚)
+		select e.DevID, count(1)as ts from (select a.DevID,Classes as ts,b.ReportDate from t_pd_pbdetail a
+		left join T_PD_ProductionBill b on a.PBID = b.PBID
+		left join t_dm_device c on a.DevID = c.DevID
+		where a.procid = '82087e58b3924c55b0e542b8ee87e6a2' and c.dtid = '7981d77236a840898004c07c88f922e7'
+		and  DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate}
+		GROUP BY b.ReportDate,Classes,a.DevID)e GROUP BY e.devid
+		union all
+		-- 卡车运行班次(设备类型：3305矿车)
+		select e.DevID, count(1)as ts from (select a.DevID,Classes as ts,b.ReportDate from t_pd_pbdetail a
+		left join T_PD_ProductionBill b on a.PBID = b.PBID
+		left join t_dm_device c on a.DevID = c.DevID
+						where a.procid = '82087e58b3924c55b0e542b8ee87e6a2' 
+						and c.dtid = '2defdafb5e894a9cade3657ffe57b00d'
+						and  DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate} 
+		GROUP BY b.ReportDate,Classes,a.DevID)e GROUP BY e.devid
+			union ALL
+			-- 铲运机班次
+			select e.DevID, count(1)as ts from (select a.DevID,Classes as ts,b.ReportDate from t_pd_pbdetail a
+			left join T_PD_ProductionBill b on a.PBID = b.PBID
+			left join t_dm_device c on a.DevID = c.DevID
+						where a.procid = '5e2b6e92a15747d39d314e0b245c6a6e' 
+						and  DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate} 
+			GROUP BY b.ReportDate,Classes,a.DevID)e GROUP BY e.devid
+				union ALL
+				-- 破碎机班次
+				select e.DevID, count(1)as ts from (select a.DevID,Classes as ts,b.ReportDate from t_pd_pbdetail a
+				left join T_PD_ProductionBill b on a.PBID = b.PBID
+				left join t_dm_device c on a.DevID = c.DevID
+				where a.procid = 'f3554fc251d4408bba852eadb85ae2c2'
+				and  DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate}
+				GROUP BY b.ReportDate,Classes,a.DevID)e GROUP BY e.devid
+) e on d.DevID = e.DevID
+left join (
+	-- 卡车产量(设备类型：3305矿车)
+	select a.DevID as devid,sum((ifnull(a.column_1,0)+ifnull(a.column_2,0)+ifnull(a.column_3,0)+ifnull(a.column_4,0))) as rcl
+			from  t_pd_pbdetail a
+			left join T_PD_ProductionBill b on a.PBID = b.PBID
+			left join t_dm_device c on a.devid = c.devid
+			where a.procid = '82087e58b3924c55b0e542b8ee87e6a2' 
+			and c.dtid = '2defdafb5e894a9cade3657ffe57b00d'
+			and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate} GROUP BY a.DevID
+			union ALL
+		-- 卡车产量(设备类型：红岩金刚)
+		select a.DevID as devid,sum((ifnull(a.column_1,0)+ifnull(a.column_2,0)+ifnull(a.column_3,0)+ifnull(a.column_4,0))) as rcl
+			from  t_pd_pbdetail a
+			left join T_PD_ProductionBill b on a.PBID = b.PBID
+			left join t_dm_device c on a.devid = c.devid
+			where a.procid = '82087e58b3924c55b0e542b8ee87e6a2' 
+			and c.dtid = '7981d77236a840898004c07c88f922e7'
+			and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate} GROUP BY a.DevID
+			union ALL
+			-- 铲运机产量
+			select a.DevID as devid,sum((ifnull(a.column_1,0)+ifnull(a.column_2,0)+ifnull(a.column_3,0)+ifnull(a.column_4,0))) as rcl
+			from  t_pd_pbdetail a
+			left join T_PD_ProductionBill b on a.PBID = b.PBID
+			left join t_dm_device c on a.devid = c.devid
+			where a.procid = '5e2b6e92a15747d39d314e0b245c6a6e' 
+			and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate} GROUP BY a.DevID
+			union all
+			-- 穿孔米数
+			select a.DevID as devid,sum((ifnull(a.column_1,0))) as rcl
+			from  t_pd_pbdetail a
+			left join T_PD_ProductionBill b on a.PBID = b.PBID
+			left join t_dm_device c on a.devid = c.devid
+			where a.procid = '289e476b86af45b2800ae099d5477853' 
+			and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate} GROUP BY a.DevID
+			union all
+			-- 破碎机产量
+			select a.DevID as devid,sum((ifnull(a.column_1,0))) as rcl
+			from  t_pd_pbdetail a
+			left join T_PD_ProductionBill b on a.PBID = b.PBID
+			left join t_dm_device c on a.devid = c.devid
+			where a.procid = 'f3554fc251d4408bba852eadb85ae2c2' 
+			and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(b.ReportDate,'%Y-%m-%d')<=$P{endDate} GROUP BY a.DevID
+)f on f.devid=d.DevID
+where DATE_FORMAT(d.SYSJ,'%Y-%m-%d')>=$P{startDate} and DATE_FORMAT(d.SYSJ,'%Y-%m-%d')<=$P{endDate}
+group by d.DevID,d.DevName
+) f on h.DevID = f.DevID
+inner join (select @i:=0) g]]></queryString>
+
+	<field name="xh" class="java.lang.Long"/>
+	<field name="DevID" class="java.lang.String"/>
+	<field name="DevName" class="java.lang.String"/>
+	<field name="tbzcb" class="java.lang.Double"/>
+	<field name="zcb" class="java.lang.Double"/>
+	<field name="tbcyxh" class="java.lang.Double"/>
+	<field name="cyxh" class="java.lang.Double"/>
+	<field name="cydh" class="java.lang.Double"/>
+	<field name="tbbjxh" class="java.lang.Double"/>
+	<field name="bjxh" class="java.lang.Double"/>
+	<field name="tbltxh" class="java.lang.Double"/>
+	<field name="ltxh" class="java.lang.Double"/>
+	<field name="tbrhyxh" class="java.lang.Double"/>
+	<field name="rhyxh" class="java.lang.Double"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="30"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="30"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="-30"
+						width="1241"
+						height="30"
+						key="staticText-1"/>
+					<box>					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[设备消耗分析]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="72"
+						height="30"
+						key="staticText-2"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[序号]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="72"
+						y="0"
+						width="92"
+						height="30"
+						key="staticText-3"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[设备名称]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="164"
+						y="0"
+						width="92"
+						height="30"
+						key="staticText-4"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[台班成本(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="256"
+						y="0"
+						width="86"
+						height="30"
+						key="staticText-5"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[总成本(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="342"
+						y="0"
+						width="129"
+						height="30"
+						key="staticText-6"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[台班柴油消耗(kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="572"
+						y="0"
+						width="101"
+						height="30"
+						key="staticText-7"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[柴油单耗(kg/t)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="673"
+						y="0"
+						width="117"
+						height="30"
+						key="staticText-8"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[备件单耗(元/t)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="790"
+						y="0"
+						width="91"
+						height="30"
+						key="staticText-9"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[备件消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="881"
+						y="0"
+						width="87"
+						height="30"
+						key="staticText-11"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[轮胎单耗(元/t)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1142"
+						y="0"
+						width="99"
+						height="30"
+						key="staticText-13"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[润滑油消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="471"
+						y="0"
+						width="101"
+						height="30"
+						key="staticText-26"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[柴油消耗(kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="968"
+						y="0"
+						width="87"
+						height="30"
+						key="staticText-27"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[轮胎消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1055"
+						y="0"
+						width="87"
+						height="30"
+						key="staticText-28"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[润滑油单耗(元/t)]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="30"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="72"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{xh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="72"
+						y="0"
+						width="92"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{DevName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="164"
+						y="0"
+						width="92"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{tbzcb}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="256"
+						y="0"
+						width="86"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{zcb}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="342"
+						y="0"
+						width="129"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{tbcyxh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="471"
+						y="0"
+						width="101"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{cyxh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="673"
+						y="0"
+						width="117"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{tbbjxh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="790"
+						y="0"
+						width="91"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{bjxh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="881"
+						y="0"
+						width="87"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{tbltxh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1142"
+						y="0"
+						width="99"
+						height="30"
+						key="textField"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{rhyxh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="572"
+						y="0"
+						width="101"
+						height="30"
+						key="textField-1"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{cydh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="968"
+						y="0"
+						width="87"
+						height="30"
+						key="textField-2"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{ltxh}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1055"
+						y="0"
+						width="87"
+						height="30"
+						key="textField-3"
+						stretchType="RelativeToTallestObject"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isUnderline="false" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{tbrhyxh}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+		<noData>
+			<band height="100"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="60"
+						width="1241"
+						height="40"
+						key="staticText-14"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[此查询条件下没有数据！]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="1241"
+						height="30"
+						key="staticText-15"/>
+					<box>					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="14" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[设备消耗分析]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="30"
+						width="72"
+						height="30"
+						key="staticText-29"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[序号]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="72"
+						y="30"
+						width="92"
+						height="30"
+						key="staticText-30"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[设备名称]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="164"
+						y="30"
+						width="92"
+						height="30"
+						key="staticText-31"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[台班成本(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="256"
+						y="30"
+						width="86"
+						height="30"
+						key="staticText-32"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[总成本(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="342"
+						y="30"
+						width="129"
+						height="30"
+						key="staticText-33"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[台班柴油消耗(kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="471"
+						y="30"
+						width="101"
+						height="30"
+						key="staticText-34"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[柴油单耗(kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="572"
+						y="30"
+						width="101"
+						height="30"
+						key="staticText-35"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[柴油消耗(kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="673"
+						y="30"
+						width="117"
+						height="30"
+						key="staticText-36"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[台班备件消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="790"
+						y="30"
+						width="91"
+						height="30"
+						key="staticText-37"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[备件消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="881"
+						y="30"
+						width="87"
+						height="30"
+						key="staticText-38"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[轮胎消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="968"
+						y="30"
+						width="87"
+						height="30"
+						key="staticText-39"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[轮胎消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1055"
+						y="30"
+						width="87"
+						height="30"
+						key="staticText-40"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[轮胎消耗(元)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1142"
+						y="30"
+						width="99"
+						height="30"
+						key="staticText-41"/>
+					<box>					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="宋体" pdfFontName="STSong-Light" size="12" isBold="true" isPdfEmbedded ="true" pdfEncoding ="UniGB-UCS2-H"/>
+					</textElement>
+				<text><![CDATA[润滑油消耗(元)]]></text>
+				</staticText>
+			</band>
+		</noData>
+</jasperReport>

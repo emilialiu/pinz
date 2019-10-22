@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dimine.pub.dao.TomatterDao"> 
+	
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		matterid,mattername,date_format(addtime,'%Y-%m-%d %H:%i:%s') addtime,t.memo,linkurl,date_format(handletime,'%Y-%m-%d %H:%i:%s') handletime
+	</sql>
+	
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (mattername like '%${param}%')
+			</if>
+			<if test="matterid != null and matterid != '' and matterid !='null'" >
+				and matterid=#{matterid}
+			</if>
+			<if test="mattertype != null and mattertype != ''" >
+				and mattertype=#{mattertype}
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		INSERT INTO T_PUB_TOMATTER(matterid,mattername,addtime,mattertype,memo,linkurl,handlename)
+		VALUES(#{matterid},#{mattername},#{addtime},#{mattertype},#{memo},#{linkurl},#{handlename})
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object">
+		UPDATE T_PUB_TOMATTER 
+		SET mattertype=#{mattertype},memo=#{memo},linkurl=#{linkurl} 
+		WHERE matterid=#{matterid}
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM T_PUB_TOMATTER WHERE matterid=#{matterid}
+	</delete>
+	
+	<select id="selectById" resultType="com.dimine.pub.entity.TomatterEntity" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM T_PUB_TOMATTER t WHERE matterid=#{matterid}
+	</select>
+	
+	<!-- 根据当前登录人id取得此人处理的待办信息列表 -->
+	<select id="getTomatterListByUserid" resultType="com.dimine.pub.entity.TomatterEntity" parameterType="java.lang.String">
+		SELECT matterid,mattername FROM T_PUB_TOMATTER WHERE mattertype = 'CLZT001' AND handlename=#{value}
+	</select>
+
+	<!-- 系统待办列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM T_PUB_TOMATTER t LEFT JOIN SYS_DICT d ON t.MATTERTYPE = d.DICTID 
+		LEFT JOIN SYS_USER u ON t.HANDLENAME = u.USERID 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询待办列表 -->
+	<select id="selectByList" resultType="com.dimine.pub.entity.TomatterEntity" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List"/>, d.PARAMNAME mattertype, u.username handlename 
+		FROM T_PUB_TOMATTER t LEFT JOIN SYS_DICT d ON t.MATTERTYPE = d.DICTID 
+		LEFT JOIN SYS_USER u ON t.HANDLENAME = u.USERID
+		<include refid="Base_Where"/>
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	<!-- 统计当前用户未办事项-->
+	<select id="countMatterByUser" resultType="java.lang.Integer" parameterType="Object">
+		 select count(1)  from  t_pub_tomatter where MATTERTYPE = #{mattertype} and HANDLENAME = #{handlename}
+	</select>
+	<!-- 查询当前用户未办事项 -->
+	<select id="findMatterByuser"  resultType="com.dimine.pub.entity.TomatterEntity" parameterType="Object">
+		SELECT
+		 matterid,
+		 mattername,
+		 date_format(addtime,'%Y-%m-%d %H:%i:%s') addtime,
+		 memo,
+		 linkurl,
+		 date_format(handletime,'%Y-%m-%d %H:%i:%s') handletime,
+		 HANDLENAME
+  		from  t_pub_tomatter where  MATTERTYPE = #{mattertype} and HANDLENAME = #{handlename}
+	</select>
+</mapper>

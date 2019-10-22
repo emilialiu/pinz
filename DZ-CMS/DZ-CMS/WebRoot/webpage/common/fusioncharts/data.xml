@@ -1,0 +1,15 @@
+<graph exportFileName='Column3D' exportEnabled='1' exportAction='download' exportAtClient='0' exportDialogMessage='正在生成,请稍候...' exportFormats='JPEG=另存为JPEG图片|PNG=另存为PNG图片|PDF=另存为PDF文件' exportHandler='/dmframedev1/FCExporter.do' baseFont='SunSim' baseFontSize='12' caption='矿月生产统计' subcaption='' yAxisMinValue='51650.1' yAxisMaxValue='71118.3' xaxisname='月份' yaxisname='数量' hovercapbg='FFECAA' hovercapborder='F47E00' formatNumberScale='0' decimalPrecision='0' showvalues='1' numdivlines='10' numVdivlines='0' shownames='1' rotateNames='1'>  
+  <set name='2014-01' value='57653' color='AFD8F8'/>  
+  <set name='2014-02' value='57389' color='F6BD0F'/>  
+  <set name='2014-03' value='59256' color='8BBA00'/>  
+  <set name='2014-04' value='62762' color='FF8E46'/>  
+  <set name='2014-05' value='63287' color='008E8E'/>  
+  <set name='2014-06' value='60109' color='D64646'/>  
+  <set name='2014-07' value='64653' color='8E468E'/>  
+  <set name='2014-08' value='61687' color='588526'/>  
+  
+  <set name='2014-09' value='64287' color='ee8E8E'/>  
+  <set name='2014-10' value='50109' color='Dbb646'/>  
+  <set name='2014-11' value='60653' color='8cc68E'/>  
+  <set name='2014-12' value='64687' color='5dd526'/>  
+</graph>

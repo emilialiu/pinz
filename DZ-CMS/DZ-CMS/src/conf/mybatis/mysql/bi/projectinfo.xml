@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.bi.dao.ProjectinfoDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.bi.entity.ProjectinfoEntity" >
+		<result column="projectid" property="projectid"/>
+		<result column="deptid" property="deptid"/>
+		<result column="parentitemid" property="parentitemid"/>
+		<result column="projectname" property="projectname"/>
+		<result column="projectcode" property="projectcode"/>
+		<result column="projecttype" property="projecttype"/>
+		<result column="projectlevel" property="projectlevel"/>
+		<result column="projectstatus" property="projectstatus"/>
+		<result column="isdel" property="isdel"/>
+		<result column="indexno" property="indexno"/>
+		<result column="isleaf" property="isleaf"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="modifyid" property="modifyid"/>
+		<result column="modifydate" property="modifydate"/>
+		<result column="memo" property="memo"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		projectid,
+		parentitemid,
+		projectname,
+		projectcode,
+		projecttype,
+		projectlevel,
+		projectstatus,
+		isdel,
+		indexno,
+		isleaf,
+		createid,
+		createdate,
+		modifyid,
+		modifydate,
+		memo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (
+				p.projectname like '%${param}%'  or 
+				projecttype like '%${param}%' 
+				)
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+			<if test="deptid != null and deptid != ''" >
+				and deptid = #{deptid}
+			</if>
+			<if test="isdel != null and isdel != ''" >
+				and isdel = #{isdel}
+			</if>
+			<if test="parentitemid != null and parentitemid != ''" >
+				and parentitemid = #{parentitemid}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" />,
+			(select projectname from t_bi_projectinfo b where b.projectid = a.parentitemid) parentname 
+		FROM t_bi_projectinfo a WHERE projectid = #{projectid} 		
+	</select>
+
+	<!-- 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_bi_projectinfo p
+		<include refid="Base_Where"/>
+		and isdel='0' 
+	</select>
+	
+	<!-- 根据作业地点查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List" />
+		FROM t_bi_projectinfo p
+		<include refid="Base_Where"/>
+		and isdel='0' 
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>		
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+	
+	<select id="getAllList" resultType="com.dimine.bi.entity.ProjectinfoEntity" parameterType="com.dimine.bi.entity.ProjectinfoEntity">
+	<!-- cacheModel="dept-cache" -->
+		SELECT projectid, projectname, parentitemid, projectlevel, isleaf, 
+			(select count(1) from t_bi_projectinfo b where b.parentitemid = a.projectid and b.isdel = '0' ) childCount
+		FROM t_bi_projectinfo a WHERE isdel = '0' 
+		<if test="projectid ==null or projectid =='' " >
+			and parentitemid is null
+		</if>
+		<if test="projectid != null and projectid != ''" >
+			and parentitemid = #{projectid}
+		</if>
+		<if test="deptid != null and deptid != ''" >
+			and deptid = #{deptid}
+		</if>
+		ORDER BY indexno,ProjectName desc
+	</select>
+	
+	<select id="getGCJB" resultType="com.dimine.bi.entity.ProjectinfoEntity" parameterType="com.dimine.bi.entity.ProjectinfoEntity">
+	<!-- cacheModel="dept-cache" -->
+		SELECT projectid, projectname, parentitemid, projectlevel, isleaf, 
+			(select count(1) from t_bi_projectinfo b where b.parentitemid = a.projectid and b.isdel = '0' and b.ProjectLevel not in ('GCJB003') ) childCount
+		FROM t_bi_projectinfo a WHERE isdel = '0' and ProjectLevel not in ('GCJB003')
+		<if test="projectid ==null or projectid =='' " >
+			and parentitemid is null
+		</if>
+		<if test="projectid != null and projectid != ''" >
+			and parentitemid = #{projectid}
+		</if>
+		<if test="deptid != null and deptid != ''" >
+			and deptid = #{deptid}
+		</if>
+		ORDER BY indexno
+	</select>
+	
+	<select id="getProjectinfoData" resultType="com.dimine.bi.entity.ProjectinfoEntity" parameterType="com.dimine.bi.entity.ProjectinfoEntity">
+		select a.ProjectID,a.ProjectName from t_bi_projectinfo a 
+		where ParentItemID = '68a02e75f0ab4b578569119730005ab4' and a.isdel = '0' and  a.isupload = '0' and a.ProjectStatus = '0'
+		<!-- select c.ProjectID,c.ProjectName from t_bi_projectinfo a
+		left join t_bi_projectinfo c on a.ParentItemID = c.ProjectID
+		where  a.isdel = '0' and  a.isupload = '0' and a.ProjectStatus = '0' and 
+		(
+			find_in_set(a.ParentItemID,FUNC_FIND_CHILDREN_PROJECTID('68a02e75f0ab4b578569119730005ab4'))>0  
+			or 
+			find_in_set(a.ParentItemID,FUNC_FIND_CHILDREN_PROJECTID('168d149d1b6649db8f31804f0c86a5bd'))>0  
+		)
+		and not exists(select projectid from t_bi_projectinfo b where b.parentitemid = a.projectid)
+		group by c.ProjectID desc -->
+	</select>
+	
+	<select id="getchildData" resultType="com.dimine.bi.entity.ProjectinfoEntity" parameterType="com.dimine.bi.entity.ProjectinfoEntity">
+		select a.projectid,a.projectname as projectname from t_bi_projectinfo a
+		left join t_bi_projectinfo c on a.ParentItemID = c.ProjectID
+		where  a.isdel = '0' and  a.isupload = '0' and a.ProjectStatus = '0' <!-- and 
+		(
+			find_in_set(a.ParentItemID,FUNC_FIND_CHILDREN_PROJECTID('68a02e75f0ab4b578569119730005ab4'))>0  
+			or 
+			find_in_set(a.ParentItemID,FUNC_FIND_CHILDREN_PROJECTID('168d149d1b6649db8f31804f0c86a5bd'))>0  
+		) -->
+		and not exists(select projectid from t_bi_projectinfo b where b.parentitemid = a.projectid)
+		and a.ParentItemID = #{projectid}
+		order by a.parentitemid,a.indexno,a.projectname desc
+	</select>
+	
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_bi_projectinfo(projectid, deptid, parentitemid, projectname, projectcode, projecttype, projectstatus,projectlevel, isdel, indexno, isleaf, createid, createdate, memo)
+		VALUES(#{projectid},#{deptid},#{parentitemid},#{projectname},#{projectcode},#{projecttype},#{projectstatus},#{projectlevel},'0', #{indexno},#{isleaf},#{createid},now(),#{memo})
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_bi_projectinfo SET
+		projectid = #{projectid},
+		parentitemid = #{parentitemid},
+		projectname = #{projectname},
+		projectcode = #{projectcode},
+		projectstatus = #{projectstatus},
+		projectlevel = #{projectlevel},
+		isleaf = #{isleaf},
+		indexno = #{indexno},
+		modifyid = #{modifyid},
+		modifydate = now(),
+		memo = #{memo}
+		WHERE projectid = #{projectid}
+	</update>	
+	<!-- 根据id，修改名称-->  
+	<update id="updateProName" parameterType="Object">
+		UPDATE t_bi_projectinfo SET projectid = #{projectid}, projectname = #{projectname} WHERE projectid = #{projectid}
+	</update>	
+	<update id="deleteProject" parameterType="Object">
+		UPDATE t_bi_projectinfo SET isdel = '1' WHERE projectid = #{projectid}
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_bi_projectinfo WHERE projectid = #{projectid} 		
+	</delete>
+	<!-- 更新工程信息父节点ID(aParentItemID)--> 	
+	<select id="updateAparentItemID" statementType="CALLABLE">
+		{call PRO_UpdateAparentItemID(#{deptid,mode=IN,jdbcType=VARCHAR})}
+	</select>
+	
+	<select id="projectBySql" resultType="com.dimine.bi.entity.ProjectinfoEntity" parameterType="java.lang.String">
+		${value}
+	</select>
+	
+	<update id="updateIsupload" parameterType="Object">
+		UPDATE t_bi_projectinfo SET isupload = #{isupload} WHERE projectid = #{projectid}
+	</update>
+	<!-- 作业地点名称是否存在 -->
+	<select id="getProjectExist" parameterType="Object" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM t_bi_projectinfo WHERE projectname = #{projectname} 
+		AND projectid != #{projectid} AND parentitemid = #{parentitemid} AND isdel='0' 
+	</select>
+</mapper>   

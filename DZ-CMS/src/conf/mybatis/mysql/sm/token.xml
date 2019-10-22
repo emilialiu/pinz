@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dimine.sm.dao.TokenDao" >
+	<!-- Result Map-->
+	<resultMap id="BaseResultMap" type="com.dimine.sm.entity.TokenEntity" >
+		<result column="tokenid" property="tokenid"/>
+		<result column="userid" property="userid"/>
+		<result column="deptid" property="deptid"/>
+		<result column="loginname" property="loginname"/>
+		<result column="loginpwd" property="loginpwd"/>
+		<result column="logintime" property="logintime"/>
+		<result column="createid" property="createid"/>
+		<result column="createdate" property="createdate"/>
+		<result column="memo" property="memo"/>
+	</resultMap>
+		   
+	<!-- sys_role table all fields -->
+	<sql id="Base_Column_List" >
+		tokenid,
+		userid,
+		deptid,
+		loginname,
+		loginpwd,
+		logintime,
+		createid,
+		createdate,
+		memo
+	</sql>	   
+	   
+	<!-- 查询条件 -->
+	<sql id="Base_Where">
+		WHERE 1=1
+		<trim suffixOverrides="," >
+			<if test="param != null and param != ''" >
+				and (
+				itemname like '%${param}%' 
+				)
+			</if>
+			<if test="query != null and query != ''" >
+				${query}
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- 根据id查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Object">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM t_sm_token 
+		WHERE tokenid = #{tokenid} 		
+	</select>
+
+	<!-- 列表总数-->
+	<select id="selectByCount" resultType="java.lang.Integer" parameterType="Object">
+		SELECT count(1) FROM t_sm_token 
+		<include refid="Base_Where"/>
+	</select>
+
+	<!-- 查询列表 -->
+	<select id="selectByList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT 
+		<include refid="Base_Column_List"/>
+		FROM t_sm_token 
+		<include refid="Base_Where"/>
+		<if test="pager.orderCondition != null and pager.orderCondition != ''" >
+		${pager.orderCondition}
+		</if>		
+		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''" >
+		${pager.mysqlQueryCondition}
+		</if>
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object" >
+		INSERT INTO t_sm_token(
+		tokenid,
+		userid,
+		deptid,
+		loginname,
+		loginpwd,
+		logintime,
+		createid,
+		createdate,
+		memo
+		)
+		VALUES(		
+		#{tokenid},
+		#{userid},
+		#{deptid},
+		#{loginname},
+		#{loginpwd},
+		NOW(),
+		#{createid},
+		NOW(),
+		#{memo}
+		)
+	</insert>
+	<!-- 根据id，修改记录-->  
+	<update id="update" parameterType="Object" >
+		UPDATE t_sm_token 
+		SET 		
+		tokenid = #{tokenid},
+		userid = #{userid},
+		deptid = #{deptid},
+		loginname = #{loginname},
+		loginpwd = #{loginpwd},
+		logintime = NOW(),
+		createid = #{createid},
+		createdate = NOW(),
+		memo = #{memo}
+		WHERE tokenid = #{tokenid} 		
+	</update>	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		DELETE FROM t_sm_token		
+		WHERE tokenid = #{tokenid} 		
+	</delete>
+	
+</mapper>   
