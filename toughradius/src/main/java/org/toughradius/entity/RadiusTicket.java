@@ -55,8 +55,18 @@ public class RadiusTicket {
     private Integer inVlan;
 
     private Integer outVlan;
+    
+    private Integer accountTimes;
 
-    public Long getId() {
+    public Integer getAccountTimes() {
+		return accountTimes;
+	}
+
+	public void setAccountTimes(Integer accountTimes) {
+		this.accountTimes = accountTimes;
+	}
+
+	public Long getId() {
         return id;
     }
 
@@ -290,7 +300,8 @@ public class RadiusTicket {
         buff.append("acctStartTime").append(",");
         buff.append("acctStopTime").append(",");
         buff.append("inVlan").append(",");
-        buff.append("outVlan");
+        buff.append("outVlan").append(","); 
+        buff.append("acctTimes");
         return buff.toString();
     }
 

@@ -61,6 +61,7 @@ public class FreeradiusService {
      * @throws RadiusException
      */
     private void addOnline(FreeradiusAcctRequest request, Bras nas, Subscribe user) throws RadiusException {
+ 
         if(user==null){
             String errMessage = "用户不存在或状态未启用（记账请求） " + request.getAcctStatusType();
             logger.error(request.getUsername(), errMessage, Memarylogger.RADIUSD);
@@ -96,8 +97,7 @@ public class FreeradiusService {
         online.setNasPort(0L);
         online.setNasClass("");
         online.setNasPortId(request.getNasPortId());
-        online.setServiceType(0);
-        online.setMacAddr(request.getMacAddr());
+        online.setServiceType(0); 
         online.setAcctSessionId(request.getAcctSessionId());
         online.setAcctSessionTime(request.getAcctSessionTime());
         online.setAcctInputTotal(request.getAcctInputTotal());
@@ -160,6 +160,7 @@ public class FreeradiusService {
             radiusTicket.setAcctOutputPackets(request.getAcctOutputPackets());
             radiusTicket.setAcctStopTime(new Date());
             radiusTicket.setAcctStartTime(DateTimeUtil.toDate(request.getAcctStartTime()));
+            radiusTicket.setAccountTimes(online.getAccTimes());
             ticketCache.addTicket(radiusTicket);
         }catch (Exception e) {
             logger.error(request.getUsername(), "用户下线处理错误", e, Memarylogger.RADIUSD);

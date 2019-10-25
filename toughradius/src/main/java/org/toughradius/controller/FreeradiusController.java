@@ -1,29 +1,39 @@
 package org.toughradius.controller;
 
 
-import com.google.gson.Gson;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.tinyradius.util.RadiusException;
-import org.toughradius.common.DateTimeUtil;
-import org.toughradius.common.ValidateUtil;
-import org.toughradius.component.*;
-import org.toughradius.entity.Bras;
-import org.toughradius.entity.Subscribe;
-import org.toughradius.form.FreeradiusAcctRequest;
-import org.toughradius.form.FreeradiusAuthRequest;
+import static org.toughradius.handler.RadiusConstant.VENDOR_MIKROTIK;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.toughradius.handler.RadiusConstant.VENDOR_MIKROTIK;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-@Controller
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.tinyradius.util.RadiusException;
+import org.toughradius.common.DateTimeUtil;
+import org.toughradius.common.ValidateUtil;
+import org.toughradius.component.BrasService;
+import org.toughradius.component.ConfigService;
+import org.toughradius.component.FreeradiusService;
+import org.toughradius.component.Memarylogger;
+import org.toughradius.component.RadiusAuthStat;
+import org.toughradius.component.RadiusStat;
+import org.toughradius.component.ServiceException;
+import org.toughradius.component.SubscribeCache;
+import org.toughradius.entity.Bras;
+import org.toughradius.entity.Subscribe;
+import org.toughradius.form.FreeradiusAcctRequest;
+import org.toughradius.form.FreeradiusAuthRequest;
+
+import com.google.gson.Gson;
+
+@RestController
 public class FreeradiusController {
 
     @Autowired
@@ -142,7 +152,7 @@ public class FreeradiusController {
      * @throws Exception
      */
     @PostMapping(value = {"/api/freeradius/authorize"})
-    public void authorize(FreeradiusAuthRequest request, HttpServletResponse response) throws Exception {
+    public void authorize(@RequestBody FreeradiusAuthRequest request, HttpServletResponse response) throws Exception {
         String username = request.getUsername();
         String nasip = request.getNasip();
         String nasid = request.getNasid();
@@ -194,7 +204,7 @@ public class FreeradiusController {
     }
 
     @PostMapping(value = {"/api/freeradius/accounting"})
-    public void accounting(FreeradiusAcctRequest request, HttpServletResponse response) throws Exception {
+    public void accounting(@RequestBody  FreeradiusAcctRequest request, HttpServletResponse response) throws Exception {
         try {
             radiusStat.incrAcctReq();
             final Bras nas = getNas(request.getNasip(), request.getNasid());

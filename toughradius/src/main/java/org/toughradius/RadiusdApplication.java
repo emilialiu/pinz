@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //@EnableTransactionManagement()
 @EnableScheduling
 @Configuration
-@EnableCaching
+@EnableCaching 
 public class RadiusdApplication {
 
     public static void main(String[] args) throws Exception {

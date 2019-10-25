@@ -122,6 +122,9 @@ public class RadiusAccountingFilter {
         online.setAcctInputPackets(request.getAcctInputPackets());
         online.setAcctOutputPackets(request.getAcctOutputPackets());
         online.setAcctStartTime(request.getAcctStartTime());
+        
+        //ADD
+        online.setAccTimes(request.getAccTimes());
         onlineCache.putOnline(online);
         if(radiusConfig.isTrace()){
             logger.info(request.getUsername(),String.format(":: 新增用户在线信息: sessionId=%s", request.getAcctSessionId()), Memarylogger.RADIUSD);
@@ -177,6 +180,10 @@ public class RadiusAccountingFilter {
             radiusTicket.setAcctOutputPackets(request.getAcctOutputPackets());
             radiusTicket.setAcctStopTime(new Date());
             radiusTicket.setAcctStartTime(DateTimeUtil.toDate(request.getAcctStartTime()));
+            
+
+            //ADD
+            radiusTicket.setAccountTimes(online.getAccTimes()); 
             ticketCache.addTicket(radiusTicket);
         }catch (Exception e) {
             logger.error(request.getUsername(), "用户下线处理错误", e, Memarylogger.RADIUSD);

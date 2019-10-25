@@ -167,7 +167,8 @@ public class TicketCache {
                     }
                     if(DateTimeUtil.compareSecond(logdata.getAcctStartTime(),DateTimeUtil.toDate(endDate))>0){
                         continue;
-                    }
+                    }  
+
 
                     index++;
                     if (index >= start && index <= end){

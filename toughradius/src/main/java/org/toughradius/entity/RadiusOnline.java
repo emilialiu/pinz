@@ -58,9 +58,19 @@ public class RadiusOnline implements Cloneable{
     private Integer outVlan;
 
     private boolean radsec;
+    
+    private Integer accTimes;
 
 
-    @Override
+    public Integer getAccTimes() {
+		return accTimes;
+	}
+
+	public void setAccTimes(Integer accTimes) {
+		this.accTimes = accTimes;
+	}
+
+	@Override
     public RadiusOnline clone() throws CloneNotSupportedException {
         return (RadiusOnline) super.clone();
     }

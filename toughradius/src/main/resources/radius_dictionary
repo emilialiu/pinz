@@ -81,6 +81,7 @@ ATTRIBUTE	Login-IPv6-Host		98	octets
 ATTRIBUTE	Framed-IPv6-Route	99	string
 ATTRIBUTE	Framed-IPv6-Pool	100	string
 ATTRIBUTE	Error-Cause		101	integer
+ATTRIBUTE	Acct-time-Octets	111	integer 
 ATTRIBUTE	Framed-IPv6-Address	168	ipv6addr
 ATTRIBUTE	DNS-Server-IPv6-Address	169	ipv6addr
 ATTRIBUTE	Route-IPv6-Information	170	octets
@@ -88,6 +89,7 @@ ATTRIBUTE	Delegated-IPv6-Prefix-Pool 171	string
 ATTRIBUTE	Stateful-IPv6-Address-Pool 172	string
 ATTRIBUTE	Digest-Response		206	string
 ATTRIBUTE	Digest-Attributes	207	octets
+
 
 ################################################
 # Attribute values

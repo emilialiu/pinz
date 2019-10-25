@@ -233,4 +233,14 @@ public class AccountingRequest extends RadiusPacket {
 		return s.toString();
 	}
 
+ 
+
+	public Integer getAccTimes() {
+		try{
+			return getAttribute(111).getIntValue();
+		} catch(Exception e){
+		    return 0;
+		} 
+	}
+
 }
