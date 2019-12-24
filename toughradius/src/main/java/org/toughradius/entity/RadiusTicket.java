@@ -331,14 +331,15 @@ public class RadiusTicket {
         buff.append(DateTimeUtil.toDateTimeString(acctStartTime)).append(",");
         buff.append(DateTimeUtil.toDateTimeString(acctStopTime)).append(",");
         buff.append(safestr(inVlan)).append(",");
-        buff.append(safestr(outVlan));
+        buff.append(safestr(outVlan)).append(",");
+        buff.append(safestr(accountTimes));
         return buff.toString();
     }
 
     public static RadiusTicket fromString(String line) {
         try{
             String [] strs = line.trim().split(",");
-            if(strs.length!=25){
+            if(strs.length!=26){
                 return null;
             }
             RadiusTicket log = new RadiusTicket();
@@ -367,6 +368,8 @@ public class RadiusTicket {
             log.setAcctStopTime(DateTimeUtil.toDate(strs[22]));
             log.setInVlan(Integer.valueOf(strs[23]));
             log.setOutVlan(Integer.valueOf(strs[24]));
+
+            log.setAccountTimes(Integer.valueOf(strs[25]));
             return log;
         } catch(Exception e){
             return null;

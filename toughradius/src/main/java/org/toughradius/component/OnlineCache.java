@@ -412,6 +412,7 @@ public class OnlineCache {
                 online.setAcctOutputTotal(request.getAcctOutputTotal());
                 online.setAcctInputPackets(request.getAcctInputPackets());
                 online.setAcctOutputPackets(request.getAcctOutputPackets());
+                online.setAccTimes(request.getAccTimes());
             }
         } finally {
             lock.unLock();

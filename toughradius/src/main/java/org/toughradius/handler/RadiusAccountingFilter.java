@@ -180,8 +180,7 @@ public class RadiusAccountingFilter {
             radiusTicket.setAcctOutputPackets(request.getAcctOutputPackets());
             radiusTicket.setAcctStopTime(new Date());
             radiusTicket.setAcctStartTime(DateTimeUtil.toDate(request.getAcctStartTime()));
-            
-
+             
             //ADD
             radiusTicket.setAccountTimes(online.getAccTimes()); 
             ticketCache.addTicket(radiusTicket);
